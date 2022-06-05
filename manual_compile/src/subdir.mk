@@ -5,6 +5,7 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../src/main.c \
+../src/stm32f4xx_hal_msp.c \
 ../src/stm32f429i_discovery.c \
 ../src/stm32f429i_discovery_eeprom.c \
 ../src/stm32f429i_discovery_io.c \
@@ -15,6 +16,7 @@ C_SRCS += \
 
 OBJS += \
 ./src/main.o \
+./src/stm32f4xx_hal_msp.o \
 ./src/stm32f429i_discovery.o \
 ./src/stm32f429i_discovery_eeprom.o \
 ./src/stm32f429i_discovery_io.o \
@@ -25,6 +27,7 @@ OBJS += \
 
 C_DEPS += \
 ./src/main.d \
+./src/stm32f4xx_hal_msp.d \
 ./src/stm32f429i_discovery.d \
 ./src/stm32f429i_discovery_eeprom.d \
 ./src/stm32f429i_discovery_io.d \

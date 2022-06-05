@@ -19,13 +19,6 @@
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 
-/* Definition for TIMx clock resources */
-#define TIMx                           TIM3
-#define TIMx_CLK_ENABLE                __HAL_RCC_TIM3_CLK_ENABLE
-
-/* Definition for TIMx's NVIC */
-#define TIMx_IRQn                      TIM3_IRQn
-#define TIMx_IRQHandler                TIM3_IRQHandler
 
 /* SID interface functions */
 void ConfigureGPIOPorts(void)
@@ -196,7 +189,6 @@ void SID_Set_Register(int address, int data)
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef    TimHandle;
-TIM_HandleTypeDef htim2;
 
 
 uint16_t uwPrescalerValue = 0;
@@ -245,9 +237,9 @@ void TB_init(void)
   */
   TimHandle.Init.Period = 10000 - 1;
   TimHandle.Init.Prescaler = uwPrescalerValue;
-  TimHandle.Init.ClockDivision = 0;
+  TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
-
+  //TimHandle.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if(HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
   {
     /* Initialization Error */
@@ -262,6 +254,7 @@ void TB_init(void)
     Error_Handler();
   }
     __HAL_TIM_ENABLE_IT(&TimHandle, TIM_IT_UPDATE);
+    //TIMx_CLK_ENABLE();
 
   BSP_LED_On(LED3);
 }
@@ -370,9 +363,10 @@ static void Error_Handler(void)
  *
  * COPYRIGHT(c) 2014 STMicroelectronics
  */
-static void SystemClock_Config(void) {
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
-    RCC_OscInitTypeDef RCC_OscInitStruct;
+static void SystemClock_Config(void)
+{
+    RCC_ClkInitTypeDef RCC_ClkInitStruct={0};
+    RCC_OscInitTypeDef RCC_OscInitStruct={0};
     RCC_PeriphCLKInitTypeDef PeriphClkInitStruct;
 
     /* Enable Power Control clock */
@@ -399,7 +393,8 @@ static void SystemClock_Config(void) {
 
     /* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2
      clocks dividers */
-    RCC_ClkInitStruct.ClockType = (RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2);
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_HCLK |
+                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;

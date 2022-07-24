@@ -563,10 +563,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
         default:
             MIDI_ReceiveState=idle;
     }
-    //HAL_UART_DeInit(&UartHandle);
-    while (HAL_UART_Init(&UartHandle) != HAL_OK &&
-        HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, 1)!=HAL_OK)
-            ;
+    HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, 1);
 }
 
 /**

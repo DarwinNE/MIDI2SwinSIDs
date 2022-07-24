@@ -1,11 +1,11 @@
 /**
   ******************************************************************************
-  * @file    LTDC/LTDC_Display_2Layers/Src/stm32f4xx_it.c 
+  * @file    LTDC/LTDC_Display_2Layers/Src/stm32f4xx_it.c
   * @author  MCD Application Team
   * @version V1.0.1
   * @date    26-February-2014
   * @brief   Main Interrupt Service Routines.
-  *          This file provides template for all exceptions handler and 
+  *          This file provides template for all exceptions handler and
   *          peripherals interrupt service routine.
   ******************************************************************************
   * @attention
@@ -53,6 +53,8 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 extern TIM_HandleTypeDef    TimHandle;
+extern UART_HandleTypeDef UartHandle;
+
 
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
@@ -177,6 +179,19 @@ void TIMx_IRQHandler(void)
 }
 
 /**
+  * @brief  This function handles UART interrupt request.
+  * @param  None
+  * @retval None
+  * @Note   This function is redefined in "main.h" and related to DMA stream
+  *         used for USART data transmission
+  */
+void USARTx_IRQHandler(void)
+{
+  HAL_UART_IRQHandler(& UartHandle);
+}
+
+
+/**
   * @brief  This function handles PPP interrupt request.
   * @param  None
   * @retval None
@@ -191,7 +206,7 @@ void TIMx_IRQHandler(void)
 
 /**
   * @}
-  */ 
+  */
 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

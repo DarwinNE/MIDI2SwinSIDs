@@ -45,15 +45,46 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
+
 /* Definition for TIMx clock resources */
-#define TIMx                           TIM3
-#define TIMx_CLK_ENABLE                __TIM3_CLK_ENABLE
+#define TIMx                            TIM3
+#define TIMx_CLK_ENABLE                 __TIM3_CLK_ENABLE
 //__HAL_RCC_TIM3_CLK_ENABLE
 
 /* Definition for TIMx's NVIC */
-#define TIMx_IRQn                      TIM3_IRQn
-#define TIMx_IRQHandler                TIM3_IRQHandler
+#define TIMx_IRQn                       TIM3_IRQn
+#define TIMx_IRQHandler                 TIM3_IRQHandler
+
+
+/* User can use this section to tailor USARTx/UARTx instance used and associated 
+   resources */
+/* Definition for USARTx clock resources */
+#define USARTx                          USART1
+// NOTE: add __HAL_RCC_ prefix to some of those constants in the newer releases
+// of the HAL library.
+#define USARTx_CLK_ENABLE()             __USART1_CLK_ENABLE()
+#define USARTx_FORCE_RESET()            __USART1_FORCE_RESET()
+#define USARTx_RELEASE_RESET()          __USART1_RELEASE_RESET()
+#define USARTx_RX_GPIO_CLK_ENABLE()     __GPIOA_CLK_ENABLE()
+#define USARTx_TX_GPIO_CLK_ENABLE()     __GPIOA_CLK_ENABLE()
+
+/* Definition for USARTx Pins */
+#define USARTx_TX_PIN                   GPIO_PIN_9
+#define USARTx_TX_GPIO_PORT             GPIOA
+#define USARTx_TX_AF                    GPIO_AF7_USART1
+#define USARTx_RX_PIN                   GPIO_PIN_10
+#define USARTx_RX_GPIO_PORT             GPIOA
+#define USARTx_RX_AF                    GPIO_AF7_USART1
+
+/* Definition for USARTx's NVIC */
+#define USARTx_IRQn                     USART1_IRQn
+#define USARTx_IRQHandler               USART1_IRQHandler
+
+/* Size of Reception buffer */
+#define RXBUFFERSIZE                    256
+
+/* Exported macro ------------------------------------------------------------*/
+#define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
 
 /* Exported functions ------------------------------------------------------- */
 

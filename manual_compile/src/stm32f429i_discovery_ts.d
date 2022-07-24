@@ -19,8 +19,6 @@ src/stm32f429i_discovery_ts.o: ../src/stm32f429i_discovery_ts.c \
  ../system/include/stm32f4-hal/stm32f4xx_hal_adc.h \
  ../system/include/stm32f4-hal/stm32f4xx_hal_adc_ex.h \
  ../system/include/stm32f4-hal/stm32f4xx_hal_can.h \
- ../system/include/stm32f4-hal/stm32f4xx_hal_crc.h \
- ../system/include/stm32f4-hal/stm32f4xx_hal_cryp.h \
  ../system/include/stm32f4-hal/stm32f4xx_hal_dma2d.h \
  ../system/include/stm32f4-hal/stm32f4xx_hal_dac.h \
  ../system/include/stm32f4-hal/stm32f4xx_hal_dac_ex.h \
@@ -110,10 +108,6 @@ src/stm32f429i_discovery_ts.o: ../src/stm32f429i_discovery_ts.c \
 ../system/include/stm32f4-hal/stm32f4xx_hal_adc_ex.h:
 
 ../system/include/stm32f4-hal/stm32f4xx_hal_can.h:
-
-../system/include/stm32f4-hal/stm32f4xx_hal_crc.h:
-
-../system/include/stm32f4-hal/stm32f4xx_hal_cryp.h:
 
 ../system/include/stm32f4-hal/stm32f4xx_hal_dma2d.h:
 

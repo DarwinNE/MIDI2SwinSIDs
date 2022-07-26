@@ -65,6 +65,7 @@
 #define USARTx_CLK_ENABLE()             __USART1_CLK_ENABLE()
 #define USARTx_FORCE_RESET()            __USART1_FORCE_RESET()
 #define USARTx_RELEASE_RESET()          __USART1_RELEASE_RESET()
+//#define DMAx_CLK_ENABLE()               __DMA2_CLK_ENABLE()
 #define USARTx_RX_GPIO_CLK_ENABLE()     __GPIOA_CLK_ENABLE()
 #define USARTx_TX_GPIO_CLK_ENABLE()     __GPIOA_CLK_ENABLE()
 
@@ -76,9 +77,9 @@
 #define USARTx_RX_GPIO_PORT             GPIOA
 #define USARTx_RX_AF                    GPIO_AF7_USART1
 
-/* Definition for USARTx's NVIC */
 #define USARTx_IRQn                     USART1_IRQn
 #define USARTx_IRQHandler               USART1_IRQHandler
+
 
 /* Size of Reception buffer */
 #define RXBUFFERSIZE                    256

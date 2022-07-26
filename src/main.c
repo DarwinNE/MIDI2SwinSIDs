@@ -27,6 +27,8 @@ volatile UART_HandleTypeDef UartHandle;
 /* Buffer used for reception */
 uint8_t aRxBuffer[RXBUFFERSIZE];
 
+int receive=0;
+
 #define BASE_MIDI_NOTE 24
 uint16_t C64_freq_table[]={268,284,301,318,337,358,379,401,425,451,477,506,536,
     568,602,637,675,716,758,803,851,902,955,1012,1072,1136,1204,1275,1351,1432,
@@ -219,27 +221,27 @@ void SID_Set_Register(int address, int data)
 
 void SID_Play_Note(uint8_t key, uint8_t velocity)
 {
-    //key-=BASE_MIDI_NOTE;
-    //if (key<0 || key >= COUNTOF(C64_freq_table))
-        //return;
+    key-=BASE_MIDI_NOTE;
+    if (key<0 || key >= COUNTOF(C64_freq_table))
+        return;
     
-    /*SID_Set_Register(SID_VOICE1_FREQ_HI,
+    SID_Set_Register(SID_VOICE1_FREQ_HI,
         (uint8_t)((C64_freq_table[key] & 0xFF00)>>8));
     SID_Set_Register(SID_VOICE1_FREQ_LO,
-        (uint8_t)((C64_freq_table[key] & 0x00FF)));*/
+        (uint8_t)((C64_freq_table[key] & 0x00FF)));
     SID_Select(-1);
     SID_Set_Register(SID_MODE_VOL,  15);
     SID_Set_Register(SID_VOICE1_AD, 16+9);
     SID_Set_Register(SID_VOICE1_SR, 4*16+4);
-    SID_Set_Register(SID_VOICE1_FREQ_HI, 29);
-    SID_Set_Register(SID_VOICE1_FREQ_LO, 69);
+    /*SID_Set_Register(SID_VOICE1_FREQ_HI, 29);
+    SID_Set_Register(SID_VOICE1_FREQ_LO, 69);*/
     SID_Set_Register(SID_VOICE1_CONTROL, 17);
-    char buffer[256];
+    /*char buffer[256];
     sprintf(buffer,"NoteON  0x%x 0x%x",(int)key, (int)velocity);
 
     BSP_LCD_DisplayStringAtLineMode(12,
         (uint8_t *) buffer,
-        CENTER_MODE);
+        CENTER_MODE);*/
 }
 
 void SID_Stop_Note(void)
@@ -302,7 +304,7 @@ void TB_init(void)
        + ClockDivision = 0
        + Counter direction = Up
   */
-  TimHandle.Init.Period = 50 - 1;
+  TimHandle.Init.Period = 10000 - 1;
   TimHandle.Init.Prescaler = uwPrescalerValue;
   TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -350,7 +352,7 @@ int main(void)
     UartHandle.Init.StopBits     = UART_STOPBITS_1;
     UartHandle.Init.Parity       = UART_PARITY_NONE;
     UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
-    UartHandle.Init.Mode         = UART_MODE_TX_RX;
+    UartHandle.Init.Mode         = UART_MODE_RX;
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
     
     if(HAL_UART_Init(&UartHandle) != HAL_OK) {
@@ -377,23 +379,84 @@ int main(void)
         (uint8_t *) "Copyright 2022", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(8,
         (uint8_t *) "Davide Bucci", CENTER_MODE);
-
+    receive=0;
     /*##-2- Put UART peripheral in reception process #####################*/  
-    if(HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, 1) != HAL_OK) {
+    if(HAL_UART_Receive_IT(&UartHandle, aRxBuffer, 1) != HAL_OK) {
         Error_Handler();
     }
-
-
+    receive=0;
     while (1) {
         BSP_LED_Toggle(LED4);
-        HAL_Delay(500);
-        BSP_LED_Off(LED3);
-        BSP_LCD_DisplayStringAtLineMode(10,
-            (uint8_t *) "            ", CENTER_MODE);
-        BSP_LCD_DisplayStringAtLineMode(12,
-            (uint8_t *) "            ", CENTER_MODE);
+        /*if(HAL_UART_Receive(&UartHandle, (uint8_t *)aRxBuffer, 1, 500)==HAL_OK)
+            HAL_UART_RxCpltCallback(&UartHandle);*/
+        
     }
 }
+
+    
+volatile int velocity;
+volatile int key;
+
+/**
+  * @brief  Rx Transfer completed callback
+  * @param  handle: UART handle
+  * @note
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
+{
+    if(handle->Instance !=USARTx)
+        return;
+
+    uint8_t rec = aRxBuffer[0];
+    int channel = rec & 0x0F;
+    int event =   rec & 0xF0;
+
+    // MIDI receive state machine.
+    switch (MIDI_ReceiveState) {
+        case idle:
+            // We are in this state most of the time, until an event is
+            // received.
+            if(event==0x90) {
+                MIDI_ReceiveState = note_on_k;
+            } else if(event==0x80) {
+                MIDI_ReceiveState = note_off_k;
+            } else if(event==0xB0) {
+                MIDI_ReceiveState = control_c;
+            }
+            break;
+        case note_on_k:
+            key = rec;
+            MIDI_ReceiveState = note_on_v;
+            break;
+        case note_on_v:
+            velocity = rec;
+            MIDI_ReceiveState = idle;
+            // Play the note here!
+            SID_Play_Note(key, velocity);
+            break;
+        case note_off_k:
+            key = rec;
+            MIDI_ReceiveState = note_off_v;
+            break;
+        case note_off_v:
+            velocity = rec;
+            MIDI_ReceiveState = idle;
+            // Stop the note here.
+            SID_Stop_Note();
+            break;
+        case control_c:
+            MIDI_ReceiveState = idle;
+            break;
+        case control_v:
+            MIDI_ReceiveState = idle;
+            break;
+        default:
+            MIDI_ReceiveState=idle;
+    }
+    HAL_UART_Receive_IT(&UartHandle, aRxBuffer, 1);
+}
+
 
 
 /**
@@ -403,7 +466,7 @@ int main(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_3);
+    //HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_3);
 }
 
 /**
@@ -497,78 +560,8 @@ static void SystemClock_Config(void)
 }
 
 /**
-  * @brief  Rx Transfer completed callback
-  * @param  handle: UART handle
-  * @note
-  * @retval None
-  */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
-{
-
-    if(handle->Instance !=USARTx)
-        return;
-
-    uint8_t rec = aRxBuffer[0];
-    int channel = rec & 0x0F;
-    int event =   rec & 0xF0;
-    
-    volatile static int velocity;
-    volatile static int key;
-
-    if(channel != 0)
-        return;
-
-/*    char buffer[256];
-    sprintf(buffer, "Rec... 0x%X", event);
-    BSP_LCD_DisplayStringAtLineMode(10,
-        (uint8_t *) buffer, CENTER_MODE);*/
-    BSP_LED_On(LED3);
-    // MIDI receive state machine.
-    switch (MIDI_ReceiveState) {
-        case idle:
-            // We are in this state most of the time, until an event is
-            // received.
-            if(event==0x90) {
-                MIDI_ReceiveState = note_on_k;
-            } else if(event==0x80) {
-                MIDI_ReceiveState = note_off_k;
-            } else if(event==0xB0) {
-                MIDI_ReceiveState = control_c;
-            }
-            break;
-        case note_on_k:
-            key = rec;
-            MIDI_ReceiveState = note_on_v;
-            break;
-        case note_on_v:
-            velocity = rec;
-            MIDI_ReceiveState = idle;
-            // Play the note here!
-            SID_Play_Note(key, velocity);
-            break;
-        case note_off_k:
-            key = rec;
-            MIDI_ReceiveState = note_on_v;
-            break;
-        case note_off_v:
-            velocity = rec;
-            MIDI_ReceiveState = idle;
-            // Stop the note here.
-            SID_Stop_Note();
-            break;
-        case control_c:
-            break;
-        case control_v:
-            break;
-        default:
-            MIDI_ReceiveState=idle;
-    }
-    HAL_UART_Receive_IT(&UartHandle, (uint8_t *)aRxBuffer, 1);
-}
-
-/**
   * @brief  UART error callbacks
-  * @param  UartHandle: UART handle
+  * @param  huart: UART handle
   * @note   This example shows a simple way to report transfer error, and you can
   *         add your own implementation.
   * @retval None
@@ -577,11 +570,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
 {
     /* Turn LED3 on: Transfer error in reception/transmission process */
     BSP_LED_On(LED3);
-    if (huart->ErrorCode == HAL_UART_ERROR_ORE){
+   /*if (huart->ErrorCode == HAL_UART_ERROR_ORE){
         // remove the error condition
         huart->ErrorCode = HAL_UART_ERROR_NONE;
         // set the correct state, so that the UART_RX_IT works correctly
         huart->State = HAL_UART_STATE_BUSY_RX;
-    }
+    }*/
 }
 

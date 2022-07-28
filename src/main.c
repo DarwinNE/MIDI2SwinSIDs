@@ -38,13 +38,158 @@ uint16_t C64_freq_table[]={268,284,301,318,337,358,379,401,425,451,477,506,536,
     16203,17167,18188,19269,20415,21629,22915,24278,25721,27251,28871,30588,
     32407,34334,36376,38539,40830,43258,45830,48556,51443,54502,57743,61176,
     64814};
+    
+typedef struct SID_conf_tag {
+    uint8_t  ad;
+    uint8_t  sr;
+    uint16_t duty_cycle;
+    uint8_t  voice;
+    char    *name;
+} SID_conf;
+
+uint8_t Current_Instrument;
+
+// We measure instruments starting from 0.
+// Asterisk "*" means NOT TESTED YET.
+SID_conf GeneralMIDI[256] = {
+    {10+1*16, 1+0*16, 255, 65, "Acoustic Grand Piano*"},
+    {10+1*16, 1+0*16, 128, 65, "Bright Acoustic Piano*"},
+    {10+1*16, 1+0*16, 128, 65, "Electric Grand Piano*"},
+    {10+1*16, 1+0*16, 128, 65, "Honky-tonk Piano*"},
+    {10+1*16, 1+0*16, 128, 65, "Electric Piano 1*"},
+    {10+1*16, 1+0*16, 128, 65, "Electric Piano 2*"},
+    {10+1*16, 1+0*16, 128, 65, "Harpsicord*"},
+    {10+1*16, 1+0*16, 128, 65, "Clavi*"},
+    {10+1*16, 1+0*16, 0  , 17, "Celesta*"},
+    {10+1*16, 1+0*16, 0  , 17, "Glockenspiel*"},
+    {10+1*16, 1+0*16, 0  , 17, "Music box*"},
+    {10+1*16, 1+0*16, 0  , 17, "Vibraphone*"},
+    {10+1*16, 1+0*16, 0  , 17, "Marimba*"},
+    {10+1*16, 1+0*16, 0  , 17, "Xylophone*"},
+    {10+1*16, 1+0*16, 0  , 17, "Tubular Bells*"},
+    {10+1*16, 1+0*16, 0  , 17, "Dulcimer*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Drawbar Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Percussive Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Drawbar Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Percussive Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Rock Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Church Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Reed Organ*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Accordion*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Harmonica*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Tango Accordion*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Acoustic Guitar (nylon)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Acoustic Guitar (steel)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Electric Guitar (jazz)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Electric Guitar (clean)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Electric Guitar (muted)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Overdriven Guitar*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Distortion Guitar*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Guitar Harmonics*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Acoustic Bass*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Electric Bass (finger)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Electric Bass (pick)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Fretless Bass*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Slap Bass 1*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Slap Bass 2*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Bass 1*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Bass 2*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Violin*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Viola*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Cello*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Contrabass*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Tremolo Strings*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pizzicato Strings*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Orchestral Harp*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Timpani*"},
+    {0+0 *16, 0+15*16, 0 , 17, "String Ensemble 1*"},
+    {0+0 *16, 0+15*16, 0 , 17, "String Ensemble 2*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Strings 1*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Strings 2*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Choir Aahs*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Voice Oohs*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Voice*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Orchestra Hit*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Trumpet*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Trombone*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Tuba*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Muted Trumpet*"},
+    {0+0 *16, 0+15*16, 0 , 17, "French Horn*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Brass Section*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Brass 1*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Brass 2*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Soprano Sax*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Alto Sax*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Tenor Sax*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Baritone Sax*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Oboe*"},
+    {0+0 *16, 0+15*16, 0 , 17, "English Horn*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Bassoon*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Clarinet*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Piccolo*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Flute*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Recorder*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pan Flute*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Blown Bottle*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Shakuhachi*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Wistle*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Ocarina*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 1 (square)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 2 (sawtooth)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 3 (calliope)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 4 (chiff)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 5 (charang)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 6 (voice)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 7 (fifths)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Lead 8 (bass+lead)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 1 (new age)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 2 (warm)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 3 (polysynth)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 4 (choir)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 5 (bowed)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 6 (metallic)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Pad 7 (halo)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 1 (rain)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 2 (soundtrack)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 3 (crystal)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 4 (athmosphere)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 5 (brightness)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 6 (goblins)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 7 (echoes)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "FX 8 (sci-fi)*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Sitar*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Banjo*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Shamisen*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Koto*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Kalimba*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Bag Pipe*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Fiddle*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Shanai*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Tinkle Bell*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Agogo*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Steel Drums*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Woodblock*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Taiko Drum*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Melodic Tom*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Synth Drum*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Reverse Cymbal*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Guitar Fret Noise*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Breath Noise*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Seashore*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Bird Tweet*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Telephone Ring*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Helicopter*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Applause*"},
+    {0+0 *16, 0+15*16, 0 , 17, "Gunshot*"}
+};
+
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 
 /* MIDI receive state machine states */
 volatile enum MIDIState {idle, note_on_k, note_on_v, note_off_k,
-    note_off_v, control_c, control_v} MIDI_ReceiveState;
+    note_off_v, control_c, control_v, program_c} MIDI_ReceiveState;
 
 /* SID interface functions */
 void ConfigureGPIOPorts(void)
@@ -140,6 +285,8 @@ void SID_Set_Address(int address)
 
 /* Useful SID registers */
 
+#define SID_VOICE_OFFSET    7
+
 #define SID_VOICE1_FREQ_LO  0x00
 #define SID_VOICE1_FREQ_HI  0x01
 #define SID_VOICE1_PW_LO    0x02
@@ -210,48 +357,65 @@ void SID_Select(int id)
 
 void SID_Set_Register(int address, int data)
 {
+    SID_Select(-1);
     SID_Set_Address(address);
     SID_Set_RW(SID_WRITE);
     SID_Set_Data(data);
-    //SID_Sync_Clock();
-    SID_Select(0);
-    //SID_Sync_Clock();
-    SID_Select(-1);
 }
 
-void SID_Play_Note(uint8_t key, uint8_t velocity)
+void SID_Play_Note(uint8_t key, uint8_t velocity, uint8_t voice,
+    SID_conf *instrument)
 {
     key-=BASE_MIDI_NOTE;
     if (key<0 || key >= COUNTOF(C64_freq_table))
         return;
-    
+    BSP_LED_On(LED3);
+    SID_Select(-1);
     SID_Set_Register(SID_VOICE1_FREQ_HI,
         (uint8_t)((C64_freq_table[key] & 0xFF00)>>8));
     SID_Set_Register(SID_VOICE1_FREQ_LO,
         (uint8_t)((C64_freq_table[key] & 0x00FF)));
     SID_Select(-1);
     SID_Set_Register(SID_MODE_VOL,  15);
-    SID_Set_Register(SID_VOICE1_AD, 16+9);
-    SID_Set_Register(SID_VOICE1_SR, 4*16+4);
-    /*SID_Set_Register(SID_VOICE1_FREQ_HI, 29);
-    SID_Set_Register(SID_VOICE1_FREQ_LO, 69);*/
-    SID_Set_Register(SID_VOICE1_CONTROL, 17);
-    /*char buffer[256];
-    sprintf(buffer,"NoteON  0x%x 0x%x",(int)key, (int)velocity);
-
-    BSP_LCD_DisplayStringAtLineMode(12,
-        (uint8_t *) buffer,
-        CENTER_MODE);*/
+    
+    uint8_t offset = 0; //SID_VOICE_OFFSET*voice;
+    
+    SID_Set_Register(SID_VOICE1_AD+offset, instrument->ad);
+    SID_Set_Register(SID_VOICE1_SR+offset, instrument->sr);
+    SID_Set_Register(SID_VOICE1_PW_LO+offset, 
+        (uint8_t)(instrument->duty_cycle & 0x00FF));
+    SID_Set_Register(SID_VOICE1_PW_HI+offset, 
+        (uint8_t)(instrument->duty_cycle & 0xFF00)>>8);
+    SID_Set_Register(SID_VOICE1_CONTROL+offset, instrument->voice);
 }
 
-void SID_Stop_Note(void)
+void SID_Note_Off(uint8_t voice)
 {
-    SID_Set_Register(SID_VOICE1_CONTROL, 0);
-    BSP_LCD_DisplayStringAtLineMode(12,
-        (uint8_t *) "NoteOFF ", CENTER_MODE);
+    BSP_LED_Off(LED3);
+    SID_Set_Register(SID_VOICE1_CONTROL+SID_VOICE_OFFSET*voice, 0);
 }
 
 /* End of SID interface functions */
+
+#define NUM_VOICES 3
+uint8_t Voices[NUM_VOICES];
+
+/** Return NUM_VOICES if no voice is available */
+uint8_t GetFreeVoice(void)
+{
+    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+        if(Voices[i]==0) {
+            return i;
+        }
+    }
+    return NUM_VOICES;
+}
+
+/** Free the voice in the scheduler */
+void FreeVoice(uint8_t i)
+{
+    Voices[i]=0;
+}
 
 
 /* Private variables --------------------------------------------------------*/
@@ -385,11 +549,17 @@ int main(void)
         Error_Handler();
     }
     receive=0;
+    uint8_t old_instrument=255;
     while (1) {
         BSP_LED_Toggle(LED4);
-        /*if(HAL_UART_Receive(&UartHandle, (uint8_t *)aRxBuffer, 1, 500)==HAL_OK)
-            HAL_UART_RxCpltCallback(&UartHandle);*/
-        
+        HAL_Delay(100);
+        if(old_instrument!=Current_Instrument) {
+            BSP_LCD_DisplayStringAtLineMode(10,
+                (uint8_t *) "                   ", CENTER_MODE);
+            BSP_LCD_DisplayStringAtLineMode(10,
+                (uint8_t *) GeneralMIDI[Current_Instrument].name, CENTER_MODE);
+            old_instrument=Current_Instrument;
+        }
     }
 }
 
@@ -417,13 +587,19 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
         case idle:
             // We are in this state most of the time, until an event is
             // received.
-            if(event==0x90) {
+            if(event==0x90) {           // NOTE ON
                 MIDI_ReceiveState = note_on_k;
-            } else if(event==0x80) {
+            } else if(event==0x80) {    // NOTE OFF
                 MIDI_ReceiveState = note_off_k;
-            } else if(event==0xB0) {
+            } else if(event==0xB0) {    // CONTROL CHANGE
                 MIDI_ReceiveState = control_c;
+            } else if(event==0xC0) {    // PROGRAM CHANGE
+                MIDI_ReceiveState = program_c;
             }
+            break;
+        case program_c:
+            Current_Instrument = rec;
+            MIDI_ReceiveState = idle;
             break;
         case note_on_k:
             key = rec;
@@ -433,7 +609,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Play the note here!
-            SID_Play_Note(key, velocity);
+            //uint8_t v = GetFreeVoice();
+            //if(v<NUM_VOICES) {
+                SID_Play_Note(key, velocity, 0,
+                    &GeneralMIDI[Current_Instrument]);
+               // Voices[v]=key;
+            //}
             break;
         case note_off_k:
             key = rec;
@@ -443,7 +624,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Stop the note here.
-            SID_Stop_Note();
+            //for(uint8_t i=0; i<NUM_VOICES; ++i) {
+               // if(Voices[i]==key) {
+                    SID_Note_Off(0);
+                //    Voices[i]=0;
+                //}
+            //}
             break;
         case control_c:
             MIDI_ReceiveState = idle;
@@ -570,11 +756,11 @@ static void SystemClock_Config(void)
 {
     /* Turn LED3 on: Transfer error in reception/transmission process */
     BSP_LED_On(LED3);
-   /*if (huart->ErrorCode == HAL_UART_ERROR_ORE){
+    if (huart->ErrorCode == HAL_UART_ERROR_ORE){
         // remove the error condition
         huart->ErrorCode = HAL_UART_ERROR_NONE;
         // set the correct state, so that the UART_RX_IT works correctly
         huart->State = HAL_UART_STATE_BUSY_RX;
-    }*/
+    }
 }
 

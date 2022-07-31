@@ -47,34 +47,41 @@ typedef struct SID_conf_tag {
     char    *name;
 } SID_conf;
 
-uint8_t Current_Instrument;
+volatile uint8_t Current_Instrument;
+volatile uint8_t SustainPedal;
+
+// SID waveforms  (+ gate)
+#define NOISE       129
+#define PULSE       65
+#define SAWTOOTH    33
+#define TRIANGLE    17
 
 // We measure instruments starting from 0.
 // Asterisk "*" means NOT TESTED YET.
 SID_conf GeneralMIDI[256] = {
-    {10+1*16, 1+0*16, 255, 65, "Acoustic Grand Piano*"},
-    {10+1*16, 1+0*16, 128, 65, "Bright Acoustic Piano*"},
-    {10+1*16, 1+0*16, 128, 65, "Electric Grand Piano*"},
-    {10+1*16, 1+0*16, 128, 65, "Honky-tonk Piano*"},
-    {10+1*16, 1+0*16, 128, 65, "Electric Piano 1*"},
-    {10+1*16, 1+0*16, 128, 65, "Electric Piano 2*"},
-    {10+1*16, 1+0*16, 128, 65, "Harpsicord*"},
-    {10+1*16, 1+0*16, 128, 65, "Clavi*"},
-    {10+1*16, 1+0*16, 0  , 17, "Celesta*"},
-    {10+1*16, 1+0*16, 0  , 17, "Glockenspiel*"},
-    {10+1*16, 1+0*16, 0  , 17, "Music box*"},
-    {10+1*16, 1+0*16, 0  , 17, "Vibraphone*"},
-    {10+1*16, 1+0*16, 0  , 17, "Marimba*"},
-    {10+1*16, 1+0*16, 0  , 17, "Xylophone*"},
-    {10+1*16, 1+0*16, 0  , 17, "Tubular Bells*"},
-    {10+1*16, 1+0*16, 0  , 17, "Dulcimer*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Drawbar Organ*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Percussive Organ*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Drawbar Organ*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Percussive Organ*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Rock Organ*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Church Organ*"},
-    {0+0 *16, 0+15*16, 0 , 17, "Reed Organ*"},
+//   A     D   S     R   Duty   WAVE          NAME
+//   |     |   |     |    |       |            |
+    {0 *16+11, 0 *16+2 , 0  ,  TRIANGLE,  "Acoustic Grand Piano"},  // 0
+    {1 *16+10, 0 *16+1 , 0  ,  SAWTOOTH,  "Bright Acoustic Piano"}, // 1
+    {1 *16+11, 0 *16+2 , 256,  PULSE,     "Electric Grand Piano"},  // 2
+    {0 *16+10, 0 *16+1 , 0  ,  SAWTOOTH,  "Honky-tonk Piano"},      // 3
+    {1 *16+10, 0 *16+1 , 1024, PULSE,     "Electric Piano 1"},      // 4
+    {1 *16+11, 0 *16+2 , 512,  PULSE,     "Electric Piano 2"},      // 5
+    {1 *16+10, 0 *16+1 , 128,  PULSE,     "Harpsicord"},            // 6
+    {1 *16+10, 0 *16+1 , 192,  PULSE,     "Clavi"},                 // 7
+    {0 *16+3 , 0 *16+3 , 0  ,  TRIANGLE,  "Celesta"},               // 8
+    {0 *16+4 , 0 *16+4 , 0  ,  SAWTOOTH,  "Glockenspiel"},          // 9
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE,  "Music box"},             // 10
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE,  "Vibraphone*"},           // 11
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Marimba*"},               // 12
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Xylophone*"},             // 13
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Tubular Bells*"},         // 14
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Dulcimer*"},              // 15
+    {1 *16+1 , 15*16+1 , 0  ,  TRIANGLE, "Drawbar Organ"},          // 16
+    {0 *16+1 , 13*16+1 , 0  ,  SAWTOOTH, "Percussive Organ"},       // 17
+    {0 *16+2 , 13*16+1 , 0  ,  TRIANGLE, "Rock Organ"},             // 18
+    {1 *16+2 , 15*16+1 , 0  ,  TRIANGLE, "Church Organ"},           // 19
+    {1 *16+0 , 15*16+1 , 1024, PULSE   , "Reed Organ"},             // 20
     {0+0 *16, 0+15*16, 0 , 17, "Accordion*"},
     {0+0 *16, 0+15*16, 0 , 17, "Harmonica*"},
     {0+0 *16, 0+15*16, 0 , 17, "Tango Accordion*"},
@@ -285,7 +292,7 @@ void SID_Set_Address(int address)
 
 /* Useful SID registers */
 
-#define SID_VOICE_OFFSET    7
+#define SID_VOICE_OFFSET    0x07
 
 #define SID_VOICE1_FREQ_LO  0x00
 #define SID_VOICE1_FREQ_HI  0x01
@@ -355,56 +362,88 @@ void SID_Select(int id)
     }
 }
 
-void SID_Set_Register(int address, int data)
+void SID_Set_Register(int address, int data, int sid_num)
 {
-    SID_Select(-1);
     SID_Set_Address(address);
     SID_Set_RW(SID_WRITE);
     SID_Set_Data(data);
+    // Pulse the CS line to strobe data.
+    SID_Select(sid_num);
+    SID_Select(-1);
+
+
 }
 
-void SID_Play_Note(uint8_t key, uint8_t velocity, uint8_t voice,
+void SID_Note_On(uint8_t key, uint8_t velocity, uint8_t voice,
     SID_conf *instrument)
 {
+    int sid_num = 0;
+    if(voice > 2) {
+        voice -= 3;
+        sid_num = 1;
+    }
+    
     key-=BASE_MIDI_NOTE;
     if (key<0 || key >= COUNTOF(C64_freq_table))
         return;
     BSP_LED_On(LED3);
     SID_Select(-1);
-    SID_Set_Register(SID_VOICE1_FREQ_HI,
-        (uint8_t)((C64_freq_table[key] & 0xFF00)>>8));
-    SID_Set_Register(SID_VOICE1_FREQ_LO,
-        (uint8_t)((C64_freq_table[key] & 0x00FF)));
-    SID_Select(-1);
-    SID_Set_Register(SID_MODE_VOL,  15);
-    
-    uint8_t offset = 0; //SID_VOICE_OFFSET*voice;
-    
-    SID_Set_Register(SID_VOICE1_AD+offset, instrument->ad);
-    SID_Set_Register(SID_VOICE1_SR+offset, instrument->sr);
+
+    SID_Set_Register(SID_MODE_VOL,  15, sid_num);
+
+    uint8_t offset = SID_VOICE_OFFSET*voice;
+
+    SID_Set_Register(SID_VOICE1_FREQ_HI+offset,
+        (uint8_t)((C64_freq_table[key] & 0xFF00)>>8), sid_num);
+    SID_Set_Register(SID_VOICE1_FREQ_LO+offset,
+        (uint8_t)((C64_freq_table[key] & 0x00FF)), sid_num);
+    SID_Set_Register(SID_VOICE1_AD+offset, instrument->ad, sid_num);
+    SID_Set_Register(SID_VOICE1_SR+offset, instrument->sr, sid_num);
     SID_Set_Register(SID_VOICE1_PW_LO+offset, 
-        (uint8_t)(instrument->duty_cycle & 0x00FF));
+        (uint8_t)(instrument->duty_cycle & 0x00FF), sid_num);
     SID_Set_Register(SID_VOICE1_PW_HI+offset, 
-        (uint8_t)(instrument->duty_cycle & 0xFF00)>>8);
-    SID_Set_Register(SID_VOICE1_CONTROL+offset, instrument->voice);
+        (uint8_t)((instrument->duty_cycle & 0xFF00)>>8), sid_num);
+    SID_Set_Register(SID_VOICE1_CONTROL+offset, instrument->voice, sid_num);
 }
 
 void SID_Note_Off(uint8_t voice)
 {
-    BSP_LED_Off(LED3);
-    SID_Set_Register(SID_VOICE1_CONTROL+SID_VOICE_OFFSET*voice, 0);
+    int sid_num = 0;
+    if(voice > 2) {
+        voice -= 3;
+        sid_num = 1;
+    }
+    if(SustainPedal == 0) {
+        BSP_LED_Off(LED3);
+        SID_Set_Register(SID_VOICE1_CONTROL+SID_VOICE_OFFSET*voice,
+            GeneralMIDI[Current_Instrument].voice & 0xFE, sid_num);
+    }
 }
 
 /* End of SID interface functions */
 
-#define NUM_VOICES 3
-uint8_t Voices[NUM_VOICES];
+#define NUM_VOICES 6
+int Voices[NUM_VOICES];
 
 /** Return NUM_VOICES if no voice is available */
 uint8_t GetFreeVoice(void)
 {
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
         if(Voices[i]==0) {
+            return i;
+        }
+    }
+    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+        if(Voices[i]<0) {
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+            SID_Note_Off(i);
+
             return i;
         }
     }
@@ -566,6 +605,10 @@ int main(void)
     
 volatile int velocity;
 volatile int key;
+volatile int control;
+volatile int value;
+
+#define ABS(x) ((x)>0)?(x):-(x)
 
 /**
   * @brief  Rx Transfer completed callback
@@ -609,12 +652,12 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Play the note here!
-            //uint8_t v = GetFreeVoice();
-            //if(v<NUM_VOICES) {
-                SID_Play_Note(key, velocity, 0,
+            uint8_t v = GetFreeVoice();
+            if(v<NUM_VOICES) {
+                SID_Note_On(key, velocity, v,
                     &GeneralMIDI[Current_Instrument]);
-               // Voices[v]=key;
-            //}
+                Voices[v]=key;
+            }
             break;
         case note_off_k:
             key = rec;
@@ -624,18 +667,37 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Stop the note here.
-            //for(uint8_t i=0; i<NUM_VOICES; ++i) {
-               // if(Voices[i]==key) {
-                    SID_Note_Off(0);
-                //    Voices[i]=0;
-                //}
-            //}
+            for(uint8_t i=0; i<NUM_VOICES; ++i) {
+                if(ABS(Voices[i])==key) {
+                    if(SustainPedal==1) {
+                        Voices[i]=-key;
+                     } else {
+                        SID_Note_Off(i);
+                        Voices[i]=0;
+                    }
+                }
+            }
             break;
         case control_c:
-            MIDI_ReceiveState = idle;
+            control = rec;
+            MIDI_ReceiveState = control_v;
             break;
         case control_v:
+            value = rec;
             MIDI_ReceiveState = idle;
+            if(control == 64) {     // SUSTAIN PEDAL
+                if (value>63) {     // SUSTAIN ON
+                    SustainPedal=1;
+                } else {            // SUSTAIN OFF
+                    SustainPedal=0;
+                    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+                        if(Voices[i]==0) {
+                            SID_Note_Off(i);
+                            Voices[i]=0;
+                }
+            }
+                }
+            }
             break;
         default:
             MIDI_ReceiveState=idle;

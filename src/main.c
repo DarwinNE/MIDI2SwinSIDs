@@ -1,19 +1,19 @@
 /**
   ******************************************************************************
   * @file    main.c
-  * @author  Pierpaolo Bagnasco, Davide Bucci
+  * @author  Davide Bucci
   * @version V0.1
-  * @date    15-July-2014
-  * @brief   This file provides an example of how to use the LCD of the
-  *          STM32F429-DISCOVERY.
+  * @date    August 14, 2022
+  * @brief   This file is the main file of the MIDI2SwinSID project.
+  *          
   ******************************************************************************
  */
 
+/*
+ Compile with "make" in the "manual_compile" directory.
+ Flash command:  st-flash write Display.bin 0x8000000
 
-// Flash command:
-// st-flash write Display.bin 0x8000000
-
-
+*/
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f429i_discovery_lcd.h"
@@ -61,18 +61,18 @@ volatile uint8_t SustainPedal;
 SID_conf GeneralMIDI[256] = {
 //   A     D   S     R   Duty   WAVE          NAME
 //   |     |   |     |    |       |            |
-    {0 *16+11, 0 *16+2 , 0  ,  TRIANGLE,  "Acoustic Grand Piano"},  // 0
-    {1 *16+10, 0 *16+1 , 0  ,  SAWTOOTH,  "Bright Acoustic Piano"}, // 1
-    {1 *16+11, 0 *16+2 , 256,  PULSE,     "Electric Grand Piano"},  // 2
-    {0 *16+10, 0 *16+1 , 0  ,  SAWTOOTH,  "Honky-tonk Piano"},      // 3
-    {1 *16+10, 0 *16+1 , 1024, PULSE,     "Electric Piano 1"},      // 4
-    {1 *16+11, 0 *16+2 , 512,  PULSE,     "Electric Piano 2"},      // 5
-    {1 *16+10, 0 *16+1 , 128,  PULSE,     "Harpsicord"},            // 6
-    {1 *16+10, 0 *16+1 , 192,  PULSE,     "Clavi"},                 // 7
-    {0 *16+3 , 0 *16+3 , 0  ,  TRIANGLE,  "Celesta"},               // 8
-    {0 *16+4 , 0 *16+4 , 0  ,  SAWTOOTH,  "Glockenspiel"},          // 9
-    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE,  "Music box"},             // 10
-    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE,  "Vibraphone*"},           // 11
+    {0 *16+11, 0 *16+2 , 0  ,  TRIANGLE, "Acoustic Grand Piano"},   // 0
+    {1 *16+10, 0 *16+1 , 0  ,  SAWTOOTH, "Bright Acoustic Piano"},  // 1
+    {1 *16+11, 0 *16+2 , 256,  PULSE,    "Electric Grand Piano"},   // 2
+    {0 *16+10, 0 *16+1 , 0  ,  SAWTOOTH, "Honky-tonk Piano"},       // 3
+    {1 *16+10, 0 *16+1 , 1024, PULSE,    "Electric Piano 1"},       // 4
+    {1 *16+11, 0 *16+2 , 512,  PULSE,    "Electric Piano 2"},       // 5
+    {1 *16+10, 0 *16+1 , 128,  PULSE,    "Harpsicord"},             // 6
+    {1 *16+10, 0 *16+1 , 192,  PULSE,    "Clavi"},                  // 7
+    {0 *16+3 , 0 *16+3 , 0  ,  TRIANGLE, "Celesta"},                // 8
+    {0 *16+4 , 0 *16+4 , 0  ,  SAWTOOTH, "Glockenspiel"},           // 9
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Music box"},              // 10
+    {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Vibraphone*"},            // 11
     {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Marimba*"},               // 12
     {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Xylophone*"},             // 13
     {0 *16+6 , 0 *16+6 , 0  ,  TRIANGLE, "Tubular Bells*"},         // 14
@@ -413,49 +413,79 @@ void SID_Note_Off(uint8_t voice)
         voice -= 3;
         sid_num = 1;
     }
-    if(SustainPedal == 0) {
-        BSP_LED_Off(LED3);
-        SID_Set_Register(SID_VOICE1_CONTROL+SID_VOICE_OFFSET*voice,
-            GeneralMIDI[Current_Instrument].voice & 0xFE, sid_num);
-    }
+    BSP_LED_Off(LED3);
+    SID_Set_Register(SID_VOICE1_CONTROL+SID_VOICE_OFFSET*voice,
+        GeneralMIDI[Current_Instrument].voice & 0xFE, sid_num);
 }
 
 /* End of SID interface functions */
 
 #define NUM_VOICES 6
-int Voices[NUM_VOICES];
+
+typedef struct VoiceDef_tag {
+    int      key;
+    uint32_t timestamp;
+} VoiceDef;
+
+// Track how many notes we have played since the last reset.
+uint32_t now;
+
+VoiceDef Voices[NUM_VOICES];
 
 /** Return NUM_VOICES if no voice is available */
-uint8_t GetFreeVoice(void)
+uint8_t GetFreeVoice(int key)
 {
+    // Search if the same note has already have been played or sustained.
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        if(Voices[i]==0) {
+        if(Voices[i].key==key || Voices[i].key==-key) {
+            return i;
+        }
+    }    // Search if there is a voice not playing.
+    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+        if(Voices[i].key==0) {
             return i;
         }
     }
+    // If pedal is depressed, select the oldest voice currently sustained.
+    
+    uint32_t oldest = Voices[0].timestamp;
+    uint8_t  pos = 0;
+    uint8_t  susnotes = 0;  // Flag: if != 0, there are sustained notes.
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        if(Voices[i]<0) {
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-            SID_Note_Off(i);
-
-            return i;
+        if(Voices[i].key<0 && Voices[i].timestamp<oldest) {
+            pos = i;
+            susnotes = 1;
         }
     }
-    return NUM_VOICES;
+    if(susnotes) {
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        SID_Note_Off(pos);
+        Voices[pos].key=0;
+        return pos;
+    }
+    // If there are no sustained notes, pick up the oldest note currently on.
+    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+        if(Voices[i].timestamp<oldest) {
+            pos = i;
+        }
+    }
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    SID_Note_Off(pos);
+    Voices[pos].key=0;
+    return pos;
 }
-
-/** Free the voice in the scheduler */
-void FreeVoice(uint8_t i)
-{
-    Voices[i]=0;
-}
-
 
 /* Private variables --------------------------------------------------------*/
 TIM_HandleTypeDef    TimHandle;
@@ -589,6 +619,8 @@ int main(void)
     }
     receive=0;
     uint8_t old_instrument=255;
+    char buffer[256];
+
     while (1) {
         BSP_LED_Toggle(LED4);
         HAL_Delay(100);
@@ -599,6 +631,12 @@ int main(void)
                 (uint8_t *) GeneralMIDI[Current_Instrument].name, CENTER_MODE);
             old_instrument=Current_Instrument;
         }
+        BSP_LCD_DisplayStringAtLineMode(14,
+        "                                           ", CENTER_MODE);
+        sprintf(buffer, "%d %d %d, %d %d %d",
+            Voices[0].key,Voices[1].key,Voices[2].key,
+            Voices[3].key,Voices[4].key,Voices[5].key);
+        BSP_LCD_DisplayStringAtLineMode(14, (uint8_t *) buffer, CENTER_MODE);
     }
 }
 
@@ -607,8 +645,6 @@ volatile int velocity;
 volatile int key;
 volatile int control;
 volatile int value;
-
-#define ABS(x) ((x)>0)?(x):-(x)
 
 /**
   * @brief  Rx Transfer completed callback
@@ -628,6 +664,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
     // MIDI receive state machine.
     switch (MIDI_ReceiveState) {
         case idle:
+
+
             // We are in this state most of the time, until an event is
             // received.
             if(event==0x90) {           // NOTE ON
@@ -652,12 +690,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Play the note here!
-            uint8_t v = GetFreeVoice();
-            if(v<NUM_VOICES) {
-                SID_Note_On(key, velocity, v,
-                    &GeneralMIDI[Current_Instrument]);
-                Voices[v]=key;
-            }
+            uint8_t v = GetFreeVoice(key);
+            SID_Note_On(key, velocity, v, &GeneralMIDI[Current_Instrument]);
+            Voices[v].key=key;
+            Voices[v].timestamp=now;
+            ++now;
             break;
         case note_off_k:
             key = rec;
@@ -668,12 +705,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             MIDI_ReceiveState = idle;
             // Stop the note here.
             for(uint8_t i=0; i<NUM_VOICES; ++i) {
-                if(ABS(Voices[i])==key) {
-                    if(SustainPedal==1) {
-                        Voices[i]=-key;
+                if(Voices[i].key==key || Voices[i].key==-key) {
+                    if(SustainPedal) {
+                        // If the pedal is depressed, mark note as sustained.
+                        Voices[i].key=-key;
                      } else {
                         SID_Note_Off(i);
-                        Voices[i]=0;
+                        Voices[i].key=0;
+                        break;
                     }
                 }
             }
@@ -691,11 +730,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                 } else {            // SUSTAIN OFF
                     SustainPedal=0;
                     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-                        if(Voices[i]==0) {
+                        if(Voices[i].key<0) {
                             SID_Note_Off(i);
-                            Voices[i]=0;
-                }
-            }
+                            Voices[i].key=0;
+                        }
+                    }
                 }
             }
             break;

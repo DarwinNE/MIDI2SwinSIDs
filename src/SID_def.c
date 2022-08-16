@@ -37,26 +37,26 @@ SID_conf GeneralMIDI[256] = {
     {1 ,10,0 ,1 , 0  ,LO,245 ,  0,NON,SAWTH,"Harpsicord"},              // 6
     {1 ,10,0 ,1 , 512,LO,1800,  0,ALL,PULSE,"Clavi"},                   // 7
     {0 ,10,0 ,3 ,2048,LO,128 ,  0,NON,TRIAN,"Celesta"},                 // 8
-    {0 ,4 ,0 ,4 , 0  ,LO,1024,  0,NON,SAWTH,"Glockenspiel*"},           // 9
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Music box*"},              // 10
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Vibraphone*"},             // 11
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Marimba*"},                // 12
+    {1 ,5 ,0 ,4 , 0  ,LO,1024,  0,NON,SAWTH,"Glockenspiel"},            // 9
+    {0 ,6 ,0 ,6 , 0  ,LO,300 ,  0,ALL,TRIAN,"Music box"},               // 10
+    {0 ,6 ,0 ,6 , 0  ,LO,512 ,  0,ALL,TRIAN,"Vibraphone"},              // 11
+    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Marimba"},                 // 12
     {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Xylophone*"},              // 13
     {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Tubular Bells*"},          // 14
     {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Dulcimer*"},               // 15
-    {1 ,1 ,15,1 , 0  ,LO,512 ,  4,ALL,TRIAN,"Drawbar Organ*"},          // 16
-    {0 ,1 ,13,1 , 0  ,LO,512 ,  4,NON,SAWTH,"Percussive Organ*"},       // 17
+    {2 ,1 ,15,1 , 0  ,LO,512 ,  4,ALL,TRIAN,"Drawbar Organ"},           // 16
+    {1 ,1 ,13,1 , 0  ,LO,512 ,  4,NON,SAWTH,"Percussive Organ*"},       // 17
     {0 ,2 ,13,1 , 0  ,LO,512 ,  4,NON,TRIAN,"Rock Organ*"},             // 18
     {1 ,2 ,15,1 , 0  ,LO,512 ,  4,NON,TRIAN,"Church Organ*"},           // 19
-    {1 ,0 ,15,1 ,1024,LO,512 ,  4,NON,PULSE, "Reed Organ*"},            // 20
+    {1 ,0 ,15,1 ,1024,LO,512 ,  4,NON,PULSE,"Reed Organ*"},             // 20
     {0 ,0 ,15, 0, 0  ,LO,512 ,  0,NON,TRIAN,"Accordion*"},              // 21
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Harmonica*"},              // 22
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Tango Accordion*"},        // 23
-    {0 ,13,0 ,4 , 256,LO,1024,  0,NON,TRIAN,"Acoustic Guitar (nylon)*"},  // 24
-    {0 ,13,0 ,4 , 256,LO,1024,  0,NON,SAWTH, "Acoustic Guitar (steel)*"}, // 25
-    {0 ,13,0 ,5 , 256,LO,1024,  0,NON,SAWTH, "Electric Guitar (jazz)*"},  // 26
-    {0 ,13,0 ,5 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (clean)*"},  // 27
-    {0 ,13,0 ,2 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (muted)*"},  // 28
+    {0 ,13,0 ,4 , 256,LO,1024,  0,NON,TRIAN,"Acoustic Guitar (nylon)*"},// 24
+    {0 ,13,0 ,4 , 256,LO,1024,  0,NON,SAWTH,"Acoustic Guitar (steel)*"},// 25
+    {0 ,13,0 ,5 , 256,LO,1024,  0,NON,SAWTH,"Electric Guitar (jazz)*"}, // 26
+    {0 ,13,0 ,5 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (clean)*"},// 27
+    {0 ,13,0 ,2 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (muted)*"},// 28
     {0 ,13,0 ,9 , 256,LO,1024,  0,NON,PULSE,"Overdriven Guitar*"},      // 29
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Distortion Guitar*"},      // 30
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Guitar Harmonics*"},       // 31
@@ -110,52 +110,52 @@ SID_conf GeneralMIDI[256] = {
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Ocarina*"},                // 79
     {0 ,0 ,15, 0,2048,LO,1024,  0,NON,PULSE,"Lead 1 (square)"},         // 80
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,SAWTH,"Lead 2 (SAWTH)"},          // 81
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 3 (calliope)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 4 (chiff)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 5 (charang)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 6 (voice)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 7 (fifths)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 8 (bass+lead)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 1 (new age)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 2 (warm)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 3 (polysynth)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 4 (choir)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 5 (bowed)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 6 (metallic)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 7 (halo)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 1 (rain)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 2 (soundtrack)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 3 (crystal)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 4 (athmosphere)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 5 (brightness)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 6 (goblins)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 7 (echoes)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 8 (sci-fi)*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Sitar*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Banjo*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Shamisen*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Koto*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Kalimba*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Bag Pipe*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Fiddle*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Shanai*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Tinkle Bell*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Agogo*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Steel Drums*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Woodblock*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Taiko Drum*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Melodic Tom*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Synth Drum*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Reverse Cymbal*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Guitar Fret Noise*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Breath Noise*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Seashore*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Bird Tweet*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Telephone Ring*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Helicopter*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Applause*"},
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Gunshot*"}
-};
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 3 (calliope)*"},      // 82
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 4 (chiff)*"},         // 83
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 5 (charang)*"},       // 84
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 6 (voice)*"},         // 85
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 7 (fifths)*"},        // 86
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Lead 8 (bass+lead)*"},     // 87
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 1 (new age)*"},        // 88
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 2 (warm)*"},           // 89
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 3 (polysynth)*"},      // 90
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 4 (choir)*"},          // 91
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 5 (bowed)*"},          // 92
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 6 (metallic)*"},       // 93
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Pad 7 (halo)*"},           // 94
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 1 (rain)*"},            // 95
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 2 (soundtrack)*"},      // 96
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 3 (crystal)*"},         // 97
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 4 (athmosphere)*"},     // 98
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 5 (brightness)*"},      // 99
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 6 (goblins)*"},         // 100
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 7 (echoes)*"},          // 101
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"FX 8 (sci-fi)*"},          // 102
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Sitar*"},                  // 103
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Banjo*"},                  // 104
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Shamisen*"},               // 105
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Koto*"},                   // 106
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Kalimba*"},                // 107
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Bag Pipe*"},               // 108
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Fiddle*"},                 // 109
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Shanai*"},                 // 110
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Tinkle Bell*"},            // 111
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Agogo*"},                  // 112
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Steel Drums*"},            // 113
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Woodblock*"},              // 114
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Taiko Drum*"},             // 115
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Melodic Tom*"},            // 116
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Synth Drum*"},             // 117
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Reverse Cymbal*"},         // 118
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Guitar Fret Noise*"},      // 119
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Breath Noise*"},           // 120
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Seashore*"},               // 121
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Bird Tweet*"},             // 122
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Telephone Ring*"},         // 123
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Helicopter*"},             // 124
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Applause*"},               // 125
+    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Gunshot*"}                 // 126
+}; 
 
 /* SID interface functions */
 
@@ -249,41 +249,47 @@ void SID_Set_Reg(int address, int data, int sid_num)
 }
 
 void SID_Note_On(uint8_t key, uint8_t velocity, uint8_t voice,
-    SID_conf *instrument)
+    SID_conf *inst)
 {
     int sid_num = 0;
+
     if(voice > 2) {
         voice -= 3;
         sid_num = 1;
     }
-    
-    key-=BASE_MIDI_NOTE;
-    if (key<0 || key >= COUNTOF(C64_freq_table))
-        return;
-    SID_Select(-1);
     uint8_t offset = SID_VOICE_OFFSET*voice;
 
-    SID_Set_Reg(SID_MODE_VOL, MAXVOL | (instrument->filt_mode & 0xF)<<4, sid_num);
-    SID_Set_Reg(SID_FC_LO,instrument->filt_cutoff & 0x0007, sid_num);
-    SID_Set_Reg(SID_FC_HI, (instrument->filt_cutoff & 0x07F8)>>3, sid_num);
-    SID_Set_Reg(SID_RES_FILT, (instrument->filt_resonance & 0xF)<<4 | (instrument->filt_routing&0x0F), sid_num);
-    SID_Set_Reg(SID_VOICE1_FREQ_HI+offset, (uint8_t)((C64_freq_table[key] & 0xFF00)>>8), sid_num);
-    SID_Set_Reg(SID_VOICE1_FREQ_LO+offset, (uint8_t)(C64_freq_table[key] & 0x00FF), sid_num);
-    SID_Set_Reg(SID_VOICE1_AD+offset, instrument->a*16+instrument->d, sid_num);
-    SID_Set_Reg(SID_VOICE1_SR+offset, instrument->s*16+instrument->r, sid_num);
-    SID_Set_Reg(SID_VOICE1_PW_LO+offset, (uint8_t)(instrument->duty_cycle & 0x00FF), sid_num);
-    SID_Set_Reg(SID_VOICE1_PW_HI+offset, (uint8_t)((instrument->duty_cycle & 0xFF00)>>8), sid_num);
-    SID_Set_Reg(SID_VOICE1_CONTROL+offset, instrument->voice, sid_num);
+    key-=BASE_MIDI_NOTE;
+    if (key >= COUNTOF(C64_freq_table))
+        return;
+    SID_Select(-1);
+
+    SID_Set_Reg(SID_MODE_VOL, MAXVOL | (inst->filt_mode & 0xF)<<4, sid_num);
+    SID_Set_Reg(SID_FC_LO,inst->filt_cutoff & 0x0007, sid_num);
+    SID_Set_Reg(SID_FC_HI, (inst->filt_cutoff & 0x07F8)>>3, sid_num);
+    SID_Set_Reg(SID_RES_FILT, (inst->filt_resonance & 0xF)<<4 | (inst->filt_routing&0x0F), sid_num);
+    SID_Set_Reg(SID_V1_FREQ_HI+offset, (uint8_t)((C64_freq_table[key] & 0xFF00)>>8), sid_num);
+    SID_Set_Reg(SID_V1_FREQ_LO+offset, (uint8_t)(C64_freq_table[key] & 0x00FF), sid_num);
+    SID_Set_Reg(SID_V1_AD+offset, inst->a*16+inst->d, sid_num);
+    SID_Set_Reg(SID_V1_SR+offset, inst->s*16+inst->r, sid_num);
+    SID_Set_Reg(SID_V1_PW_LO+offset, (uint8_t)(inst->duty_cycle & 0x00FF), sid_num);
+    SID_Set_Reg(SID_V1_PW_HI+offset, (uint8_t)((inst->duty_cycle & 0xFF00)>>8), sid_num);
+    SID_Set_Reg(SID_V1_CONTROL+offset, inst->voice, sid_num);
 }
 
 void SID_Note_Off(uint8_t voice)
 {
     int sid_num = 0;
+
     if(voice > 2) {
         voice -= 3;
         sid_num = 1;
     }
-    SID_Set_Reg(SID_VOICE1_CONTROL+SID_VOICE_OFFSET*voice,
+    uint8_t offset = SID_VOICE_OFFSET*voice;
+
+    SID_Set_Reg(SID_V1_AD+offset, 0, sid_num);
+    SID_Set_Reg(SID_V1_SR+offset, 0, sid_num);
+    SID_Set_Reg(SID_V1_CONTROL+SID_VOICE_OFFSET*voice,
         GeneralMIDI[Current_Instrument].voice & 0xFE, sid_num);
 }
 
@@ -296,7 +302,7 @@ uint8_t GetFreeVoice(int key)
 {
     // Search if the same note has already have been played or sustained.
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        if(Voices[i].key==key || Voices[i].key==-key) {
+        if(Voices[i].key==key) {
             return i;
         }
     }    // Search if there is a voice not playing.

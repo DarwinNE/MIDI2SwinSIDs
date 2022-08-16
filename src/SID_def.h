@@ -52,29 +52,29 @@ typedef struct VoiceDef_tag {
 
 #define SID_VOICE_OFFSET    0x07
 
-#define SID_VOICE1_FREQ_LO  0x00
-#define SID_VOICE1_FREQ_HI  0x01
-#define SID_VOICE1_PW_LO    0x02
-#define SID_VOICE1_PW_HI    0x03
-#define SID_VOICE1_CONTROL  0x04
-#define SID_VOICE1_AD       0x05
-#define SID_VOICE1_SR       0x06
+#define SID_V1_FREQ_LO  0x00
+#define SID_V1_FREQ_HI  0x01
+#define SID_V1_PW_LO    0x02
+#define SID_V1_PW_HI    0x03
+#define SID_V1_CONTROL  0x04
+#define SID_V1_AD       0x05
+#define SID_V1_SR       0x06
 
-#define SID_VOICE2_FREQ_LO  0x07
-#define SID_VOICE2_FREQ_HI  0x08
-#define SID_VOICE2_PW_LO    0x09
-#define SID_VOICE2_PW_HI    0x0A
-#define SID_VOICE2_CONTROL  0x0B
-#define SID_VOICE2_AD       0x0C
-#define SID_VOICE2_SR       0x0D
+#define SID_V2_FREQ_LO  0x07
+#define SID_V2_FREQ_HI  0x08
+#define SID_V2_PW_LO    0x09
+#define SID_V2_PW_HI    0x0A
+#define SID_V2_CONTROL  0x0B
+#define SID_V2_AD       0x0C
+#define SID_V2_SR       0x0D
 
-#define SID_VOICE3_FREQ_LO  0x0E
-#define SID_VOICE3_FREQ_HI  0x0F
-#define SID_VOICE3_PW_LO    0x10
-#define SID_VOICE3_PW_HI    0x11
-#define SID_VOICE3_CONTROL  0x12
-#define SID_VOICE3_AD       0x13
-#define SID_VOICE3_SR       0x14
+#define SID_V3_FREQ_LO  0x0E
+#define SID_V3_FREQ_HI  0x0F
+#define SID_V3_PW_LO    0x10
+#define SID_V3_PW_HI    0x11
+#define SID_V3_CONTROL  0x12
+#define SID_V3_AD       0x13
+#define SID_V3_SR       0x14
 
 #define SID_FC_LO           0x15
 #define SID_FC_HI           0x16

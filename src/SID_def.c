@@ -40,29 +40,29 @@ SID_conf GeneralMIDI[256] = {
     {1 ,5 ,0 ,4 , 0  ,LO,1024,  0,NON,SAWTH,"Glockenspiel"},            // 9
     {0 ,6 ,0 ,6 , 0  ,LO,300 ,  0,ALL,TRIAN,"Music box"},               // 10
     {0 ,6 ,0 ,6 , 0  ,LO,512 ,  0,ALL,TRIAN,"Vibraphone"},              // 11
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Marimba"},                 // 12
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Xylophone*"},              // 13
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Tubular Bells*"},          // 14
-    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Dulcimer*"},               // 15
+    {0 ,6 ,0 ,5 , 0  ,LO,1024,  0,NON,TRIAN,"Marimba"},                 // 12
+    {0 ,6 ,0 ,8 , 0  ,LO,1024,  0,NON,TRIAN,"Xylophone"},               // 13
+    {0 ,6 ,0 ,6 , 0  ,LO,128 ,  0,ALL,TRIAN,"Tubular Bells"},           // 14
+    {0 ,6 ,0 ,6 , 0  ,LO,1024,  0,NON,TRIAN,"Dulcimer"},                // 15
     {2 ,1 ,15,1 , 0  ,LO,512 ,  4,ALL,TRIAN,"Drawbar Organ"},           // 16
-    {1 ,1 ,13,1 , 0  ,LO,512 ,  4,NON,SAWTH,"Percussive Organ*"},       // 17
-    {0 ,2 ,13,1 , 0  ,LO,512 ,  4,NON,TRIAN,"Rock Organ*"},             // 18
-    {1 ,2 ,15,1 , 0  ,LO,512 ,  4,NON,TRIAN,"Church Organ*"},           // 19
-    {1 ,0 ,15,1 ,1024,LO,512 ,  4,NON,PULSE,"Reed Organ*"},             // 20
-    {0 ,0 ,15, 0, 0  ,LO,512 ,  0,NON,TRIAN,"Accordion*"},              // 21
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Harmonica*"},              // 22
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Tango Accordion*"},        // 23
-    {0 ,13,0 ,4 , 256,LO,1024,  0,NON,TRIAN,"Acoustic Guitar (nylon)*"},// 24
-    {0 ,13,0 ,4 , 256,LO,1024,  0,NON,SAWTH,"Acoustic Guitar (steel)*"},// 25
-    {0 ,13,0 ,5 , 256,LO,1024,  0,NON,SAWTH,"Electric Guitar (jazz)*"}, // 26
-    {0 ,13,0 ,5 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (clean)*"},// 27
-    {0 ,13,0 ,2 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (muted)*"},// 28
-    {0 ,13,0 ,9 , 256,LO,1024,  0,NON,PULSE,"Overdriven Guitar*"},      // 29
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Distortion Guitar*"},      // 30
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Guitar Harmonics*"},       // 31
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Acoustic Bass*"},          // 32
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Electric Bass (finger)*"}, // 33
-    {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Electric Bass (pick)*"},   // 34
+    {1 ,1 ,13,1 , 0  ,LO,512 ,  4,NON,SAWTH,"Percussive Organ"},        // 17
+    {1 ,2 ,13,1 , 0  ,LO,300 ,  4,ALL,TRIAN,"Rock Organ"},              // 18
+    {1 ,2 ,15,1 , 0  ,LO,512 ,  4,NON,TRIAN,"Church Organ"},            // 19
+    {1 ,1 ,15,2 ,1024,LO,128 ,  4,ALL,PULSE,"Reed Organ"},              // 20
+    {1 ,1 ,15,2 , 512,LO,256 ,  0,ALL,PULSE,"Accordion"},               // 21
+    {1 ,2 ,13,2 , 512,LO,512 ,  0,NON,PULSE,"Harmonica"},               // 22
+    {1 ,2 ,12,2 ,1024,LO,512 ,  0,NON,PULSE,"Tango Accordion"},         // 23
+    {0 ,10,0 ,4 , 256,LO,1024,  0,NON,TRIAN,"Acoustic Guitar (nylon)"}, // 24
+    {0 ,10,0 ,4 , 256,LO,256 ,  0,ALL,SAWTH,"Acoustic Guitar (steel)"}, // 25
+    {0 ,10,0 ,5 , 256,LO,1024,  0,NON,SAWTH,"Electric Guitar (jazz)"},  // 26
+    {0 ,10,0 ,5 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (clean)"}, // 27
+    {0 ,11,0 ,2 , 256,LO,1024,  0,NON,TRIAN,"Electric Guitar (muted)"}, // 28
+    {0 ,12,0 ,3 , 512,LO,128 ,  9,ALL,PULSE,"Overdriven Guitar"},       // 29
+    {0 ,12,0 ,3 , 256,LO,512 ,  8,ALL,PULSE,"Distortion Guitar"},       // 30
+    {0 ,12,0 ,3 , 0  ,HI,256 ,  7,ALL,TRIAN,"Guitar Harmonics"},        // 31
+    {1 ,12,0 ,3 , 0  ,LO,200 ,  0,ALL,TRIAN,"Acoustic Bass"},           // 32
+    {1 ,12,0 ,4 , 0  ,LO,250 ,  8,ALL,TRIAN,"Electric Bass (finger)"},  // 33
+    {1 ,12,0 ,4 , 0  ,LO,792 ,  8,ALL,TRIAN,"Electric Bass (pick)"},    // 34
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Fretless Bass*"},          // 35
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Slap Bass 1*"},            // 36
     {0 ,0 ,15, 0, 0  ,LO,1024,  0,NON,TRIAN,"Slap Bass 2*"},            // 37

@@ -2,6 +2,9 @@
 #define __SID_DEF_H
 
 #define BASE_MIDI_NOTE 24
+#define SECONDVOICE    128
+
+#define NOV2 32768 // Use NOV2 to disable voice 2 in the frequency difference
 
 typedef struct SID_conf_tag {
     uint8_t  a;                 // Attack
@@ -13,14 +16,21 @@ typedef struct SID_conf_tag {
     uint16_t filt_cutoff;       // Filter cutoff
     uint8_t  filt_resonance;    // Filter resonance
     uint8_t  filt_routing;      // Filter voice routing
-    uint8_t  voice;             // Waveform
+    uint8_t  voice;             // Waveform voice 1
+    uint16_t diff;              // Frequency difference (in cents) b/w voices
+    uint8_t  a2;                // Attack voice 2
+    uint8_t  d2;                // Decay voice 2
+    uint8_t  s2;                // Sustain voice 2
+    uint8_t  r2;                // Release voice 2
+    uint16_t duty_cycle2;       // Duty cycle (for rectangular waveforms)
+    uint8_t  voice2;            // Waveform voice 2
     char    *name;              // Name of the instrument
 } SID_conf;
 
 #define NUM_VOICES 6
 
 typedef struct VoiceDef_tag {
-    int      key;
+    int16_t  key;
     uint32_t timestamp;
 } VoiceDef;
 
@@ -88,9 +98,9 @@ typedef struct VoiceDef_tag {
 
 /* Exported functions (public). */
 void SID_Set_Reg(int address, int data, int sid_num);
-void SID_Note_On(uint8_t key, uint8_t velocity, uint8_t voice,
-    SID_conf *instrument);
+void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *instrument);
 void SID_Note_Off(uint8_t voice);
-
+uint8_t GetFreeVoice(int key);
+void SID_Stop_Voice(uint8_t voice);
 
 #endif

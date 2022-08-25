@@ -30,14 +30,17 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 
 int receive=0;
 
-extern volatile uint8_t Current_Instrument;
+extern volatile int Current_Instrument;
 extern volatile uint8_t SustainPedal;
+extern volatile uint8_t Master_Volume;     // 0 to 15
+
+
 extern SID_conf GeneralMIDI[];
 extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
 
-// Track how many notes we have played since the last reset.
-uint32_t now;
-
+#define MESSAGE_SIZE 256
+char Message[MESSAGE_SIZE];
+int  MessageCountdown;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -203,6 +206,7 @@ int main(void)
         Error_Handler();
     }
     MIDI_ReceiveState = idle;
+    Master_Volume = MAXVOL;
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, (uint32_t) LCD_FRAME_BUFFER);
     BSP_LCD_SetLayerVisible(0, ENABLE);
@@ -231,8 +235,18 @@ int main(void)
     receive=0;
     uint8_t old_instrument=255;
     char buffer[256];
+    MessageCountdown = 0;
 
     while (1) {
+        if(MessageCountdown) {
+            --MessageCountdown;
+            BSP_LCD_DisplayStringAtLineMode(13, 
+                (uint8_t *) Message, CENTER_MODE);
+        } else {
+            BSP_LCD_DisplayStringAtLineMode(13, 
+                (uint8_t *) "[                           ]", CENTER_MODE);
+        }
+        
         BSP_LED_Toggle(LED4);
         HAL_Delay(100);
         if(old_instrument!=Current_Instrument) {
@@ -243,7 +257,7 @@ int main(void)
             old_instrument=Current_Instrument;
         }
         BSP_LCD_DisplayStringAtLineMode(14,
-        "                                           ", CENTER_MODE);
+            "[                           ]", CENTER_MODE);
         sprintf(buffer, "%d %d %d, %d %d %d",
             Voices[0].key,Voices[1].key,Voices[2].key,
             Voices[3].key,Voices[4].key,Voices[5].key);
@@ -251,7 +265,6 @@ int main(void)
     }
 }
 
-    
 volatile int velocity;
 volatile int key;
 volatile int control;
@@ -299,11 +312,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Play the note here!
-            uint8_t v = GetFreeVoice(key);
-            SID_Note_On(key, velocity, v, &GeneralMIDI[Current_Instrument]);
-            Voices[v].key=key;
-            Voices[v].timestamp=now;
-            ++now;
+            SID_Note_On(key, velocity, &GeneralMIDI[Current_Instrument]);
             break;
         case note_off_k:
             key = rec;
@@ -313,18 +322,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Stop the note here.
-            for(uint8_t i=0; i<NUM_VOICES; ++i) {
-                if(Voices[i].key==key || Voices[i].key==-key) {
-                    if(SustainPedal) {
-                        // If the pedal is depressed, mark note as sustained.
-                        Voices[i].key=-key;
-                     } else {
-                        SID_Note_Off(i);
-                        Voices[i].key=0;
-                        break;
-                    }
-                }
-            }
+            SID_Note_Off(key);
             break;
         case control_c:
             control = rec;
@@ -345,7 +343,56 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                         }
                     }
                 }
-            }
+            } else if(control == 0x72) {    // Arturia change wheel
+                if(value == 0x41) {                 // Increase program change
+                    if(++Current_Instrument>127)
+                        Current_Instrument = 127;
+                } else if(value == 0x3F) {          // Decrease program change
+                    if(--Current_Instrument<0)
+                        Current_Instrument = 0;
+                }
+            } else if(control == 0x49) {    // Change attack
+                GeneralMIDI[Current_Instrument].a = value >> 3;
+                sprintf(Message, "Attack: %d",
+                    GeneralMIDI[Current_Instrument].a);
+                MessageCountdown = 20;
+            } else if(control == 0x4B) {    // Change decay
+                GeneralMIDI[Current_Instrument].d = value >> 3;
+                sprintf(Message, "Decay: %d",
+                    GeneralMIDI[Current_Instrument].d);
+                MessageCountdown = 20;
+            } else if(control == 0x4F) {    // Change sustain
+                GeneralMIDI[Current_Instrument].s = value >> 3;
+                sprintf(Message, "Sustain: %d",
+                    GeneralMIDI[Current_Instrument].s);
+                MessageCountdown = 20;
+            } else if(control == 0x48) {    // Change release
+                GeneralMIDI[Current_Instrument].r = value >> 3;
+                sprintf(Message, "Release: %d",
+                    GeneralMIDI[Current_Instrument].r);
+                MessageCountdown = 20;
+            } else if(control == 0x4A) {    // Change cutoff
+                GeneralMIDI[Current_Instrument].filt_cutoff = value << 4;
+                sprintf(Message, "Cutoff: %d",
+                    GeneralMIDI[Current_Instrument].filt_cutoff);
+                MessageCountdown = 20;
+            } else if(control == 0x47) {    // Change resonance
+                GeneralMIDI[Current_Instrument].filt_resonance = value >>3;
+                sprintf(Message, "Resonance: %d",
+                    GeneralMIDI[Current_Instrument].filt_resonance);
+                MessageCountdown = 20;
+            } else if(control == 0x55) {    // Change master volume
+                Master_Volume = value >>3;
+                sprintf(Message, "Volume: %d", Master_Volume);
+                MessageCountdown = 20;
+            } else if(control == 0x5D) {    // Change waveform
+                uint8_t choice[4]={TRIAN, SAWTH, PULSE, NOISE};
+                char*   wav[4] = {"Triangular", "Sawtooth", "Pulse", "Noise"};
+                GeneralMIDI[Current_Instrument].voice = choice[value>>5];
+                sprintf(Message, "Wave: %s", wav[value>>5]);
+                MessageCountdown = 20;
+            } 
+
             break;
         default:
             MIDI_ReceiveState=idle;

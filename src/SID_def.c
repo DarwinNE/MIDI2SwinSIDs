@@ -36,7 +36,7 @@ SID_conf GeneralMIDI[256] = {
     {2 ,11,0 ,2 ,2048,LO,300 ,  0,ALL,PULSE,1200, 2, 8, 0, 1,   0, TRIAN,"Acoustic Grand Piano"},    // 0
     {2 ,11,0 ,2 ,1024,LO,392 ,  0,ALL,PULSE,1200, 1, 8, 0, 2,   0, SAWTH,"Bright Acoustic Piano"},   // 1
     {2 ,10,0 ,1 ,2048,LO,512 ,  4,ALL,PULSE,1200, 1,10, 0, 1, 512, PULSE,"Electric Grand Piano"},    // 2
-    {1 ,10,0 ,1 , 0  ,LO,128 ,  8,ALL,SAWTH,20  , 1,10, 0, 1,2048, PULSE,"Honky-tonk Piano"},        // 3   Would add a "chorus" effect here!
+    {1 ,8 ,0 ,1 , 0  ,LO,128 ,  8,NON,SAWTH,20  , 1,10, 0, 1,2048, PULSE,"Honky-tonk Piano"},        // 3   Would add a "chorus" effect here!
     {1 ,10,0 ,1 , 512,LO,400 ,  4,ALL,PULSE,600 , 0, 0, 0, 0,   0, PULSE,"Electric Piano 1"},        // 4
     {1 ,11,0 ,2 , 512,LO,300 ,  4,ALL,PULSE,1200, 1, 6, 0, 1,   0, SAWTH,"Electric Piano 2"},        // 5
     {1 ,10,0 ,1 , 0  ,LO,245 ,  0,NON,SAWTH,NOV2, 0, 0, 0, 0,   0, PULSE,"Harpsicord"},              // 6
@@ -256,10 +256,10 @@ void SID_Set_Reg(int address, int data, int sid_num)
 
 }
 
-void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *inst)
+void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst)
 {
-    uint8_t voice = GetFreeVoice(key);
-    Voices[voice].key=key;
+    uint8_t voice = GetFreeVoice(key_m);
+    Voices[voice].key=key_m;
     Voices[voice].timestamp=now++;
 
     int sid_num = 0;
@@ -270,7 +270,7 @@ void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *inst)
     }
     uint8_t offset = SID_VOICE_OFFSET*voice;
 
-    key-=BASE_MIDI_NOTE;
+    uint8_t key=key_m-BASE_MIDI_NOTE;
     if (key >= COUNTOF(C64_freq_table))
         return;
     SID_Select(-1);
@@ -289,8 +289,8 @@ void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *inst)
     
     // Check if a second voice is present and if yes play it.
     if(inst->diff != NOV2) {
-        uint8_t voice = GetFreeVoice(key*SECONDVOICE);
-        Voices[voice].key=key*SECONDVOICE;
+        uint8_t voice = GetFreeVoice(key_m*SECONDVOICE);
+        Voices[voice].key=((int16_t)key_m)*SECONDVOICE;
         Voices[voice].timestamp=now++;
         if(voice > 2) {
             voice -= 3;
@@ -325,12 +325,13 @@ void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *inst)
 
 void SID_Note_Off(uint8_t key)
 {
+    int16_t key_V2 = ((int16_t)key)*SECONDVOICE;
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        if(    Voices[i].key == key
-            || Voices[i].key == -key
-            || Voices[i].key >SECONDVOICE)
-            //|| Voices[i].key == ((int16_t)key)*SECONDVOICE    // Not triggered
-            //|| Voices[i].key == -(int16_t)key*SECONDVOICE)
+        if(    (Voices[i].key == key)
+            || (Voices[i].key == -key)
+            //|| Voices[i].key >SECONDVOICE)
+            || (Voices[i].key == key_V2)    // Not triggered
+            || (Voices[i].key == -key_V2))
         {
             if(SustainPedal && Voices[i].key>0) {
                 // If the pedal is depressed, mark note as sustained.
@@ -363,7 +364,7 @@ void SID_Stop_Voice(uint8_t voice)
 /** Return NUM_VOICES if no voice is available */
 uint8_t GetFreeVoice(int key)
 {
-    // Search if the same note has already have been played or sustained.
+    // Search if the same note has already have been played.
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
         if(Voices[i].key==key) {
             return i;
@@ -380,7 +381,7 @@ uint8_t GetFreeVoice(int key)
     uint8_t  pos = 0;
     uint8_t  susnotes = 0;  // Flag: if != 0, there are sustained notes.
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        if(Voices[i].key<0 && Voices[i].timestamp<oldest) {
+        if(Voices[i].key<0 && Voices[i].timestamp<=oldest) {
             pos = i;
             susnotes = 1;
         }

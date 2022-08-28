@@ -4,8 +4,6 @@
 #define BASE_MIDI_NOTE 24
 #define SECONDVOICE    128
 
-#define NOV2 32768 // Use NOV2 to disable voice 2 in the frequency difference
-
 typedef struct SID_conf_tag {
     uint8_t  a;                 // Attack
     uint8_t  d;                 // Decay
@@ -41,6 +39,7 @@ typedef struct VoiceDef_tag {
 #define PULSE   65
 #define SAWTH   33
 #define TRIAN   17
+#define NONE    0
 
 // SID filter modes
 #define LO          1   // Low-pass filter

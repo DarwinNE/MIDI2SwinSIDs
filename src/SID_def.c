@@ -54,7 +54,7 @@ SID_conf GeneralMIDI[256] = {
     {1 ,10,0 ,1 , 0  ,LO,245 , 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,"Harpsicord"},              // 6
     {0 ,10,0 ,6 , 0  ,LO,864 ,15,ALL,SAWTH,1800, 0, 10,0, 6,   0, SAWTH,"Clavi"},                   // 7
     {0 ,10,0 ,3 ,2048,LO,128 , 0,NON,TRIAN,2400, 0, 8, 0, 2,   0, TRIAN,"Celesta"},                 // 8
-    {1 ,5 ,0 ,4 , 0  ,LO,1024, 0,NON,TRIAN,2400, 0, 7, 0, 3,2048, PULSE,"Glockenspiel"},            // 9
+    {1 ,9 ,0 ,4 , 0  ,LO,1024, 0,NON,TRIAN,2400, 0, 8, 0, 3,2048, PULSE,"Glockenspiel"},            // 9
     {0 ,6 ,0 ,6 , 0  ,LO,300 , 0,NON,TRIAN,2400, 0, 5, 0, 5,   0, SAWTH,"Music box"},               // 10
     {0 ,11,0 ,3 , 0  ,LO,512 , 0,NON,TRIAN,1200, 1,10, 0, 3,   0, TRIAN,"Vibraphone"},              // 11
     {0 ,6 ,0 ,5 , 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Marimba"},                 // 12
@@ -74,7 +74,7 @@ SID_conf GeneralMIDI[256] = {
     {0 ,10,0 ,5 , 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,"Electric Guitar (jazz)"},  // 26
     {0 ,10,0 ,5 , 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Electric Guitar (clean)"}, // 27
     {0 ,11,0 ,2 , 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Electric Guitar (muted)"}, // 28
-    {0 ,12,0 ,3 , 512,LO, 128, 9,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,"Overdriven Guitar"},       // 29
+    {0 ,12,0 ,3 , 512,LO, 432, 9,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,"Overdriven Guitar"},       // 29
     {0 ,12,0 ,3 , 256,LO, 512, 8,ALL,PULSE, 600, 0,12, 0, 3, 512, PULSE,"Distortion Guitar"},       // 30
     {0 ,12,0 ,3 , 0  ,HI, 256, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Guitar Harmonics"},        // 31
     {1 ,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,"Acoustic Bass"},           // 32
@@ -90,15 +90,15 @@ SID_conf GeneralMIDI[256] = {
     {7 ,10,13, 3, 768,LO, 550, 5,ALL,PULSE, 600, 6, 8,11, 9,   0, SAWTH,"Cello"},                  // 42
     {8 ,10,13, 3, 900,LO, 480, 5,ALL,PULSE, 600, 6, 8,11, 9,   0, SAWTH,"Contrabass"},             // 43
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Tremolo Strings*"},        // 44
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Pizzicato Strings*"},      // 45
+    {0 , 9, 0, 2, 0  ,LO, 800, 6,ALL,SAWTH, 598, 1, 9,0, 1,1824, PULSE,"Pizzicato Strings"},      // 45
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Orchestral Harp*"},        // 46
-    {0 ,10,0 ,10, 0  ,LO,512 , 0,ALL,NOISE,600 , 0,10, 0,10,   0, NOISE,"Timpani"},                 // 47
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"String Ensemble 1*"},      // 48
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"String Ensemble 2*"},      // 49
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Synth Strings 1*"},        // 50
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Synth Strings 2*"},        // 51
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Choir Aahs*"},             // 52
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Voice Oohs*"},             // 53
+    {0 ,10,0 ,10, 0  ,LO, 512, 0,ALL,NOISE, 600, 0,10, 0,10,   0, NOISE,"Timpani"},                 // 47
+    {7 , 7,13, 3, 0  ,LO, 496, 2,ALL,SAWTH, 602, 6, 8,11, 5,   0, SAWTH,"String Ensemble 1"},      // 48
+    {7 , 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,"String Ensemble 2"},      // 49
+    {7 , 7,13, 3, 0  ,LO, 496, 2,ALL,SAWTH, 598, 6, 8,11, 5,1824, PULSE,"Synth Strings 1"},        // 50
+    {7 , 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 6, 8,11, 5,1824, PULSE,"Synth Strings 2"},        // 51
+    {7 , 7,13, 3, 0  ,BP, 608, 6,ALL,SAWTH,1203, 6, 8,11, 5, 672, PULSE,"Choir Aahs*"},             // 52
+    {7 , 7,13, 3, 0  ,BP, 224, 6,ALL,SAWTH,1203, 6, 8,11, 5, 672, NONE ,"Voice Oohs*"},             // 53
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Synth Voice*"},            // 54
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Orchestra Hit*"},          // 55
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Trumpet*"},                // 56
@@ -110,7 +110,7 @@ SID_conf GeneralMIDI[256] = {
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Synth Brass 1*"},          // 62
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Synth Brass 2*"},          // 63
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Soprano Sax*"},            // 64
-    {5 ,10,13, 3, 768,LO, 550,15,ALL,PULSE, 600, 5, 8,11, 9,   0, SAWTH,"Alto Sax*"},               // 65
+    {5 ,10,13, 3, 768,LO, 550,15,ALL,PULSE, 600, 5, 8,11, 9,   0, SAWTH,"Alto Sax"},               // 65
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Tenor Sax*"},              // 66
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Baritone Sax*"},           // 67
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Oboe*"},                   // 68
@@ -162,7 +162,7 @@ SID_conf GeneralMIDI[256] = {
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Woodblock*"},              // 114
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Taiko Drum*"},             // 115
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Melodic Tom*"},            // 116
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Synth Drum*"},             // 117
+    {2 , 9,0 ,10, 0  ,BP, 112, 0,ALL,NOISE,1200, 1,10, 0,10,   0, NOISE,"Synth Drum"},             // 117
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Reverse Cymbal*"},         // 118
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Guitar Fret Noise*"},      // 119
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,"Breath Noise*"},           // 120
@@ -344,8 +344,7 @@ void SID_Note_Off(uint8_t key)
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
         if(    (Voices[i].key == key)
             || (Voices[i].key == -key)
-            //|| Voices[i].key >SECONDVOICE)
-            || (Voices[i].key == key_V2)    // Not triggered
+            || (Voices[i].key == key_V2)
             || (Voices[i].key == -key_V2))
         {
             if(SustainPedal && Voices[i].key>0) {

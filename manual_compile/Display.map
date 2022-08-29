@@ -13922,7 +13922,7 @@ END GROUP
  *(.flashtext .flashtext.*)
                 0x0000000008000470                . = ALIGN (0x4)
 
-.text           0x0000000008000470     0xa669
+.text           0x0000000008000470     0xa661
                 0x0000000008000470                . = ALIGN (0x4)
  *(.text .text.*)
  .text.HAL_InitTick
@@ -14483,17 +14483,17 @@ END GROUP
                 0x0000000008009f58      0x3bb ./src/main.o
  *fill*         0x000000000800a313        0x1 
  .rodata.str1.4
-                0x000000000800a314      0x78c ./src/SID_def.o
-                                        0x791 (size before relaxing)
+                0x000000000800a314      0x784 ./src/SID_def.o
+                                        0x789 (size before relaxing)
  .rodata.GPIO_PIN
-                0x000000000800aaa0        0x4 ./src/stm32f429i_discovery.o
-                0x000000000800aaa0                GPIO_PIN
+                0x000000000800aa98        0x4 ./src/stm32f429i_discovery.o
+                0x000000000800aa98                GPIO_PIN
  .rodata.str1.1
-                0x000000000800aaa4        0x2 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-impure.o)
+                0x000000000800aa9c        0x2 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-impure.o)
  .rodata.str1.1
-                0x000000000800aaa6       0x11 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-svfprintf.o)
+                0x000000000800aa9e       0x11 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-svfprintf.o)
  .rodata.str1.1
-                0x000000000800aab7       0x22 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-vfprintf_i.o)
+                0x000000000800aaaf       0x22 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-vfprintf_i.o)
  *(vtable)
  *(.eh_frame*)
  *(.glue_7)
@@ -14501,31 +14501,31 @@ END GROUP
  *(.glue_7t)
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x000000000800aadc        0x0
+.vfp11_veneer   0x000000000800aad4        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x000000000800aadc        0x0
+.v4_bx          0x000000000800aad4        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x000000000800aadc        0x0
+.iplt           0x000000000800aad4        0x0
  .iplt          0x0000000000000000        0x0 ./system/src/stm32f4-hal/stm32f4xx_hal.o
 
-.rel.dyn        0x000000000800aadc        0x0
+.rel.dyn        0x000000000800aad4        0x0
  .rel.iplt      0x0000000000000000        0x0 ./system/src/stm32f4-hal/stm32f4xx_hal.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x000000000800aadc                __exidx_start = .
+                0x000000000800aad4                __exidx_start = .
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x000000000800aadc                __exidx_end = .
-                0x000000000800aadc                . = ALIGN (0x4)
-                0x000000000800aadc                _etext = .
-                0x000000000800aadc                __etext = .
-                0x000000000800aadc                _sidata = _etext
+                0x000000000800aad4                __exidx_end = .
+                0x000000000800aad4                . = ALIGN (0x4)
+                0x000000000800aad4                _etext = .
+                0x000000000800aad4                __etext = .
+                0x000000000800aad4                _sidata = _etext
 
-.data           0x0000000020000000     0x1d8c load address 0x000000000800aadc
+.data           0x0000000020000000     0x1d8c load address 0x000000000800aad4
                 0x0000000020000000                . = ALIGN (0x4)
                 0x0000000020000000                _sdata = .
                 0x0000000020000000                __data_start__ = .
@@ -14567,10 +14567,10 @@ END GROUP
                 0x0000000020001d8c                _edata = .
                 0x0000000020001d8c                __data_end__ = .
 
-.igot.plt       0x0000000020001d8c        0x0 load address 0x000000000800c868
+.igot.plt       0x0000000020001d8c        0x0 load address 0x000000000800c860
  .igot.plt      0x0000000000000000        0x0 ./system/src/stm32f4-hal/stm32f4xx_hal.o
 
-.bss            0x0000000020001d8c      0x5b4 load address 0x000000000800c868
+.bss            0x0000000020001d8c      0x5b4 load address 0x000000000800c860
                 0x0000000020001d8c                . = ALIGN (0x4)
                 0x0000000020001d8c                __bss_start__ = .
                 0x0000000020001d8c                _sbss = .
@@ -14656,7 +14656,7 @@ END GROUP
                 0x0000000020002340                PROVIDE (__end, _end_noinit)
                 0x0000000020002340                PROVIDE (__end__, _end_noinit)
 
-._check_stack   0x0000000020002340      0x100 load address 0x000000000800ce1c
+._check_stack   0x0000000020002340      0x100 load address 0x000000000800ce14
                 0x0000000020002340                . = ALIGN (0x4)
                 0x0000000020002440                . = (. + _Minimum_Stack_Size)
  *fill*         0x0000000020002340      0x100 

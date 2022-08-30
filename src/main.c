@@ -20,7 +20,11 @@
 #include "stm32f4xx_hal.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "SID_def.h"
+
+void ShowInstrument(void);
+
 
 /* UART handler declaration */
 volatile UART_HandleTypeDef UartHandle;
@@ -41,7 +45,11 @@ extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
 #define MESSAGE_SIZE 256
 char Message[MESSAGE_SIZE];
 int  MessageCountdown;
-int diff;
+
+extern int8_t LFO_Table[];
+extern uint16_t LFO_Pointer;
+extern uint8_t LFO_Amount;
+extern uint8_t LFO_Rate;
 
 /* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
@@ -235,26 +243,48 @@ int main(void)
     }
     receive=0;
     uint8_t old_instrument=255;
-    char buffer[256];
     MessageCountdown = 0;
     HAL_Delay(2000);
     BSP_LCD_Clear(LCD_COLOR_BLUE);
     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+
+    uint32_t CounterRefreshInfos=0;
+    uint8_t  ToErase=0;
+
+    for(int i=0; i<LFO_SIZE; ++i)
+        LFO_Table[i]=(int)(127.0*sin((float)i/LFO_SIZE*2.0*M_PI));
+    
     while (1) {
-        ShowInstrument();
-        if(MessageCountdown) {
-            --MessageCountdown;
-            BSP_LCD_DisplayStringAtLineMode(19, 
-                (uint8_t *) Message, CENTER_MODE);
-        } else {
-            BSP_LCD_DisplayStringAtLineMode(19, 
-                (uint8_t *) "[                           ]", CENTER_MODE);
+        if(CounterRefreshInfos++>10) {
+            CounterRefreshInfos=0;
+            ShowInstrument();
+            if(MessageCountdown) {
+                --MessageCountdown;
+                ToErase=1;
+                BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
+                BSP_LCD_DisplayStringAtLineMode(19, 
+                    (uint8_t *) Message, CENTER_MODE);
+            } else {
+                if(ToErase) {
+                    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+                    BSP_LCD_FillRect(0,320-16,240,16);         // Noisy!!!
+                    ToErase=0;
+                }
+            }
         }
-        
+        UpdateLFO();
+
         BSP_LED_Toggle(LED4);
-        HAL_Delay(100);
-        /*BSP_LCD_DisplayStringAtLineMode(18,
+        HAL_Delay(10);
+        LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
+        if(LFO_Pointer >= LFO_SIZE)
+            LFO_Pointer = 0;
+
+        /*
+            char buffer[256];
+
+        BSP_LCD_DisplayStringAtLineMode(18,
             "[                           ]", CENTER_MODE);
         sprintf(buffer, "%d %d %d, %d %d %d",
             Voices[0].key,Voices[1].key,Voices[2].key,
@@ -433,17 +463,27 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                     if(--CurrInst<0)
                         CurrInst = 0;
                 }
-            } else if(control == 0x4C) {    // Change DUTY 1
+            } else if(control == 0x00) {    // Change DUTY 1  NOTE: FIND CC
                 GeneralMIDI[CurrInst].duty_cycle = value << 5;
                 sprintf(Message, "Duty 1 : %d",
                     GeneralMIDI[CurrInst].duty_cycle);
                 MessageCountdown = 20;
-            } else if(control == 0x4D) {    // Change DUTY 2
+            } else if(control == 0x00) {    // Change DUTY 2  NOTE: FIND CC
                 GeneralMIDI[CurrInst].duty_cycle2 = value << 5;
                 sprintf(Message, "Duty 2 : %d",
                     GeneralMIDI[CurrInst].duty_cycle2);
                 MessageCountdown = 20;
-            }else if(control == 0x49) {    // Change attack 1
+            } else if(control == 0x4c) {    // Change LFO depth/amount
+                GeneralMIDI[CurrInst].lfo_rate = value;
+                sprintf(Message, "LFO rate : %d",
+                    GeneralMIDI[CurrInst].lfo_rate);
+                MessageCountdown = 20;
+            } else if(control == 0x4D) {    // Change LFO depth/amount
+                GeneralMIDI[CurrInst].lfo_depth = value;
+                sprintf(Message, "LFO amount : %d",
+                    GeneralMIDI[CurrInst].lfo_depth);
+                MessageCountdown = 20;
+            } else if(control == 0x49) {    // Change attack 1
                 GeneralMIDI[CurrInst].a = value >> 3;
                 sprintf(Message, "Attack 1: %d",
                     GeneralMIDI[CurrInst].a);

@@ -1,8 +1,9 @@
 #ifndef __SID_DEF_H
 #define __SID_DEF_H
 
-#define BASE_MIDI_NOTE 24
-#define SECONDVOICE    128
+#define BASE_MIDI_NOTE  24
+#define SECONDVOICE     128
+#define LFO_SIZE        256
 
 typedef struct SID_conf_tag {
     uint8_t  a;                 // Attack
@@ -22,6 +23,8 @@ typedef struct SID_conf_tag {
     uint8_t  r2;                // Release voice 2
     uint16_t duty_cycle2;       // Duty cycle (for rectangular waveforms)
     uint8_t  voice2;            // Waveform voice 2
+    uint8_t  lfo_rate;          // LFO rate
+    uint8_t  lfo_depth;         // LFO depth -> pitch
     char    *name;              // Name of the instrument
 } SID_conf;
 
@@ -30,6 +33,9 @@ typedef struct SID_conf_tag {
 typedef struct VoiceDef_tag {
     int16_t  key;
     uint32_t timestamp;
+    uint8_t  voice;
+    SID_conf inst;
+    int16_t  freq;
 } VoiceDef;
 
 
@@ -101,5 +107,7 @@ void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *instrument);
 void SID_Note_Off(uint8_t voice);
 uint8_t GetFreeVoice(int key);
 void SID_Stop_Voice(uint8_t voice);
+void UpdateLFO(void);
+
 
 #endif

@@ -463,17 +463,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                     if(--CurrInst<0)
                         CurrInst = 0;
                 }
-            } else if(control == 0x00) {    // Change DUTY 1  NOTE: FIND CC
+            } else if(control == 0x4c) {    // Change DUTY 1  NOTE: FIND CC
                 GeneralMIDI[CurrInst].duty_cycle = value << 5;
                 sprintf(Message, "Duty 1 : %d",
                     GeneralMIDI[CurrInst].duty_cycle);
                 MessageCountdown = 20;
-            } else if(control == 0x00) {    // Change DUTY 2  NOTE: FIND CC
+            } else if(control == 0x4d) {    // Change DUTY 2  NOTE: FIND CC
                 GeneralMIDI[CurrInst].duty_cycle2 = value << 5;
                 sprintf(Message, "Duty 2 : %d",
                     GeneralMIDI[CurrInst].duty_cycle2);
                 MessageCountdown = 20;
-            } else if(control == 0x4c) {    // Change LFO depth/amount
+            } /*else if(control == 0x4c) {    // Change LFO depth/amount
                 GeneralMIDI[CurrInst].lfo_rate = value;
                 sprintf(Message, "LFO rate : %d",
                     GeneralMIDI[CurrInst].lfo_rate);
@@ -483,7 +483,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                 sprintf(Message, "LFO amount : %d",
                     GeneralMIDI[CurrInst].lfo_depth);
                 MessageCountdown = 20;
-            } else if(control == 0x49) {    // Change attack 1
+            }*/ else if(control == 0x49) {    // Change attack 1
                 GeneralMIDI[CurrInst].a = value >> 3;
                 sprintf(Message, "Attack 1: %d",
                     GeneralMIDI[CurrInst].a);

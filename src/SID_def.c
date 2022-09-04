@@ -115,17 +115,17 @@ SID_conf GeneralMIDI[256] = {
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Brass Section*"},          // 61
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Synth Brass 1*"},          // 62
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Synth Brass 2*"},          // 63
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Soprano Sax*"},            // 64
-    {5 ,10,13, 3, 768,LO, 550,15,ALL,PULSE, 600, 5, 8,11, 9,   0, SAWTH,  0,  0,"Alto Sax"},                // 65
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Tenor Sax*"},              // 66
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Baritone Sax*"},           // 67
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Oboe*"},                   // 68
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"English Horn*"},           // 69
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Bassoon*"},                // 70
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Clarinet*"},               // 71
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Piccolo*"},                // 72
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Flute*"},                  // 73
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Recorder*"},               // 74
+    {5 ,10,13, 3, 768,LO, 600,15,ALL,PULSE, 600, 6, 8,11, 9,   0, SAWTH,  0,  0,"Soprano Sax"},            // 64
+    {7 ,10,13, 3, 768,LO, 550,15,ALL,PULSE, 600, 7, 8,11, 9,   0, SAWTH,  0,  0,"Alto Sax"},                // 65
+    {8 ,10,13, 3, 768,LO, 500,15,ALL,PULSE, 600, 8, 8,11, 9,   0, SAWTH,  0,  0,"Tenor Sax"},              // 66
+    {8 ,10,13, 3, 768,LO, 450,15,ALL,PULSE, 600, 8, 8,11, 9,   0, SAWTH,  0,  0,"Baritone Sax"},           // 67
+    {3 ,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Oboe"},                   // 68
+    {3 ,7 ,14, 2,1888,LO, 144, 2,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"English Horn*"},           // 69
+    {3 ,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Bassoon*"},                // 70
+    {3 ,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Clarinet*"},               // 71
+    {3 ,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Piccolo*"},                // 72
+    {3 ,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Flute*"},                  // 73
+    {3 ,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Recorder*"},               // 74
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Pan Flute*"},              // 75
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Blown Bottle*"},           // 76
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Shakuhachi*"},             // 77
@@ -133,7 +133,7 @@ SID_conf GeneralMIDI[256] = {
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Ocarina*"},                // 79
     {0 ,0 ,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Lead 1 (square)"},         // 80
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Lead 2 (SAWTH)"},          // 81
-    {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Lead 3 (calliope)*"},      // 82
+    {3 ,7 ,14, 2,1888,LO, 200,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,"Lead 3 (calliope)*"},      // 82
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Lead 4 (chiff)*"},         // 83
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Lead 5 (charang)*"},       // 84
     {0 ,0 ,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,"Lead 6 (voice)*"},         // 85
@@ -321,8 +321,6 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst)
         Voices[voice].voice=inst->voice2;
         Voices[voice].inst=*inst;
         
-        Voices[voice].freq = v2freq_l;
-        
         int sid_num = 0;
         if(voice > 2) {
             voice -= 3;
@@ -336,6 +334,8 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst)
     
         if(v2freq_l>65536)
             return;
+        
+        Voices[voice].freq = v2freq_l;
         
         int16_t v2freq = (int16_t) v2freq_l;
         uint8_t offset = SID_VOICE_OFFSET*voice;

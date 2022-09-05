@@ -372,8 +372,14 @@ void ShowInstrument(void)
     sprintf(buffer, "Filter resonance: %d   ", 
         GeneralMIDI[CurrInst].filt_resonance);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
-    sprintf(buffer, "Filter routing: %d   ", 
-        GeneralMIDI[CurrInst].filt_routing);
+    if(GeneralMIDI[CurrInst].filt_routing==7) {
+        sprintf(buffer, "Filter routing: ALL ");
+    } else if(GeneralMIDI[CurrInst].filt_routing==0) {
+        sprintf(buffer, "Filter routing: NONE ");
+    } else {
+        sprintf(buffer, "Filter routing: %d   ", 
+            GeneralMIDI[CurrInst].filt_routing);
+    }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
 }
 

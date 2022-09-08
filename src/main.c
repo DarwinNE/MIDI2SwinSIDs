@@ -231,7 +231,7 @@ int main(void)
     BSP_LCD_SetFont(&Font16);
 
     BSP_LCD_DisplayStringAtLineMode(2,
-        (uint8_t *) "MIDI2SwinSIDs", CENTER_MODE);
+        (uint8_t *) "* MIDI2SwinSIDs *", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(5,
         (uint8_t *) "Copyright 2022", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(8,
@@ -365,7 +365,17 @@ void ShowInstrument(void)
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     sprintf(buffer, "Duty Cycle 2: %d   ", GeneralMIDI[CurrInst].duty_cycle2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
-    sprintf(buffer, "Filter mode: %d   ", GeneralMIDI[CurrInst].filt_mode);
+    if(GeneralMIDI[CurrInst].filt_mode == LO)
+        sprintf(buffer, "Filter mode: LOW  ");
+    else if(GeneralMIDI[CurrInst].filt_mode == BP)
+        sprintf(buffer, "Filter mode: BAND ");
+    else if(GeneralMIDI[CurrInst].filt_mode == HI)
+        sprintf(buffer, "Filter mode: HI   ");
+    else if(GeneralMIDI[CurrInst].filt_mode == HI)
+        sprintf(buffer, "Filter mode: MUTE3");
+    else
+        sprintf(buffer, "Filter mode: NONE");
+
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     sprintf(buffer, "Filter cutoff: %d   ", GeneralMIDI[CurrInst].filt_cutoff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);

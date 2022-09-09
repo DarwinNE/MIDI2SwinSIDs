@@ -60,7 +60,7 @@ SID_conf GeneralMIDI[256] = {
     { 0,10, 0,6 , 0  ,LO, 864,15,ALL,SAWTH,1800, 0, 10,0, 6,   0, SAWTH,  0,  0,  0,"Clavi"},                   // 7
     { 0,10, 0,3 ,2048,LO, 128, 0,NON,TRIAN,2400, 0, 8, 0, 2,   0, TRIAN,  0,  0,  0,"Celesta"},                 // 8
     { 1,9 ,0 , 4, 0  ,LO,1024, 0,NON,TRIAN,2400, 0, 8, 0, 3,2048, PULSE,  0,  0,  0,"Glockenspiel"},            // 9
-    { 0,6 ,0 ,6 , 0  ,LO, 300, 0,NON,TRIAN,2400, 0, 5, 0, 5,   0, SAWTH,  0,  0,  0,"Music box"},               // 10
+    { 0,8 ,0 , 8, 544,LO, 576, 5,ALL,PULSE,1200, 0, 9, 0, 9, 448, PULSE,  0,  0,  0,"Music box"},               // 10
     { 0,12,0 ,3 , 0  ,LO, 256, 7,ALL,TRIAN,1204, 0,14, 0, 3,2240, PULSE,  3,  1,  0,"Vibraphone"},              // 11
     { 0,9 ,0 ,5 , 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Marimba"},                 // 12
     { 0,6 ,0 ,8 , 0  ,LO,1024, 0,NON,TRIAN,2400, 0, 4, 0, 4,   0, TRIAN,  0,  0,  0,"Xylophone"},               // 13
@@ -120,8 +120,8 @@ SID_conf GeneralMIDI[256] = {
     {8 ,10,13, 3, 768,LO, 450,15,ALL,PULSE, 600, 8, 8,11, 9,   0, SAWTH,  0,  0,  0,"Baritone Sax"},            // 67
     { 3,7 ,14, 2,1888,LO, 560,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Oboe"},                    // 68
     { 3,7 ,14, 2,1888,LO, 144, 2,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"English Horn"},            // 69
-    { 3,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Bassoon*"},                // 70
-    { 3,7 ,14, 2,1888,LO, 352,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Clarinet*"},               // 71
+    { 3,7 ,14, 2, 352,LO, 288, 4,ALL,PULSE, 602, 3, 8,10, 4, 960, PULSE,  0,  0,  0,"Bassoon"},                // 70
+    { 4,7 ,14, 2, 480,LO, 480, 4,ALL,PULSE, 602, 4, 4,10, 4, 480, PULSE,  0,  0,  0,"Clarinet"},               // 71
     { 3,7 ,14, 2,2496,LO, 600,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Piccolo"},                 // 72
     { 3,7 ,14, 2,2496,LO, 496,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Flute"},                   // 73
     { 3,7 ,14, 2,2496,LO, 496,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Recorder*"},               // 74
@@ -147,7 +147,7 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 7 (halo)*"},           // 94
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 1 (rain)*"},            // 95
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 2 (soundtrack)*"},      // 96
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 3 (crystal)*"},         // 97
+    { 5,12, 5, 1,1213,HI, 480, 4,ALL,TRIAN,1213, 9,14, 9, 8,1408, PULSE,  1,  1,  2,"FX 3 (crystal)"},         // 97
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 4 (athmosphere)*"},     // 98
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 5 (brightness)*"},      // 99
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 6 (goblins)*"},         // 100

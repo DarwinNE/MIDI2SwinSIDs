@@ -334,7 +334,7 @@ void ShowInstrument(void)
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     sprintf(buffer, "Duty Cycle 1: %d   ", GeneralMIDI[CurrInst].duty_cycle);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
-    sprintf(buffer, "Diff v1 to v2: %d cents   ", GeneralMIDI[CurrInst].diff);
+    sprintf(buffer, "Rel v1 to v2: %d   ", GeneralMIDI[CurrInst].diff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     
     switch(GeneralMIDI[CurrInst].voice2) {

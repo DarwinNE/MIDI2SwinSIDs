@@ -110,7 +110,7 @@ SID_conf GeneralMIDI[256] = {
     { 5,7 ,14, 2, 896,LO, 480,14,ALL,PULSE, 598, 8, 4, 0, 4,1344, PULSE,  0,  0,  0,"Trombone"},                // 57
     { 7,7 ,14, 2,1152,LO, 400,14,ALL,PULSE, 599, 8, 4, 0, 4,1344, PULSE,  0,  0,  0,"Tuba"},                    // 58
     { 4,7 ,14, 2, 640,LO, 560,14,ALL,TRIAN, 598, 7, 4, 0, 4,1344, PULSE,  0,  0,  0,"Muted Trumpet"},           // 59
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"French Horn*"},            // 60
+    { 6, 0,15, 0, 0  ,LO, 320, 0,ALL,TRIAN,1200, 8,10,12, 0,   0, SAWTH,  0,  0,  0,"French Horn"},            // 60
     { 4,7 ,14, 2,3648,LO, 672,14,ALL,PULSE, 604, 7, 4, 0, 4,1344, PULSE,  0,  0,  0,"Brass Section"},           // 61
     { 4,7 ,14, 2,2944,LO, 720,14,ALL,PULSE, 606, 7, 4, 0, 4,2016, PULSE,  0,  0,  0,"Synth Brass 1"},           // 62
     { 4,7 ,14, 2,2592,LO, 832,14,ALL,PULSE, 606, 7, 4, 0, 4,2016, PULSE,  0,  0,  0,"Synth Brass 2"},           // 63
@@ -139,13 +139,13 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,1800, 2, 4,10, 6,2336, PULSE,  0,  0,  0,"Lead 7 (fifths)"},        // 86
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,2402, 2, 4,10, 6,2336, PULSE,  0,  0,  0,"Lead 8 (bass+lead)*"},     // 87
     { 7, 7,13, 3, 0  ,LO,1000, 8,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,  0,  0, 10,"Pad 1 (new age)"},         // 88
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 2 (warm)*"},           // 89
+    {13, 9,13, 5, 0  ,LO, 432, 4,ALL,SAWTH,1200,12,10,11, 5,   0, SAWTH,  0,  0, 20,"Pad 2 (warm)"},           // 89
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 3 (polysynth)*"},      // 90
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 4 (choir)*"},          // 91
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 5 (bowed)*"},          // 92
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 6 (metallic)*"},       // 93
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 7 (halo)*"},           // 94
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 1 (rain)*"},            // 95
+    { 5, 0,11, 4, 0  ,BP, 352, 0,ALL,NONE , 200,15,11,13, 6,   0, NOISE,  0,  0, 20,"FX 1 (rain)"},            // 95
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 2 (soundtrack)*"},      // 96
     { 5,12, 5, 1,1213,HI, 480, 4,ALL,TRIAN,1213, 9,14, 9, 8,1408, PULSE,  1,  1,  2,"FX 3 (crystal)"},         // 97
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 4 (athmosphere)*"},     // 98

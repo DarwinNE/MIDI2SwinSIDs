@@ -61,7 +61,7 @@ SID_conf GeneralMIDI[256] = {
     { 0,10, 0,3 ,2048,LO, 128, 0,NON,TRIAN,2400, 0, 8, 0, 2,   0, TRIAN,  0,  0,  0,"Celesta"},                 // 8
     { 1,9 ,0 , 4, 0  ,LO,1024, 0,NON,TRIAN,2400, 0, 8, 0, 3,2048, PULSE,  0,  0,  0,"Glockenspiel"},            // 9
     { 0,8 ,0 , 8, 544,LO, 576, 5,ALL,PULSE,1200, 0, 9, 0, 9, 448, PULSE,  0,  0,  0,"Music box"},               // 10
-    { 0,12,0 ,3 , 0  ,LO, 256, 7,ALL,TRIAN,1204, 0,14, 0, 3,2240, PULSE,  3,  1,  0,"Vibraphone"},              // 11
+    { 0,12,0 ,3 , 0  ,LO, 256, 7,ALL,TRIAN,1204, 0,12, 0, 3,2240, PULSE,  3,  1,  0,"Vibraphone"},              // 11
     { 0,9 ,0 ,5 , 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Marimba"},                 // 12
     { 0,6 ,0 ,8 , 0  ,LO,1024, 0,NON,TRIAN,2400, 0, 4, 0, 4,   0, TRIAN,  0,  0,  0,"Xylophone"},               // 13
     { 0,10, 0,6 , 0  ,LO, 700,15,ALL,TRIAN,1805, 0, 10,0, 6,   0, SAWTH,  2,  7,  0,"Tubular Bells"},           // 14
@@ -105,7 +105,7 @@ SID_conf GeneralMIDI[256] = {
     { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  1,  1,  3,"Choir Aahs"},             // 52
     { 7, 7,13, 3, 0  ,BP, 224, 6,ALL,SAWTH,1203, 6, 8,11, 5, 672, NONE ,  0,  0,  3,"Voice Oohs"},             // 53
     { 7, 7,13, 3, 0  ,LO, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  0,  0,  0,"Synth Voice"},            // 54
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Orchestra Hit*"},          // 55
+    { 2, 7, 0, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 2, 8, 0, 5,   0, SAWTH,  0,  0,  0,"Orchestra Hit"},          // 55
     { 4,7 ,14, 2, 640,LO, 560,14,ALL,PULSE, 598, 7, 4, 0, 4,1344, PULSE,  0,  0,  0,"Trumpet"},                 // 56
     { 5,7 ,14, 2, 896,LO, 480,14,ALL,PULSE, 598, 8, 4, 0, 4,1344, PULSE,  0,  0,  0,"Trombone"},                // 57
     { 7,7 ,14, 2,1152,LO, 400,14,ALL,PULSE, 599, 8, 4, 0, 4,1344, PULSE,  0,  0,  0,"Tuba"},                    // 58
@@ -123,13 +123,13 @@ SID_conf GeneralMIDI[256] = {
     { 3,7 ,14, 2, 352,LO, 288, 4,ALL,PULSE, 602, 3, 8,10, 4, 960, PULSE,  0,  0,  0,"Bassoon"},                // 70
     { 4,7 ,14, 2, 480,LO, 480, 4,ALL,PULSE, 602, 4, 4,10, 4, 480, PULSE,  0,  0,  0,"Clarinet"},               // 71
     { 3,7 ,14, 2,2496,LO, 600,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Piccolo"},                 // 72
-    { 3,7 ,14, 2,2496,LO, 496,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Flute"},                   // 73
-    { 3,7 ,14, 2,2496,LO, 496,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Recorder*"},               // 74
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pan Flute*"},              // 75
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Blown Bottle*"},           // 76
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Shakuhachi*"},             // 77
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Wistle*"},                 // 78
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Ocarina*"},                // 79
+    { 3,7 ,14, 2,2496,LO, 272, 1,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Flute"},                   // 73
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Recorder"},               // 74
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Pan Flute*"},              // 75
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Blown Bottle*"},           // 76
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Shakuhachi*"},             // 77
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Wistle*"},                 // 78
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1204, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Ocarina*"},                // 79
     { 2,0 ,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 1 (square)"},         // 80
     { 2,0 ,15, 0, 0  ,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 2 (SAWTH)"},          // 81
     { 3,7 ,14, 2,1888,LO, 368, 7,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Lead 3 (calliope)"},      // 82
@@ -174,7 +174,7 @@ SID_conf GeneralMIDI[256] = {
     {12,11, 2,10, 0  ,LO,1024, 0,NON,NOISE, 800,11,12, 2,11,   0, NOISE,  0,  0,  0,"Seashore"},               // 121
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Bird Tweet*"},             // 122
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Telephone Ring*"},         // 123
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Helicopter*"},             // 124
+    { 5, 0,15, 2, 0  ,LO,1024, 0,NON,NOISE, 800, 5, 0,15, 2,   0, NONE , 30,127,  0,"Helicopter"},             // 124
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Applause*"},               // 125
     { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NOISE, 800, 0, 9, 0, 0,   0, NOISE,  0,  0,  0,"Gunshot"},                  // 126
     { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NONE ,   0, 0, 9, 0, 0,   0, NONE ,  0,  0,  0,"None"}                     // 127

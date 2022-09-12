@@ -75,10 +75,10 @@ SID_conf GeneralMIDI[256] = {
     { 7,2 ,13, 2, 512,LO, 336, 0,ALL,PULSE, 601, 7,13,13, 2,3360, PULSE,  0,  0,  0,"Harmonica"},               // 22
     { 1,2 ,12,2 ,1024,LO, 512, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Tango Accordion"},         // 23
     { 0,10, 0, 4, 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Acoustic Guitar (nylon)"}, // 24
-    { 0,10, 0, 4, 256,LO, 256, 0,ALL,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Acoustic Guitar (steel)"}, // 25
-    { 0,10, 0,5 , 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (jazz)"},  // 26
+    { 0,10, 0, 4, 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Acoustic Guitar (steel)"}, // 25
+    { 0,10, 0,5 , 256,LO, 256, 0,ALL,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (jazz)"},  // 26
     { 0,10, 0,5 , 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (clean)"}, // 27
-    { 0,11,0 ,2 , 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (muted)"}, // 28
+    { 0,11,0 ,2 , 256,LO, 160, 0,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (muted)"}, // 28
     { 0,12,0 ,3 , 512,LO, 432, 9,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Overdriven Guitar"},       // 29
     { 0,12,0 ,3 , 256,LO, 512, 8,ALL,PULSE, 600, 0,12, 0, 3, 512, PULSE,  0,  0,  0,"Distortion Guitar"},       // 30
     { 0,12,0 ,3 , 0  ,HI, 256, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Guitar Harmonics"},        // 31
@@ -125,10 +125,10 @@ SID_conf GeneralMIDI[256] = {
     { 3,7 ,14, 2,2496,LO, 600,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Piccolo"},                 // 72
     { 3,7 ,14, 2,2496,LO, 272, 1,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Flute"},                   // 73
     { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Recorder"},               // 74
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Pan Flute*"},              // 75
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Blown Bottle*"},           // 76
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Shakuhachi*"},             // 77
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Wistle*"},                 // 78
+    { 3,7 ,14, 2,1152,LO, 240, 0,ALL,TRIAN, 300, 6, 3, 0, 0, 960, NOISE,  0,  0,  0,"Pan Flute"},              // 75
+    { 3,7 ,14, 2,1152,LO, 400, 0,ALL,SAWTH, 300, 6, 3, 0, 0, 960, NOISE,  0,  0,  0,"Blown Bottle"},           // 76
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,TRIAN, 600, 6, 1, 2, 4, 960, NOISE,  0,  0,  0,"Shakuhachi"},             // 77
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1, 4, 4, 960, PULSE,  0,  0,  0,"Wistle*"},                 // 78
     { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1204, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Ocarina*"},                // 79
     { 2,0 ,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 1 (square)"},         // 80
     { 2,0 ,15, 0, 0  ,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 2 (SAWTH)"},          // 81

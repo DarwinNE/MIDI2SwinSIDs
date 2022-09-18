@@ -48,8 +48,8 @@ uint16_t C64_freq_table[]={
 
 SID_conf GeneralMIDI[256] = {
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
-//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD NAME                        NUMBER
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |  |                             |
+//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
     { 2,11,0 ,2 ,1632,LO, 624, 0,ALL,PULSE,1200, 2, 8, 0, 1,   0, TRIAN,  0,  0,  0,"Acoustic Grand Piano"},    // 0
     { 2,11,0 ,2 ,1184,LO, 416, 0,ALL,PULSE,1200, 1, 8, 0, 2,   0, SAWTH,  0,  0,  0,"Bright Acoustic Piano"},   // 1
     { 2,10, 0,1 ,2048,LO, 512, 4,ALL,PULSE,1200, 1,10, 0, 1, 512, PULSE,  0,  0,  0,"Electric Grand Piano"},    // 2
@@ -85,11 +85,11 @@ SID_conf GeneralMIDI[256] = {
     { 1,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,  0,  0,  0,"Acoustic Bass"},           // 32
     { 1,12,0 , 4, 0  ,LO, 250, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Bass (finger)"},  // 33
     { 1,12,0 , 4, 0  ,LO, 792, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Bass (pick)"},    // 34
-    { 2,11,0 , 3, 0  ,LO, 688,15,ALL,SAWTH, 600, 2,10, 0, 3,   0, NONE ,  0,  0,  0,"Fretless Bass"},           // 35
-    { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 1"},            // 36
-    { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 2"},            // 37
-    { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 4,11, 0, 1,2112, PULSE,  0,  0,  0,"Synth Bass 1"},           // 38
-    { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 4,11, 0, 1,2112, PULSE,  0,  0,  0,"Synth Bass 2"},           // 39
+    { 2,11,0 , 3, 0  ,LO, 688,15,ALL,SAWTH, 600, 2,10, 0, 3,   0, NONE ,  2,  2,  0,"Fretless Bass"},           // 35
+    { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 1"},             // 36
+    { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 2"},             // 37
+    { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 4,11, 0, 1,2112, PULSE,  0,  0,  0,"Synth Bass 1"},            // 38
+    { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 4,11, 0, 1,2112, PULSE,  0,  0,  0,"Synth Bass 2"},            // 39
     { 5,10,13, 3, 704,LO, 752, 5,ALL,PULSE, 600, 6, 8,11, 5,   0, SAWTH,  0,  0,  0,"Violin"},                  // 40
     { 6,10,13, 3, 730,LO, 600, 5,ALL,PULSE, 600, 6, 8,11, 5,   0, SAWTH,  0,  0,  0,"Viola"},                   // 41
     { 7,10,13, 3, 768,LO, 550, 5,ALL,PULSE, 600, 6, 8,11, 9,   0, SAWTH,  0,  0,  0,"Cello"},                   // 42
@@ -102,15 +102,15 @@ SID_conf GeneralMIDI[256] = {
     { 7, 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,  0,  0,  0,"String Ensemble 2"},       // 49
     { 7, 7,13, 3, 0  ,LO, 496, 2,ALL,SAWTH, 598, 6, 8,11, 5,1824, PULSE,  0,  0,  0,"Synth Strings 1"},         // 50
     { 7, 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 6, 8,11, 5,1824, PULSE,  0,  0,  0,"Synth Strings 2"},         // 51
-    { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  1,  1,  3,"Choir Aahs"},             // 52
-    { 7, 7,13, 3, 0  ,BP, 224, 6,ALL,SAWTH,1203, 6, 8,11, 5, 672, NONE ,  0,  0,  3,"Voice Oohs"},             // 53
-    { 7, 7,13, 3, 0  ,LO, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  0,  0,  0,"Synth Voice"},            // 54
-    { 2, 7, 0, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 2, 8, 0, 5,   0, SAWTH,  0,  0,  0,"Orchestra Hit"},          // 55
+    { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  1,  1,  3,"Choir Aahs"},              // 52
+    { 7, 7,13, 3, 0  ,BP, 224, 6,ALL,SAWTH,1203, 6, 8,11, 5, 672, NONE ,  0,  0,  3,"Voice Oohs"},              // 53
+    { 7, 7,13, 3, 0  ,LO, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  0,  0,  0,"Synth Voice"},             // 54
+    { 2, 7, 0, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 2, 8, 0, 5,   0, SAWTH,  0,  0,  0,"Orchestra Hit"},           // 55
     { 4,7 ,14, 2, 640,LO, 560,14,ALL,PULSE, 598, 7, 4, 0, 4,1344, PULSE,  0,  0,  0,"Trumpet"},                 // 56
     { 5,7 ,14, 2, 896,LO, 480,14,ALL,PULSE, 598, 8, 4, 0, 4,1344, PULSE,  0,  0,  0,"Trombone"},                // 57
     { 7,7 ,14, 2,1152,LO, 400,14,ALL,PULSE, 599, 8, 4, 0, 4,1344, PULSE,  0,  0,  0,"Tuba"},                    // 58
     { 4,7 ,14, 2, 640,LO, 560,14,ALL,TRIAN, 598, 7, 4, 0, 4,1344, PULSE,  0,  0,  0,"Muted Trumpet"},           // 59
-    { 6, 0,15, 0, 0  ,LO, 320, 0,ALL,TRIAN,1200, 8,10,12, 0,   0, SAWTH,  0,  0,  0,"French Horn"},            // 60
+    { 6, 0,15, 0, 0  ,LO, 320, 0,ALL,TRIAN,1200, 8,10,12, 0,   0, SAWTH,  0,  0,  0,"French Horn"},             // 60
     { 4,7 ,14, 2,3648,LO, 672,14,ALL,PULSE, 604, 7, 4, 0, 4,1344, PULSE,  0,  0,  0,"Brass Section"},           // 61
     { 4,7 ,14, 2,2944,LO, 720,14,ALL,PULSE, 606, 7, 4, 0, 4,2016, PULSE,  0,  0,  0,"Synth Brass 1"},           // 62
     { 4,7 ,14, 2,2592,LO, 832,14,ALL,PULSE, 606, 7, 4, 0, 4,2016, PULSE,  0,  0,  0,"Synth Brass 2"},           // 63
@@ -120,34 +120,34 @@ SID_conf GeneralMIDI[256] = {
     {8 ,10,13, 3, 768,LO, 450,15,ALL,PULSE, 600, 8, 8,11, 9,   0, SAWTH,  0,  0,  0,"Baritone Sax"},            // 67
     { 3,7 ,14, 2,1888,LO, 560,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Oboe"},                    // 68
     { 3,7 ,14, 2,1888,LO, 144, 2,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"English Horn"},            // 69
-    { 3,7 ,14, 2, 352,LO, 288, 4,ALL,PULSE, 602, 3, 8,10, 4, 960, PULSE,  0,  0,  0,"Bassoon"},                // 70
-    { 4,7 ,14, 2, 480,LO, 480, 4,ALL,PULSE, 602, 4, 4,10, 4, 480, PULSE,  0,  0,  0,"Clarinet"},               // 71
+    { 3,7 ,14, 2, 352,LO, 288, 4,ALL,PULSE, 602, 3, 8,10, 4, 960, PULSE,  0,  0,  0,"Bassoon"},                 // 70
+    { 4,7 ,14, 2, 480,LO, 480, 4,ALL,PULSE, 602, 4, 4,10, 4, 480, PULSE,  0,  0,  0,"Clarinet"},                // 71
     { 3,7 ,14, 2,2496,LO, 600,12,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Piccolo"},                 // 72
     { 3,7 ,14, 2,2496,LO, 272, 1,ALL,PULSE,1202, 8, 1,12, 4,1600, PULSE,  0,  0,  0,"Flute"},                   // 73
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Recorder"},               // 74
-    { 3,7 ,14, 2,1152,LO, 240, 0,ALL,TRIAN, 300, 6, 3, 0, 0, 960, NOISE,  0,  0,  0,"Pan Flute"},              // 75
-    { 3,7 ,14, 2,1152,LO, 400, 0,ALL,SAWTH, 300, 6, 3, 0, 0, 960, NOISE,  0,  0,  0,"Blown Bottle"},           // 76
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,TRIAN, 600, 6, 1, 2, 4, 960, NOISE,  0,  0,  0,"Shakuhachi"},             // 77
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1, 4, 4, 960, PULSE,  0,  0,  0,"Wistle*"},                 // 78
-    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1204, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Ocarina*"},                // 79
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,PULSE,1202, 3, 1,12, 4, 960, PULSE,  0,  0,  0,"Recorder"},                // 74
+    { 3,7 ,14, 2,1152,LO, 240, 0,ALL,TRIAN, 300, 6, 3, 0, 0, 960, NOISE,  0,  0,  0,"Pan Flute"},               // 75
+    { 3,7 ,14, 2,1152,LO, 400, 0,ALL,SAWTH, 300, 6, 3, 0, 0, 960, NOISE,  0,  0,  0,"Blown Bottle"},            // 76
+    { 3,7 ,14, 2,1152,LO, 240, 2,ALL,TRIAN, 600, 6, 1, 2, 4, 960, NOISE,  0,  0,  0,"Shakuhachi"},              // 77
+    { 5,7 ,14, 2,1152,LO, 608,13,ALL,PULSE,2402, 7, 8,10, 4, 960, PULSE,  1,  1, 10,"Wistle"},                 // 78
+    { 5,7 ,14, 2,1536,LO, 368,12,ALL,PULSE,1204, 7, 1,12, 4, 480, PULSE,  1,  1,  1,"Ocarina"},                // 79
     { 2,0 ,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 1 (square)"},         // 80
     { 2,0 ,15, 0, 0  ,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 2 (SAWTH)"},          // 81
-    { 3,7 ,14, 2,1888,LO, 368, 7,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Lead 3 (calliope)"},      // 82
+    { 3,7 ,14, 2,1888,LO, 368, 7,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Lead 3 (calliope)"},       // 82
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 4 (chiff)*"},         // 83
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 5 (charang)*"},       // 84
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 6 (voice)*"},         // 85
-    { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,1800, 2, 4,10, 6,2336, PULSE,  0,  0,  0,"Lead 7 (fifths)"},        // 86
-    { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,2402, 2, 4,10, 6,2336, PULSE,  0,  0,  0,"Lead 8 (bass+lead)*"},     // 87
+    { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  1,  1,  3,"Lead 6 (voice)*"},         // 85
+    { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,1800, 2, 4,10, 6,2336, PULSE,  0,  0,  0,"Lead 7 (fifths)"},         // 86
+    { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,SAWTH,2415, 2, 4,10, 6,2336, PULSE,  1,  1,  0,"Lead 8 (bass+lead)"},     // 87
     { 7, 7,13, 3, 0  ,LO,1000, 8,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,  0,  0, 10,"Pad 1 (new age)"},         // 88
-    {13, 9,13, 5, 0  ,LO, 432, 4,ALL,SAWTH,1200,12,10,11, 5,   0, SAWTH,  0,  0, 20,"Pad 2 (warm)"},           // 89
+    {13, 9,13, 5, 0  ,LO, 432, 4,ALL,SAWTH,1200,12,10,11, 5,   0, SAWTH,  0,  0, 20,"Pad 2 (warm)"},            // 89
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 3 (polysynth)*"},      // 90
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 4 (choir)*"},          // 91
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 5 (bowed)*"},          // 92
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 6 (metallic)*"},       // 93
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 7 (halo)*"},           // 94
-    { 5, 0,11, 4, 0  ,BP, 352, 0,ALL,NONE , 200,15,11,13, 6,   0, NOISE,  0,  0, 20,"FX 1 (rain)"},            // 95
+    { 5, 0,11, 4, 0  ,BP, 352, 0,ALL,NONE , 200,15,11,13, 6,   0, NOISE,  0,  0, 20,"FX 1 (rain)"},             // 95
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 2 (soundtrack)*"},      // 96
-    { 5,12, 5, 1,1213,HI, 480, 4,ALL,TRIAN,1213, 9,14, 9, 8,1408, PULSE,  1,  1,  2,"FX 3 (crystal)"},         // 97
+    { 5,12, 5, 1,1213,HI, 480, 4,ALL,TRIAN,1213, 9,14, 9, 8,1408, PULSE,  1,  1,  2,"FX 3 (crystal)"},          // 97
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 4 (athmosphere)*"},     // 98
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 5 (brightness)*"},      // 99
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 6 (goblins)*"},         // 100
@@ -171,12 +171,12 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Reverse Cymbal*"},         // 118
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Guitar Fret Noise*"},      // 119
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Breath Noise*"},           // 120
-    {12,11, 2,10, 0  ,LO,1024, 0,NON,NOISE, 800,11,12, 2,11,   0, NOISE,  0,  0,  0,"Seashore"},               // 121
+    {12,11, 2,10, 0  ,LO,1024, 0,NON,NOISE, 800,11,12, 2,11,   0, NOISE,  0,  0,  0,"Seashore"},                // 121
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Bird Tweet*"},             // 122
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Telephone Ring*"},         // 123
-    { 5, 0,15, 2, 0  ,LO,1024, 0,NON,NOISE, 800, 5, 0,15, 2,   0, NONE , 30,127,  0,"Helicopter"},             // 124
+    { 5, 0,15, 2, 0  ,LO,1024, 0,NON,NOISE, 800, 5, 0,15, 2,   0, NONE , 30,127,  0,"Helicopter"},              // 124
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Applause*"},               // 125
-    { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NOISE, 800, 0, 9, 0, 0,   0, NOISE,  0,  0,  0,"Gunshot"},                  // 126
+    { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NOISE, 800, 0, 9, 0, 0,   0, NOISE,  0,  0,  0,"Gunshot"},                 // 126
     { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NONE ,   0, 0, 9, 0, 0,   0, NONE ,  0,  0,  0,"None"}                     // 127
 }; 
 

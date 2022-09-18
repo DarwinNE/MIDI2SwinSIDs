@@ -13985,7 +13985,7 @@ END GROUP
  *(.flashtext .flashtext.*)
                 0x0000000008000470                . = ALIGN (0x4)
 
-.text           0x0000000008000470     0xcd7d
+.text           0x0000000008000470     0xcd75
                 0x0000000008000470                . = ALIGN (0x4)
  *(.text .text.*)
  .text.HAL_InitTick
@@ -14657,25 +14657,24 @@ END GROUP
                 0x000000000800c46c      0x417 ./src/main.o
  *fill*         0x000000000800c883        0x1 
  .rodata.str1.4
-                0x000000000800c884      0x754 ./src/SID_def.o
-                                        0x759 (size before relaxing)
+                0x000000000800c884      0x750 ./src/SID_def.o
+                                        0x755 (size before relaxing)
  .rodata.GPIO_PIN
-                0x000000000800cfd8        0x4 ./src/stm32f429i_discovery.o
-                0x000000000800cfd8                GPIO_PIN
+                0x000000000800cfd4        0x4 ./src/stm32f429i_discovery.o
+                0x000000000800cfd4                GPIO_PIN
  .rodata.npio2_hw
-                0x000000000800cfdc       0x80 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-e_rem_pio2.o)
+                0x000000000800cfd8       0x80 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-e_rem_pio2.o)
  .rodata.two_over_pi
-                0x000000000800d05c      0x108 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-e_rem_pio2.o)
+                0x000000000800d058      0x108 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-e_rem_pio2.o)
  .rodata.init_jk
-                0x000000000800d164       0x10 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-k_rem_pio2.o)
- *fill*         0x000000000800d174        0x4 
- .rodata.PIo2   0x000000000800d178       0x40 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-k_rem_pio2.o)
+                0x000000000800d160       0x10 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-k_rem_pio2.o)
+ .rodata.PIo2   0x000000000800d170       0x40 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libm.a(lib_a-k_rem_pio2.o)
  .rodata.str1.1
-                0x000000000800d1b8        0x2 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-impure.o)
+                0x000000000800d1b0        0x2 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-impure.o)
  .rodata.str1.1
-                0x000000000800d1ba       0x11 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-svfprintf.o)
+                0x000000000800d1b2       0x11 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-svfprintf.o)
  .rodata.str1.1
-                0x000000000800d1cb       0x22 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-vfprintf_i.o)
+                0x000000000800d1c3       0x22 /Users/davidebucci/Desktop/Synchronized/Software/gcc-arm-none-eabi-4_9-2015q3/bin/../lib/gcc/arm-none-eabi/4.9.3/../../../../arm-none-eabi/lib/armv7e-m/libg_nano.a(lib_a-nano-vfprintf_i.o)
  *(vtable)
  *(.eh_frame*)
  *(.glue_7)
@@ -14683,31 +14682,31 @@ END GROUP
  *(.glue_7t)
  .glue_7t       0x0000000000000000        0x0 linker stubs
 
-.vfp11_veneer   0x000000000800d1f0        0x0
+.vfp11_veneer   0x000000000800d1e8        0x0
  .vfp11_veneer  0x0000000000000000        0x0 linker stubs
 
-.v4_bx          0x000000000800d1f0        0x0
+.v4_bx          0x000000000800d1e8        0x0
  .v4_bx         0x0000000000000000        0x0 linker stubs
 
-.iplt           0x000000000800d1f0        0x0
+.iplt           0x000000000800d1e8        0x0
  .iplt          0x0000000000000000        0x0 ./system/src/stm32f4-hal/stm32f4xx_hal.o
 
-.rel.dyn        0x000000000800d1f0        0x0
+.rel.dyn        0x000000000800d1e8        0x0
  .rel.iplt      0x0000000000000000        0x0 ./system/src/stm32f4-hal/stm32f4xx_hal.o
 
 .ARM.extab
  *(.ARM.extab* .gnu.linkonce.armextab.*)
-                0x000000000800d1f0                __exidx_start = .
+                0x000000000800d1e8                __exidx_start = .
 
 .ARM.exidx
  *(.ARM.exidx* .gnu.linkonce.armexidx.*)
-                0x000000000800d1f0                __exidx_end = .
-                0x000000000800d1f0                . = ALIGN (0x4)
-                0x000000000800d1f0                _etext = .
-                0x000000000800d1f0                __etext = .
-                0x000000000800d1f0                _sidata = _etext
+                0x000000000800d1e8                __exidx_end = .
+                0x000000000800d1e8                . = ALIGN (0x4)
+                0x000000000800d1e8                _etext = .
+                0x000000000800d1e8                __etext = .
+                0x000000000800d1e8                _sidata = _etext
 
-.data           0x0000000020000000     0x218c load address 0x000000000800d1f0
+.data           0x0000000020000000     0x218c load address 0x000000000800d1e8
                 0x0000000020000000                . = ALIGN (0x4)
                 0x0000000020000000                _sdata = .
                 0x0000000020000000                __data_start__ = .
@@ -14749,10 +14748,10 @@ END GROUP
                 0x000000002000218c                _edata = .
                 0x000000002000218c                __data_end__ = .
 
-.igot.plt       0x000000002000218c        0x0 load address 0x000000000800f37c
+.igot.plt       0x000000002000218c        0x0 load address 0x000000000800f374
  .igot.plt      0x0000000000000000        0x0 ./system/src/stm32f4-hal/stm32f4xx_hal.o
 
-.bss            0x000000002000218c      0x7a4 load address 0x000000000800f37c
+.bss            0x000000002000218c      0x7a4 load address 0x000000000800f374
                 0x000000002000218c                . = ALIGN (0x4)
                 0x000000002000218c                __bss_start__ = .
                 0x000000002000218c                _sbss = .
@@ -14843,7 +14842,7 @@ END GROUP
                 0x0000000020002930                PROVIDE (__end, _end_noinit)
                 0x0000000020002930                PROVIDE (__end__, _end_noinit)
 
-._check_stack   0x0000000020002930      0x100 load address 0x000000000800fb20
+._check_stack   0x0000000020002930      0x100 load address 0x000000000800fb18
                 0x0000000020002930                . = ALIGN (0x4)
                 0x0000000020002a30                . = (. + _Minimum_Stack_Size)
  *fill*         0x0000000020002930      0x100 

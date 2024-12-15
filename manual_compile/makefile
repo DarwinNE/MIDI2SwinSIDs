@@ -72,7 +72,9 @@ Display.elf: $(OBJS) $(USER_OBJS)
 	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall -Wextra  -g3 -DDEBUG -DUSE_FULL_ASSERT -DTRACE -DOS_USE_TRACE_ITM -DSTM32F429xx -DUSE_HAL_DRIVER -DHSE_VALUE=8000000 -c -o startup_stm32f4xx.o startup_stm32f4xx.s
 	@echo ' '
 	@echo 'Invoking: Cross ARM C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -Wl,-Map,"Display.map" --specs=nano.specs -o "Display.elf" $(OBJS) $(USER_OBJS) $(LIBS) startup_stm32f4xx.o
+	#arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -Wl,-Map,"Display.map" --specs=nano.specs -o "Display.elf" $(OBJS) $(USER_OBJS) $(LIBS) startup_stm32f4xx.o
+	# 2024_12_15 I get an error with --specs=nano.specs (stdc++ lib absent)
+	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall -Wextra  -g3 -T mem.ld -T libs.ld -T sections.ld -nostartfiles -Xlinker --gc-sections -L"../ldscripts" -Wl,-Map,"Display.map" -o "Display.elf" $(OBJS) $(USER_OBJS) $(LIBS) startup_stm32f4xx.o
 	@echo 'Finished building target: $@'
 	@echo ' '
 

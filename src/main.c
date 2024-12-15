@@ -3,7 +3,7 @@
   * @file    main.c
   * @author  Davide Bucci
   * @version V0.1
-  * @date    August 14, 2022
+  * @date    August 14, 2022 - December 2024
   * @brief   This file is the main file of the MIDI2SwinSID project.
   *          
   ******************************************************************************
@@ -44,7 +44,15 @@ extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
 
 #define MESSAGE_SIZE 256
 char Message[MESSAGE_SIZE];
+
+#define TRUE    1
+#define FALSE   0
 int  MessageCountdown;
+int8_t  encoderAction;
+int8_t  encoderDirection;
+
+int currentField;
+#define NUM_FIELD 18
 
 extern int8_t LFO_Table[];
 extern uint16_t LFO_Pointer;
@@ -65,12 +73,16 @@ void ConfigureGPIOPorts(void)
     __GPIOC_CLK_ENABLE();
     __GPIOD_CLK_ENABLE();
     __GPIOE_CLK_ENABLE();
+    __GPIOF_CLK_ENABLE();
+    __GPIOG_CLK_ENABLE();
 
     GPIO_InitTypeDef GPIO_Init_A={0};
     GPIO_InitTypeDef GPIO_Init_B={0};
     GPIO_InitTypeDef GPIO_Init_C={0};
     GPIO_InitTypeDef GPIO_Init_D={0};
     GPIO_InitTypeDef GPIO_Init_E={0};
+    GPIO_InitTypeDef GPIO_Init_F={0};
+    GPIO_InitTypeDef GPIO_Init_G={0};
 
 
     /* Settings for the data bus */
@@ -101,12 +113,58 @@ void ConfigureGPIOPorts(void)
     GPIO_Init_E.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_E.Pull =  GPIO_NOPULL;
     GPIO_Init_E.Speed = GPIO_SPEED_LOW;
+    
+    //   Encoder interrupt source (PF6)
+    GPIO_Init_F.Pin =   GPIO_PIN_6;
+    GPIO_Init_F.Mode =  GPIO_MODE_IT_RISING;
+    GPIO_Init_F.Pull =  GPIO_PULLUP;
+    GPIO_Init_F.Speed = GPIO_SPEED_LOW;
+
+    //   Encoder interrupt direction (PG2)
+    GPIO_Init_G.Pin =   GPIO_PIN_2;
+    GPIO_Init_G.Mode =  GPIO_MODE_INPUT;
+    GPIO_Init_G.Pull =  GPIO_PULLUP;
+    GPIO_Init_G.Speed = GPIO_SPEED_LOW;
+
 
     HAL_GPIO_Init(GPIOA, &GPIO_Init_A);
     HAL_GPIO_Init(GPIOB, &GPIO_Init_B);
     HAL_GPIO_Init(GPIOC, &GPIO_Init_C);
     HAL_GPIO_Init(GPIOD, &GPIO_Init_D);
     HAL_GPIO_Init(GPIOE, &GPIO_Init_E);
+    HAL_GPIO_Init(GPIOF, &GPIO_Init_F);
+    HAL_GPIO_Init(GPIOG, &GPIO_Init_G);
+
+    /* Enable and set Encoder EXTI Interrupt to the lowest priority */
+    HAL_NVIC_SetPriority((IRQn_Type)(EXTI9_5_IRQn), 0x0F, 0x00);
+    HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI9_5_IRQn));
+
+//    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource0);
+    
+    /* PD0 is connected to EXTI_Line0 */
+/*    EXTI_InitTypeDef EXTI_InitStruct;
+	EXTI_InitStruct.EXTI_Line = EXTI_Line0;
+	/* Enable interrupt *
+	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+	/* Interrupt mode *
+	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+	/* Triggers on rising and falling edge *
+	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+	/* Add to EXTI *
+	EXTI_Init(&EXTI_InitStruct);
+    
+    /* Add IRQ vector to NVIC */
+	/* PD0 is connected to EXTI_Line0, which has EXTI0_IRQn vector *
+	NVIC_InitStruct.NVIC_IRQChannel = EXTI0_IRQn;
+	/* Set priority *
+	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+	/* Set sub priority *
+	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x00;
+	/* Enable interrupt *
+	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+	/* Add to NVIC *
+	NVIC_Init(&NVIC_InitStruct);*/
+
 }
 
 
@@ -180,6 +238,17 @@ void TB_init(void)
     __HAL_TIM_ENABLE_IT(&TimHandle, TIM_IT_UPDATE);
 }
 
+void UserAction(void)
+{
+    if(encoderDirection) {
+        ++currentField;
+    } else {
+        --currentField;
+    }
+    if(currentField<0) currentField=0;
+    if(currentField>=NUM_FIELD) currentField=NUM_FIELD-1;
+}
+
 /**
  * @brief   Main program
  * @param  None
@@ -191,6 +260,7 @@ int main(void)
     SystemClock_Config();
     BSP_LED_Init(LED3);
     BSP_LED_Init(LED4);
+    BSP_LED_Off(LED3);
     TB_init();
 
     ConfigureGPIOPorts();
@@ -233,7 +303,7 @@ int main(void)
     BSP_LCD_DisplayStringAtLineMode(2,
         (uint8_t *) "* MIDI2SwinSIDs *", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(5,
-        (uint8_t *) "Copyright 2022", CENTER_MODE);
+        (uint8_t *) "(C) 2022-2024", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(8,
         (uint8_t *) "Davide Bucci", CENTER_MODE);
     receive=0;
@@ -242,6 +312,7 @@ int main(void)
         Error_Handler();
     }
     receive=0;
+    currentField=0;
     uint8_t old_instrument=255;
     MessageCountdown = 0;
     HAL_Delay(2000);
@@ -276,8 +347,13 @@ int main(void)
         UpdateLFO();
 
         BSP_LED_Toggle(LED4);
+        BSP_LED_Off(LED3);
         HAL_Delay(10);
         LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
+        if(encoderAction) {
+            UserAction();
+            encoderAction=FALSE;
+        }
         if(LFO_Pointer >= LFO_SIZE)
             LFO_Pointer = 0;
 
@@ -293,11 +369,23 @@ int main(void)
     }
 }
 
+void setEv(int l)
+{
+    if(l==currentField) {
+        BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+        BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
+    } else {
+        BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
+    }
+}
+
 void ShowInstrument(void)
 {
     char buffer[256];
     int l=0;
+    
     BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+    setEv(l);
     sprintf(buffer, "%s                               ",
         GeneralMIDI[CurrInst].name);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
@@ -306,6 +394,7 @@ void ShowInstrument(void)
     BSP_LCD_DrawHLine(0,17,240);
     
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    setEv(l);
     switch(GeneralMIDI[CurrInst].voice) {
         case NONE:
             sprintf(buffer, "Wave 1: NONE      ");
@@ -324,19 +413,26 @@ void ShowInstrument(void)
             break;
     }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *)buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Attack 1: %d   ", GeneralMIDI[CurrInst].a);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Decay 1: %d   ", GeneralMIDI[CurrInst].d);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Sustain 1: %d   ", GeneralMIDI[CurrInst].s);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Release 1: %d   ", GeneralMIDI[CurrInst].r);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Duty Cycle 1: %d   ", GeneralMIDI[CurrInst].duty_cycle);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Rel v1 to v2: %d   ", GeneralMIDI[CurrInst].diff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     
+    setEv(l);
     switch(GeneralMIDI[CurrInst].voice2) {
         case NONE:
             sprintf(buffer, "Wave 2: NONE      ");
@@ -355,16 +451,22 @@ void ShowInstrument(void)
             break;
     }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Attack 2: %d   ", GeneralMIDI[CurrInst].a2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Decay 2: %d   ", GeneralMIDI[CurrInst].d2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Sustain 2: %d   ", GeneralMIDI[CurrInst].s2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Release 2: %d   ", GeneralMIDI[CurrInst].r2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Duty Cycle 2: %d   ", GeneralMIDI[CurrInst].duty_cycle2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     if(GeneralMIDI[CurrInst].filt_mode == LO)
         sprintf(buffer, "Filter mode: LOW  ");
     else if(GeneralMIDI[CurrInst].filt_mode == BP)
@@ -377,11 +479,14 @@ void ShowInstrument(void)
         sprintf(buffer, "Filter mode: NONE");
 
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Filter cutoff: %d   ", GeneralMIDI[CurrInst].filt_cutoff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     sprintf(buffer, "Filter resonance: %d   ", 
         GeneralMIDI[CurrInst].filt_resonance);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
     if(GeneralMIDI[CurrInst].filt_routing==7) {
         sprintf(buffer, "Filter routing: ALL ");
     } else if(GeneralMIDI[CurrInst].filt_routing==0) {
@@ -393,6 +498,33 @@ void ShowInstrument(void)
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
 }
 
+
+/*****************************************************************************
+ **
+ **    USER INTERFACE
+ **
+ *****************************************************************************/
+ 
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if(!encoderAction) {
+        encoderDirection=HAL_GPIO_ReadPin (GPIOG, GPIO_PIN_2);
+        BSP_LED_On(LED3);
+        encoderAction=TRUE;
+    }
+}
+
+void EXTI9_5_IRQHandler(void)
+{
+    HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+}
+
+/*****************************************************************************
+ **
+ **    MIDI RECEIVE STATE MACHINE
+ **
+ *****************************************************************************/
+ 
 volatile int velocity;
 volatile int key;
 volatile int control;
@@ -628,7 +760,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 static void Error_Handler(void)
 {
     /* Turn LED3 on */
-    BSP_LED_On(LED3);
+    //BSP_LED_On(LED3);
     while(1) {  }
 }
 
@@ -720,7 +852,7 @@ static void SystemClock_Config(void)
  void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
     /* Turn LED3 on: Transfer error in reception/transmission process */
-    BSP_LED_On(LED3);
+    //BSP_LED_On(LED3);
     if (huart->ErrorCode == HAL_UART_ERROR_ORE){
         // remove the error condition
         huart->ErrorCode = HAL_UART_ERROR_NONE;

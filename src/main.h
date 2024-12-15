@@ -82,7 +82,7 @@
 
 
 /* Size of Reception buffer */
-#define RXBUFFERSIZE                    256
+#define RXBUFFERSIZE                    2048
 
 /* Exported macro ------------------------------------------------------------*/
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))

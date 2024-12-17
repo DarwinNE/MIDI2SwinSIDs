@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "SID_def.h"
+#include "Utilities/Fonts/fonts.h"
 
 void ShowInstrument(void);
 
@@ -47,12 +48,18 @@ char Message[MESSAGE_SIZE];
 
 #define TRUE    1
 #define FALSE   0
+
+#define ANTIBOUNCE_VALUE 2
+
 int  MessageCountdown;
+int  AntiBounceHoldoff;
 int8_t encoderAction;
 int8_t encoderDirection;
 int8_t changeField; 
 int8_t editorAction;
 int8_t toggleEdit;
+int32_t  LargeMovement=0;
+
 
 int currentField;
 
@@ -66,7 +73,7 @@ int8_t currentSustain1;
 int8_t currentRelease1;
 int16_t currentDutyCycle1;
 
-int8_t currentRelV1toV2;
+int32_t currentV1toV2;
 
 int8_t currentWave2;
 int8_t currentAttack2;
@@ -113,7 +120,6 @@ void ConfigureGPIOPorts(void)
     GPIO_InitTypeDef GPIO_Init_E={0};
     GPIO_InitTypeDef GPIO_Init_F={0};
     GPIO_InitTypeDef GPIO_Init_G={0};
-
 
     /* Settings for the data bus */
     GPIO_Init_A.Pin =   GPIO_PIN_5;
@@ -327,6 +333,14 @@ void updateDutyCycle1Message(void)
     MessageCountdown = 20;
 }
 
+void updateCurrentV1toV2Message(void)
+{
+    GeneralMIDI[CurrInst].diff=currentV1toV2;
+    sprintf(Message, "Rel v1 to v2: %4d", GeneralMIDI[CurrInst].diff);
+
+    MessageCountdown = 20;
+}
+
 void updateWave2Message(void)
 {
     char*   wav[5] = 
@@ -387,21 +401,21 @@ void updateFilterModeMessage(void)
     } else {
         GeneralMIDI[CurrInst].filt_routing = NON;
     }
-    sprintf(Message, "Filter: %s", wav[currentFilterMode]);
+    sprintf(Message, "Filter: %s    ", wav[currentFilterMode]);
     MessageCountdown = 20;
 }
 
 void updateFilterCutoffMessage(void)
 {
     GeneralMIDI[CurrInst].filt_cutoff=currentCutoff;
-    sprintf(Message, "Cutoff: %d", GeneralMIDI[CurrInst].filt_cutoff);
+    sprintf(Message, "Cutoff: %d  ", GeneralMIDI[CurrInst].filt_cutoff);
     MessageCountdown = 20;
 }
 
 void updateFilterResonanceMessage(void)
 {
     GeneralMIDI[CurrInst].filt_resonance=currentResonance;
-    sprintf(Message, "Resonance: %d", GeneralMIDI[CurrInst].filt_resonance);
+    sprintf(Message, "Resonance: %d  ", GeneralMIDI[CurrInst].filt_resonance);
     MessageCountdown = 20;
 }
 
@@ -413,90 +427,116 @@ void updateFilterRoutingMessage(void)
     } else if(GeneralMIDI[CurrInst].filt_routing==0) {
         sprintf(Message, "Filter routing: NONE ");
     } else {
-        sprintf(Message, "Filter routing: %d   ", 
+        sprintf(Message, "Filter routing: %d  ", 
             GeneralMIDI[CurrInst].filt_routing);
     }
 }
 
-
-
-#define UPDATE_PAR(P,MIN,MAX)  if(direction) {\
-                if((P)<(MAX)) ++(P);\
+// Macro useful to easily update values.
+#define UPDATE_PAR(P,MIN,MAX,INC) \
+            if(direction) {\
+                (P)+=(INC); if((P)>MAX) (P)=MAX;\
             } else {\
-                if((P)>(MIN)) --(P);\
+                (P)-=(INC); if((P)<MIN) (P)=MIN;\
             }
 
 void updateCurrentValue(uint8_t direction)
 {
+    static float increment_f;
+    int increment, increment_l;
+
+    // Acceleration of the encoder for some parameters.
+    // The LargeMovement is incremented at each cycle. Therefore, if it is not
+    // put to zero, the value becomes large. When the user moves the encoder
+    // fast, LargeMovement tends to remain low.
+    if(LargeMovement<5) {
+        increment_f*=1.6;
+    } if(LargeMovement<10) {
+        if(increment_f<2) {
+            increment_f*=1.3;
+        } else {
+            increment_f*=1.1;
+        }
+    } else {
+        increment_f=1;
+    }
+    // Avoid limit cases.
+    if(increment_f>200) increment_f=200;
+    LargeMovement=0;
+    increment=(int)increment_f;
+    increment_l=(int)(increment_f/10.0);
+    if(increment_l<1) increment_l=1;
 
     switch(currentField) {
         case 0:     // Change instrument
-            UPDATE_PAR(CurrInst,0,127);
+            UPDATE_PAR(CurrInst,0,127,increment_l);
             break;
         case 2:     // Wave 1
-            UPDATE_PAR(currentWave1,0,4);
+            UPDATE_PAR(currentWave1,0,4,1);
             updateWave1Message();
             break;
         case 3:     // Attack 1
-            UPDATE_PAR(currentAttack1,0,15);
+            UPDATE_PAR(currentAttack1,0,15,1);
             updateAttack1Message();
             break;
         case 4:     // Decay 1
-            UPDATE_PAR(currentDecay1,0,15);
+            UPDATE_PAR(currentDecay1,0,15,1);
             updateDecay1Message();
             break;
         case 5:     // Sustain 1
-            UPDATE_PAR(currentSustain1,0,15);
+            UPDATE_PAR(currentSustain1,0,15,1);
             updateSustain1Message();
             break;
         case 6:     // Release 1
-            UPDATE_PAR(currentRelease1,0,15);
+            UPDATE_PAR(currentRelease1,0,15,1);
             updateRelease1Message();
             break;
         case 7:     // Duty Cycle 1
-            UPDATE_PAR(currentDutyCycle1,0,4095);
+            UPDATE_PAR(currentDutyCycle1,0,4095,increment);
             updateDutyCycle1Message();
             break;
         case 8:     // Rel v1 to v2
+            UPDATE_PAR(currentV1toV2,0,9600,increment);
+            updateCurrentV1toV2Message();
             break;
         case 9:     // Wave2
-            UPDATE_PAR(currentWave2,0,4);
+            UPDATE_PAR(currentWave2,0,4,1);
             updateWave2Message();
             break;
         case 10:     // Attack 2
-            UPDATE_PAR(currentAttack2,0,15);
+            UPDATE_PAR(currentAttack2,0,15,1);
             updateAttack2Message();
             break;
         case 11:     // Decay 2
-            UPDATE_PAR(currentDecay2,0,15);
+            UPDATE_PAR(currentDecay2,0,15,1);
             updateDecay2Message();
             break;
         case 12:     // Sustain 2
-            UPDATE_PAR(currentSustain2,0,15);
+            UPDATE_PAR(currentSustain2,0,15,1);
             updateSustain2Message();
             break;
         case 13:     // Release 2
-            UPDATE_PAR(currentRelease2,0,15);
+            UPDATE_PAR(currentRelease2,0,15,1);
             updateRelease2Message();
             break;
         case 14:     // Duty Cycle 2
-            UPDATE_PAR(currentDutyCycle2,0,4095);
+            UPDATE_PAR(currentDutyCycle2,0,4095,increment);
             updateDutyCycle2Message();
             break;
         case 15:    // Filter mode
-            UPDATE_PAR(currentFilterMode,0,3);
+            UPDATE_PAR(currentFilterMode,0,3,1);
             updateFilterModeMessage();
             break;
         case 16:    // Filter cutoff
-            UPDATE_PAR(currentCutoff,0,2047);
+            UPDATE_PAR(currentCutoff,0,2047,increment);
             updateFilterCutoffMessage();
             break;
         case 17:    // Filter resonance
-            UPDATE_PAR(currentResonance,0,15);
+            UPDATE_PAR(currentResonance,0,15,1);
             updateFilterResonanceMessage();
             break;
         case 18:    // Filter routing
-            UPDATE_PAR(currentRouting,0,7);
+            UPDATE_PAR(currentRouting,0,7,1);
             updateFilterRoutingMessage();
             break;
         default:
@@ -507,12 +547,14 @@ void updateCurrentValue(uint8_t direction)
 
 void UserAction(void)
 {
-
+    
     if(changeField) {
         if(encoderDirection) {
             ++currentField;
+            if(currentField==1) currentField=2; // Avoid the separating line
         } else {
             --currentField;
+            if(currentField==1) currentField=0; // Avoid the separating line
         }
         if(currentField<0) currentField=0;
         if(currentField>=NUM_FIELD) currentField=NUM_FIELD-1;
@@ -627,6 +669,7 @@ int main(void)
         BSP_LED_Toggle(LED4);
         BSP_LED_Off(LED3);
         HAL_Delay(10);
+        ++LargeMovement;
         LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
         if(encoderAction) {
             UserAction();
@@ -642,6 +685,9 @@ int main(void)
             toggleEdit=FALSE;
             CounterRefreshInfos=20;
         }
+        if(AntiBounceHoldoff>0)
+            --AntiBounceHoldoff;
+
         if(LFO_Pointer >= LFO_SIZE)
             LFO_Pointer = 0;
 
@@ -653,9 +699,9 @@ void setEv(int l)
     if(l==currentField) {
         BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
         if(changeField) {
-            BSP_LCD_SetBackColor(LCD_COLOR_RED);
-        } else {
             BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
+        } else {
+            BSP_LCD_SetBackColor(LCD_COLOR_LIGHTRED);
         }
     } else {
         BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
@@ -663,11 +709,93 @@ void setEv(int l)
     }
 }
 
+#define NUMSAMPLES 16
+void DrawWave(int x, int y, int wave, int duty)
+{
+    int height=8;
+    int base=10;
+    float dd=(float)duty/4096.0;
+    float ll=4*base;
+    
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_FillRect(x,y,60,20);
+    BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    // Draw the baseline.
+    BSP_LCD_DrawLine(x-2,y+height,             x+4*base+2,y+height);
+
+    switch(wave) {
+        case NONE:
+            break;
+        case TRIAN:
+            BSP_LCD_DrawLine(x,y+height,             x+base,y);
+            BSP_LCD_DrawLine(x+base,y,             x+3*base,y+2*height);
+            BSP_LCD_DrawLine(x+3*base,y+2*height,  x+4*base,y+height);
+            break;
+        case SAWTH:
+            BSP_LCD_DrawLine(x,y+height,             x+2*base,y);
+            BSP_LCD_DrawLine(x+2*base,y,             x+2*base,y+2*height);
+            BSP_LCD_DrawLine(x+2*base,y+2*height,    x+4*base,y+height);
+            break;
+        case NOISE:
+            int val[]={3,-2,5,-1,-8,6,-2,2,
+                       3,-4,4,7,-6,5,2,-1};
+            
+            for(int i=1; i<NUMSAMPLES;++i) {
+                BSP_LCD_DrawLine(
+                    x+(float)(i-1)/(float)NUMSAMPLES*4*base,y+height+val[i-1],
+                    x+(float)i/(float)NUMSAMPLES*4*base,y+height+val[i]);
+            }
+            break;
+        case PULSE:
+            
+            
+            BSP_LCD_DrawLine(x,y+height,            x,y+2*height);
+            BSP_LCD_DrawLine(x,y+2*height,          x+ll*dd,y+2*height);
+            BSP_LCD_DrawLine(x+ll*dd,y+2*height,    x+ll*dd,y);
+            BSP_LCD_DrawLine(x+ll*dd,y,             x+ll,y);
+            BSP_LCD_DrawLine(x+ll,y,                x+ll,y+height);
+            break;
+    }
+}
+
+void DrawADSR(int x, int y, int a, int d, int s, int r)
+{
+    int height=15;
+    int base=10;
+    int susd=10;
+    
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_FillRect(x,y,80,20);
+    BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+
+    BSP_LCD_DrawLine(x,y+height,             base+x,y+height);  // base
+    BSP_LCD_DrawLine(base+x,y+height,        base+x+a,y);       // A
+    BSP_LCD_DrawLine(base+x+a,y,             base+x+a+d, y+height-s);   // D
+    BSP_LCD_DrawLine(base+x+a+d, y+height-s, base+x+a+d+susd,y+height-s); // S
+    BSP_LCD_DrawLine(base+x+a+d+susd, y+height-s, 
+        base+x+a+d+r+susd,y+height);    // S
+    BSP_LCD_DrawLine(base+x+a+d+r+susd,y+height,
+        2*base+x+a+d+r+susd,y+height);  // D
+}
+
 void ShowInstrument(void)
 {
     char buffer[256];
     int l=0;
     
+    
+    DrawADSR(150,50,
+        GeneralMIDI[CurrInst].a, GeneralMIDI[CurrInst].d,
+        GeneralMIDI[CurrInst].s, GeneralMIDI[CurrInst].r);
+    DrawADSR(150,150-16,
+        GeneralMIDI[CurrInst].a2, GeneralMIDI[CurrInst].d2,
+        GeneralMIDI[CurrInst].s2, GeneralMIDI[CurrInst].r2);
+    DrawWave(150,20,GeneralMIDI[CurrInst].voice,
+         GeneralMIDI[CurrInst].duty_cycle);
+    DrawWave(150,100,GeneralMIDI[CurrInst].voice2,
+         GeneralMIDI[CurrInst].duty_cycle2);
+    
+    BSP_LCD_SetFont(&Font16);
     BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
     setEv(l);
     sprintf(buffer, "%s                               ",
@@ -676,6 +804,7 @@ void ShowInstrument(void)
     ++l;
     BSP_LCD_DrawHLine(0,18,240);
     BSP_LCD_DrawHLine(0,17,240);
+    BSP_LCD_SetFont(&Font12);
     
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
     setEv(l);
@@ -698,22 +827,22 @@ void ShowInstrument(void)
     }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *)buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Attack 1: %d   ", GeneralMIDI[CurrInst].a);
+    sprintf(buffer, "Attack 1:  %2d", GeneralMIDI[CurrInst].a);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Decay 1: %d   ", GeneralMIDI[CurrInst].d);
+    sprintf(buffer, "Decay 1:   %2d", GeneralMIDI[CurrInst].d);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Sustain 1: %d   ", GeneralMIDI[CurrInst].s);
+    sprintf(buffer, "Sustain 1: %2d", GeneralMIDI[CurrInst].s);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Release 1: %d   ", GeneralMIDI[CurrInst].r);
+    sprintf(buffer, "Release 1: %2d", GeneralMIDI[CurrInst].r);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Duty Cycle 1: %d   ", GeneralMIDI[CurrInst].duty_cycle);
+    sprintf(buffer, "Duty Cycle 1: %4d", GeneralMIDI[CurrInst].duty_cycle);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Rel v1 to v2: %d   ", GeneralMIDI[CurrInst].diff);
+    sprintf(buffer, "Rel v1 to v2: %4d", GeneralMIDI[CurrInst].diff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     
     setEv(l);
@@ -736,19 +865,19 @@ void ShowInstrument(void)
     }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Attack 2: %d   ", GeneralMIDI[CurrInst].a2);
+    sprintf(buffer, "Attack 2:  %2d", GeneralMIDI[CurrInst].a2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Decay 2: %d   ", GeneralMIDI[CurrInst].d2);
+    sprintf(buffer, "Decay 2:   %2d", GeneralMIDI[CurrInst].d2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Sustain 2: %d   ", GeneralMIDI[CurrInst].s2);
+    sprintf(buffer, "Sustain 2: %2d", GeneralMIDI[CurrInst].s2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Release 2: %d   ", GeneralMIDI[CurrInst].r2);
+    sprintf(buffer, "Release 2: %2d", GeneralMIDI[CurrInst].r2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Duty Cycle 2: %d   ", GeneralMIDI[CurrInst].duty_cycle2);
+    sprintf(buffer, "Duty Cycle 2: %4d", GeneralMIDI[CurrInst].duty_cycle2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
     if(GeneralMIDI[CurrInst].filt_mode == LO)
@@ -764,10 +893,10 @@ void ShowInstrument(void)
 
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Filter cutoff: %d   ", GeneralMIDI[CurrInst].filt_cutoff);
+    sprintf(buffer, "Filter cutoff: %4d", GeneralMIDI[CurrInst].filt_cutoff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Filter resonance: %d   ", 
+    sprintf(buffer, "Filter resonance: %2d", 
         GeneralMIDI[CurrInst].filt_resonance);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
@@ -776,7 +905,7 @@ void ShowInstrument(void)
     } else if(GeneralMIDI[CurrInst].filt_routing==0) {
         sprintf(buffer, "Filter routing: NONE ");
     } else {
-        sprintf(buffer, "Filter routing: %d   ", 
+        sprintf(buffer, "Filter routing: %d", 
             GeneralMIDI[CurrInst].filt_routing);
     }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
@@ -791,6 +920,10 @@ void ShowInstrument(void)
  
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+    if(AntiBounceHoldoff>0) {
+        return;
+    }
+    AntiBounceHoldoff=ANTIBOUNCE_VALUE;
     if(GPIO_Pin==GPIO_PIN_6 && encoderAction==FALSE) {
         // GP2 gives the direction of the encoder
         if(HAL_GPIO_ReadPin (GPIOG, GPIO_PIN_2) ) {

@@ -5,7 +5,7 @@
   * @version V0.2
   * @date    August 14, 2022 - December 2024
   * @brief   This file is the main file of the MIDI2SwinSID project.
-  *          
+  *
   ******************************************************************************
  */
 
@@ -55,7 +55,7 @@ int  MessageCountdown;
 int  AntiBounceHoldoff;
 int8_t encoderAction;
 int8_t encoderDirection;
-int8_t changeField; 
+int8_t changeField;
 int8_t editorAction;
 int8_t toggleEdit;
 int32_t  LargeMovement=0;
@@ -63,7 +63,7 @@ int32_t  LargeMovement=0;
 
 int currentField;
 
-#define NUM_FIELD 19
+#define NUM_FIELD 20
 
 
 int8_t currentWave1;
@@ -87,8 +87,14 @@ int8_t currentResonance;
 int8_t currentFilterMode;
 int8_t currentRouting;
 
-
-
+int8_t currentChannel;
+// The TT element is just there to force the enum to be signed, so that one
+// can do tests such as if(currentMode>0) etc...
+enum MIDI_mode {TT=-1,
+    OMNI=0,                 // Respond to all events on all channels
+    POLY,                   // Respond only to events on the current channel
+    MULTI,                  // Respond to events on all channels separately
+    MONO} currentMode;      // Respond to events on all channels, monophonic
 
 
 extern int8_t LFO_Table[];
@@ -149,7 +155,7 @@ void ConfigureGPIOPorts(void)
     GPIO_Init_E.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_E.Pull =  GPIO_NOPULL;
     GPIO_Init_E.Speed = GPIO_SPEED_LOW;
-    
+
     //   Encoder interrupt source (PF6)
     GPIO_Init_F.Pin =   GPIO_PIN_6;
     GPIO_Init_F.Mode =  GPIO_MODE_IT_FALLING;
@@ -184,30 +190,30 @@ void ConfigureGPIOPorts(void)
     HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI3_IRQn));
 
 //    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource0);
-    
+
     /* PD0 is connected to EXTI_Line0 */
 /*    EXTI_InitTypeDef EXTI_InitStruct;
-	EXTI_InitStruct.EXTI_Line = EXTI_Line0;
-	/* Enable interrupt *
-	EXTI_InitStruct.EXTI_LineCmd = ENABLE;
-	/* Interrupt mode *
-	EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
-	/* Triggers on rising and falling edge *
-	EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
-	/* Add to EXTI *
-	EXTI_Init(&EXTI_InitStruct);
-    
+    EXTI_InitStruct.EXTI_Line = EXTI_Line0;
+    /* Enable interrupt *
+    EXTI_InitStruct.EXTI_LineCmd = ENABLE;
+    /* Interrupt mode *
+    EXTI_InitStruct.EXTI_Mode = EXTI_Mode_Interrupt;
+    /* Triggers on rising and falling edge *
+    EXTI_InitStruct.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+    /* Add to EXTI *
+    EXTI_Init(&EXTI_InitStruct);
+
     /* Add IRQ vector to NVIC */
-	/* PD0 is connected to EXTI_Line0, which has EXTI0_IRQn vector *
-	NVIC_InitStruct.NVIC_IRQChannel = EXTI0_IRQn;
-	/* Set priority *
-	NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
-	/* Set sub priority *
-	NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x00;
-	/* Enable interrupt *
-	NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
-	/* Add to NVIC *
-	NVIC_Init(&NVIC_InitStruct);*/
+    /* PD0 is connected to EXTI_Line0, which has EXTI0_IRQn vector *
+    NVIC_InitStruct.NVIC_IRQChannel = EXTI0_IRQn;
+    /* Set priority *
+    NVIC_InitStruct.NVIC_IRQChannelPreemptionPriority = 0x00;
+    /* Set sub priority *
+    NVIC_InitStruct.NVIC_IRQChannelSubPriority = 0x00;
+    /* Enable interrupt *
+    NVIC_InitStruct.NVIC_IRQChannelCmd = ENABLE;
+    /* Add to NVIC *
+    NVIC_Init(&NVIC_InitStruct);*/
 
 }
 
@@ -238,15 +244,15 @@ void TB_init(void)
     Prescaler = ((SystemCoreClock /2) /1 MHz) - 1
 
     Note:
-     SystemCoreClock variable holds HCLK frequency and is defined in 
+     SystemCoreClock variable holds HCLK frequency and is defined in
      system_stm32f4xx.c file.
-     Each time the core clock (HCLK) changes, user had to update 
+     Each time the core clock (HCLK) changes, user had to update
      SystemCoreClock variable value. Otherwise, any configuration based on this
      variable will be incorrect.
      This variable is updated in three ways:
       1) by calling CMSIS function SystemCoreClockUpdate()
       2) by calling HAL API function HAL_RCC_GetSysClockFreq()
-      3) each time HAL_RCC_ClockConfig() is called to configure the system 
+      3) each time HAL_RCC_ClockConfig() is called to configure the system
          clock frequency
   ----------------------------------------------------------------------- */
 
@@ -283,12 +289,39 @@ void TB_init(void)
 }
 
 
+
+
+void updateInstrument(void)
+{
+    currentWave1=GeneralMIDI[CurrInst].voice;
+    currentAttack1=GeneralMIDI[CurrInst].a;
+    currentDecay1=GeneralMIDI[CurrInst].d;
+    currentSustain1=GeneralMIDI[CurrInst].s;
+    currentRelease1=GeneralMIDI[CurrInst].r;
+    currentDutyCycle1=GeneralMIDI[CurrInst].duty_cycle;
+
+    currentV1toV2=GeneralMIDI[CurrInst].diff;
+
+    currentWave2=GeneralMIDI[CurrInst].voice2;
+    currentAttack2=GeneralMIDI[CurrInst].a2;
+    currentDecay2=GeneralMIDI[CurrInst].d2;
+    currentSustain2=GeneralMIDI[CurrInst].s2;
+    currentRelease2=GeneralMIDI[CurrInst].r2;
+    currentDutyCycle2=GeneralMIDI[CurrInst].duty_cycle2;
+
+    currentCutoff=GeneralMIDI[CurrInst].filt_cutoff;
+    currentResonance=GeneralMIDI[CurrInst].filt_resonance;
+    currentFilterMode=GeneralMIDI[CurrInst].filt_mode;
+    //currentRouting=GeneralMIDI[CurrInst].filt_routing;
+
+}
+
 void updateWave1Message(void)
 {
-    char*   wav[5] = 
-        {"None      ", 
-         "Triangular", 
-         "Sawtooth  ", 
+    char*   wav[5] =
+        {"None      ",
+         "Triangular",
+         "Sawtooth  ",
          "Pulse     ",
          "Noise     "};
     uint8_t choice[5]={NONE, TRIAN, SAWTH, PULSE, NOISE};
@@ -343,10 +376,10 @@ void updateCurrentV1toV2Message(void)
 
 void updateWave2Message(void)
 {
-    char*   wav[5] = 
-        {"None      ", 
-         "Triangular", 
-         "Sawtooth  ", 
+    char*   wav[5] =
+        {"None      ",
+         "Triangular",
+         "Sawtooth  ",
          "Pulse     ",
          "Noise     "};
     uint8_t choice[5]={NONE, TRIAN, SAWTH, PULSE, NOISE};
@@ -419,6 +452,7 @@ void updateFilterResonanceMessage(void)
     MessageCountdown = 20;
 }
 
+/*
 void updateFilterRoutingMessage(void)
 {
     GeneralMIDI[CurrInst].filt_routing=currentRouting;
@@ -427,10 +461,11 @@ void updateFilterRoutingMessage(void)
     } else if(GeneralMIDI[CurrInst].filt_routing==0) {
         sprintf(Message, "Filter routing: NONE ");
     } else {
-        sprintf(Message, "Filter routing: %d  ", 
+        sprintf(Message, "Filter routing: %d  ",
             GeneralMIDI[CurrInst].filt_routing);
     }
 }
+*/
 
 // Macro useful to easily update values.
 #define UPDATE_PAR(P,MIN,MAX,INC) \
@@ -470,6 +505,7 @@ void updateCurrentValue(uint8_t direction)
     switch(currentField) {
         case 0:     // Change instrument
             UPDATE_PAR(CurrInst,0,127,increment_l);
+            updateInstrument();
             break;
         case 2:     // Wave 1
             UPDATE_PAR(currentWave1,0,4,1);
@@ -535,9 +571,11 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentResonance,0,15,1);
             updateFilterResonanceMessage();
             break;
-        case 18:    // Filter routing
-            UPDATE_PAR(currentRouting,0,7,1);
-            updateFilterRoutingMessage();
+        case 18:    // MIDI channel
+            UPDATE_PAR(currentChannel,0,15,1);
+            break;
+        case 19:    // MIDI mode
+            UPDATE_PAR(currentMode,0,3,1);
             break;
         default:
     }
@@ -547,7 +585,7 @@ void updateCurrentValue(uint8_t direction)
 
 void UserAction(void)
 {
-    
+
     if(changeField) {
         if(encoderDirection) {
             ++currentField;
@@ -596,7 +634,7 @@ int main(void)
     UartHandle.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     UartHandle.Init.Mode         = UART_MODE_RX;
     UartHandle.Init.OverSampling = UART_OVERSAMPLING_16;
-    
+
     if(HAL_UART_Init(&UartHandle) != HAL_OK) {
         Error_Handler();
     }
@@ -623,7 +661,7 @@ int main(void)
     BSP_LCD_DisplayStringAtLineMode(8,
         (uint8_t *) "Davide Bucci", CENTER_MODE);
     receive=0;
-    /*##-2- Put UART peripheral in reception process #####################*/  
+    /*##-2- Put UART peripheral in reception process #####################*/
     if(HAL_UART_Receive_IT(&UartHandle, aRxBuffer, 1) != HAL_OK) {
         Error_Handler();
     }
@@ -643,7 +681,7 @@ int main(void)
 
     for(int i=0; i<LFO_SIZE; ++i)
         LFO_Table[i]=(int)(127.0*sin((float)i/LFO_SIZE*2.0*M_PI));
-    
+
     while (1) {
         // Refresh the information every 10 repetitions of this loop.
         if(CounterRefreshInfos++>10) {
@@ -654,12 +692,13 @@ int main(void)
                 --MessageCountdown;
                 ToErase=1;
                 BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
-                BSP_LCD_DisplayStringAtLineMode(19, 
+                BSP_LCD_SetFont(&Font16);
+                BSP_LCD_DisplayStringAt(0,250,
                     (uint8_t *) Message, CENTER_MODE);
             } else {
                 if(ToErase) {
                     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-                    BSP_LCD_FillRect(0,320-16,240,16);         // Noisy!!!
+                    BSP_LCD_FillRect(0,250,240,16);         // Noisy!!!
                     ToErase=0;
                 }
             }
@@ -716,9 +755,9 @@ void DrawWave(int x, int y, int wave, int duty)
     int base=10;
     float dd=(float)duty/4096.0;
     float ll=4*base;
-    
+
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-    BSP_LCD_FillRect(x,y,60,20);
+    BSP_LCD_FillRect(x-2,y,4*base+4,20);
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
     // Draw the baseline.
     BSP_LCD_DrawLine(x-2,y+height,             x+4*base+2,y+height);
@@ -739,7 +778,7 @@ void DrawWave(int x, int y, int wave, int duty)
         case NOISE:
             int val[]={3,-2,5,-1,-8,6,-2,2,
                        3,-4,4,7,-6,5,2,-1};
-            
+
             for(int i=1; i<NUMSAMPLES;++i) {
                 BSP_LCD_DrawLine(
                     x+(float)(i-1)/(float)NUMSAMPLES*4*base,y+height+val[i-1],
@@ -747,8 +786,8 @@ void DrawWave(int x, int y, int wave, int duty)
             }
             break;
         case PULSE:
-            
-            
+
+
             BSP_LCD_DrawLine(x,y+height,            x,y+2*height);
             BSP_LCD_DrawLine(x,y+2*height,          x+ll*dd,y+2*height);
             BSP_LCD_DrawLine(x+ll*dd,y+2*height,    x+ll*dd,y);
@@ -763,7 +802,7 @@ void DrawADSR(int x, int y, int a, int d, int s, int r)
     int height=15;
     int base=10;
     int susd=10;
-    
+
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
     BSP_LCD_FillRect(x,y,80,20);
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
@@ -772,18 +811,33 @@ void DrawADSR(int x, int y, int a, int d, int s, int r)
     BSP_LCD_DrawLine(base+x,y+height,        base+x+a,y);       // A
     BSP_LCD_DrawLine(base+x+a,y,             base+x+a+d, y+height-s);   // D
     BSP_LCD_DrawLine(base+x+a+d, y+height-s, base+x+a+d+susd,y+height-s); // S
-    BSP_LCD_DrawLine(base+x+a+d+susd, y+height-s, 
+    BSP_LCD_DrawLine(base+x+a+d+susd, y+height-s,
         base+x+a+d+r+susd,y+height);    // S
     BSP_LCD_DrawLine(base+x+a+d+r+susd,y+height,
         2*base+x+a+d+r+susd,y+height);  // D
+}
+
+void DrawInstrNumber(int x, int y)
+{
+    char buffer[256];
+    BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    BSP_LCD_FillRect(x,y,41,21);
+
+    BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    sprintf(buffer, "%d",CurrInst+1);
+    BSP_LCD_SetFont(&Font16);
+    BSP_LCD_DisplayStringAt(x+4,y+4,(uint8_t *)buffer, LEFT_MODE);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_DrawRect(x+1,y+1,38,18);
 }
 
 void ShowInstrument(void)
 {
     char buffer[256];
     int l=0;
-    
-    
+
+
     DrawADSR(150,50,
         GeneralMIDI[CurrInst].a, GeneralMIDI[CurrInst].d,
         GeneralMIDI[CurrInst].s, GeneralMIDI[CurrInst].r);
@@ -794,18 +848,25 @@ void ShowInstrument(void)
          GeneralMIDI[CurrInst].duty_cycle);
     DrawWave(150,100,GeneralMIDI[CurrInst].voice2,
          GeneralMIDI[CurrInst].duty_cycle2);
-    
-    BSP_LCD_SetFont(&Font16);
-    BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+
+    BSP_LCD_FillRect(45,0,240-45,18);
     setEv(l);
-    sprintf(buffer, "%s                               ",
+    BSP_LCD_SetFont(&Font16);
+    sprintf(buffer, "%s",
         GeneralMIDI[CurrInst].name);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAt(45,0,(uint8_t *)buffer, LEFT_MODE);
+    ++l;
+    BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+
     ++l;
     BSP_LCD_DrawHLine(0,18,240);
     BSP_LCD_DrawHLine(0,17,240);
+
+    DrawInstrNumber(0,0);
+
     BSP_LCD_SetFont(&Font12);
-    
+
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
     setEv(l);
     switch(GeneralMIDI[CurrInst].voice) {
@@ -844,7 +905,7 @@ void ShowInstrument(void)
     setEv(l);
     sprintf(buffer, "Rel v1 to v2: %4d", GeneralMIDI[CurrInst].diff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
-    
+
     setEv(l);
     switch(GeneralMIDI[CurrInst].voice2) {
         case NONE:
@@ -880,35 +941,51 @@ void ShowInstrument(void)
     sprintf(buffer, "Duty Cycle 2: %4d", GeneralMIDI[CurrInst].duty_cycle2);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    if(GeneralMIDI[CurrInst].filt_mode == LO)
-        sprintf(buffer, "Filter mode: LOW  ");
-    else if(GeneralMIDI[CurrInst].filt_mode == BP)
-        sprintf(buffer, "Filter mode: BAND ");
-    else if(GeneralMIDI[CurrInst].filt_mode == HI)
-        sprintf(buffer, "Filter mode: HI   ");
-    else if(GeneralMIDI[CurrInst].filt_mode == M3)
-        sprintf(buffer, "Filter mode: MUTE3");
-    else
-        sprintf(buffer, "Filter mode: NONE");
+    if(GeneralMIDI[CurrInst].filt_routing == NON) {
+        sprintf(buffer, "Filter mode: NONE ");
+    } else {
+        switch(GeneralMIDI[CurrInst].filt_mode) {
+            case LO:
+                sprintf(buffer, "Filter mode: LOW  ");
+                break;
+            case BP:
+                sprintf(buffer, "Filter mode: BAND ");
+                break;
+            case HI:
+                sprintf(buffer, "Filter mode: HI   ");
+                break;
+            case M3:
+                sprintf(buffer, "Filter mode: MUTE3");
+                break;
+
+        }
+    }
 
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Filter cutoff: %4d", GeneralMIDI[CurrInst].filt_cutoff);
+    sprintf(buffer, "Filt. cutoff: %4d", GeneralMIDI[CurrInst].filt_cutoff);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Filter resonance: %2d", 
+    sprintf(buffer, "Filt. reson.:   %2d",
         GeneralMIDI[CurrInst].filt_resonance);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+
+    BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    BSP_LCD_DrawHLine(0,270,240);
+    BSP_LCD_DrawHLine(0,271,240);
+
     setEv(l);
-    if(GeneralMIDI[CurrInst].filt_routing==7) {
-        sprintf(buffer, "Filter routing: ALL ");
-    } else if(GeneralMIDI[CurrInst].filt_routing==0) {
-        sprintf(buffer, "Filter routing: NONE ");
-    } else {
-        sprintf(buffer, "Filter routing: %d", 
-            GeneralMIDI[CurrInst].filt_routing);
-    }
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_SetFont(&Font16);
+    sprintf(buffer, "Channel: %2d", currentChannel+1);
+    BSP_LCD_DisplayStringAt(0,280,(uint8_t *)buffer, LEFT_MODE);
+    ++l;
+    setEv(l);
+    char* m_mode[4]={"OMNI ", "POLY ", "MULTI", "MONO "};
+    
+    sprintf(buffer, "MIDI Mode: %s", m_mode[currentMode]);
+    BSP_LCD_DisplayStringAt(0,300,(uint8_t *)buffer, LEFT_MODE);
+    ++l;
+
 }
 
 
@@ -917,7 +994,7 @@ void ShowInstrument(void)
  **     INTERFACE INTERRUPTS
  **
  *****************************************************************************/
- 
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
     if(AntiBounceHoldoff>0) {
@@ -931,7 +1008,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
         } else {
             encoderDirection = FALSE;
         }
-        
+
         encoderAction=TRUE;
     } else if(GPIO_Pin==GPIO_PIN_3 && toggleEdit==FALSE) {
         // GP3 is the button. Press to change field (the pin goes to zero)
@@ -956,32 +1033,52 @@ void EXTI3_IRQHandler(void)
  **    MIDI RECEIVE STATE MACHINE
  **
  *****************************************************************************/
- 
+
 volatile int velocity;
 volatile int key;
 volatile int control;
 volatile int value;
 
-/**
-  * @brief  Rx Transfer completed callback
-  * @param  handle: UART handle
-  * @note
-  * @retval None
-  */
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
+/*
+    Check if we should process events on the given channel.
+*/
+int validateChannel(uint8_t ch)
 {
-    if(handle->Instance !=USARTx)
-        return;
+    int ret=FALSE;
+    switch(currentMode) {
+        case OMNI:
+            ret=TRUE;
+            break;
+        case POLY:
+            if(ch==currentChannel)
+                ret=TRUE;
+            break;
+        case MULTI:
+            // TODO: recall here the channel configuration so that each one can
+            // be played on a different instrument.
+            ret=TRUE;
+            break;
+        case MONO:
+            ret=TRUE;
+            break;
+    }
+    return ret;
+}
 
-    uint8_t rec = aRxBuffer[0];
-    int channel = rec & 0x0F;
-    int event =   rec & 0xF0;
 
-    // MIDI receive state machine.
+void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
+{
+// MIDI receive state machine.
     switch (MIDI_ReceiveState) {
         case idle:
             // We are in this state most of the time, until an event is
             // received.
+            
+            // Check if we should respond to an event
+            if(event>=0x80 && validateChannel(channel)==FALSE)
+                break;
+            
+            
             if(event==0x90) {           // NOTE_ON
                 MIDI_ReceiveState = note_on_k;
             } else if(event==0x80) {    // NOTE_OFF
@@ -1091,7 +1188,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                 updateFilterCutoffMessage();
             } else if(control == 0x47) {    // Change resonance
                 currentResonance = value >>3;
-                
+
             } else if(control == 0x55) {    // Change master volume
                 Master_Volume = value >>3;
                 sprintf(Message, "Volume: %d", Master_Volume);
@@ -1107,14 +1204,14 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
                 updateFilterModeMessage();
             } else if(control == 0x10) {    // Voice 2 to voice 1 diff COARSE
                 GeneralMIDI[CurrInst].diff = (value>>2) * 100;
-                sprintf(Message, "V2 to V1 : %d", 
+                sprintf(Message, "V2 to V1 : %d",
                     GeneralMIDI[CurrInst].diff);
                 MessageCountdown = 20;
             } else if(control == 0x11) {    // Voice 2 to voice 1 diff FINE
-                GeneralMIDI[CurrInst].diff = 
+                GeneralMIDI[CurrInst].diff =
                     ((int)(GeneralMIDI[CurrInst].diff/100)*100)
                     +(value);
-                sprintf(Message, "V2 to V1 : %d", 
+                sprintf(Message, "V2 to V1 : %d",
                     GeneralMIDI[CurrInst].diff);
                 MessageCountdown = 20;
             }
@@ -1123,8 +1220,29 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
         default:
             MIDI_ReceiveState=idle;
     }
+}
+
+
+/**
+  * @brief  Rx Transfer completed callback
+  * @param  handle: UART handle
+  * @note
+  * @retval None
+  */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
+{
+    if(handle->Instance !=USARTx)
+        return;
+
+    uint8_t rec = aRxBuffer[0];
+    uint8_t channel = rec & 0x0F;
+    uint8_t event =   rec & 0xF0;      
+
+    MIDIStateMachine(rec, channel, event);
+
     HAL_UART_Receive_IT(&UartHandle, aRxBuffer, 1);
 }
+
 
 /**
   * @brief  Period elapsed callback in non blocking mode

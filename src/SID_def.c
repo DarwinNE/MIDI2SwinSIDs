@@ -24,14 +24,6 @@ uint16_t C64_freq_table[]={
 
 #define FREQ_CORRECTION 98/100
 
-/*  268,284,301,318,337,358,379,401,425,451,477,506,536,
-    568,602,637,675,716,758,803,851,902,955,1012,1072,1136,1204,1275,1351,1432,
-    1517,1607,1703,1804,1911,2025,2145,2273,2408,2551,2703,2864,3034,3215,
-    3406,3608,3823,4050,4291,4547,4817,5103,5407,5728,6069,6430,6812,7217,
-    7647,8101,8583,9094,9634,10207,10814,11457,12139,12860,13625,14435,15294,
-    16203,17167,18188,19269,20415,21629,22915,24278,25721,27251,28871,30588,
-    32407,34334,36376,38539,40830,43258,45830,48556,51443,54502,57743,61176,
-    64814};  // NTSC */
 
 /******************************************************************************
     General MIDI patches
@@ -50,12 +42,12 @@ SID_conf GeneralMIDI[256] = {
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
 //   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
-    { 2,11,0 ,2 ,1632,LO, 624, 0,ALL,PULSE,1200, 2, 8, 0, 1,   0, TRIAN,  0,  0,  0,"Acoustic Grand Piano"},    // 0
-    { 2,11,0 ,2 ,1184,LO, 416, 0,ALL,PULSE,1200, 1, 8, 0, 2,   0, SAWTH,  0,  0,  0,"Bright Acoustic Piano"},   // 1
-    { 2,10, 0,1 ,2048,LO, 512, 4,ALL,PULSE,1200, 1,10, 0, 1, 512, PULSE,  0,  0,  0,"Electric Grand Piano"},    // 2
+    { 2,11,0 ,2 ,1632,LO, 624, 0,ALL,PULSE,1200, 2, 8, 0, 1,   0, TRIAN,  0,  0,  0,"Ac. Grand Piano"},         // 0
+    { 2,11,0 ,2 ,1184,LO, 416, 0,ALL,PULSE,1200, 1, 8, 0, 2,   0, SAWTH,  0,  0,  0,"Bright Ac. Piano"},        // 1
+    { 2,10, 0,1 ,2048,LO, 512, 4,ALL,PULSE,1200, 1,10, 0, 1, 512, PULSE,  0,  0,  0,"El. Grand Piano"},         // 2
     { 1,8 ,0 ,1 , 0  ,LO, 600,10,ALL,SAWTH, 610, 1,10, 0, 1,2048, PULSE,  0,  0,  0,"Honky-tonk Piano"},        // 3
-    { 1,10, 0,1 , 512,LO, 400,10,ALL,PULSE, 600, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Piano 1"},        // 4
-    { 1,11,0 ,2 , 512,LO, 300, 4,ALL,PULSE,1200, 1, 6, 0, 1,   0, SAWTH,  0,  0,  0,"Electric Piano 2"},        // 5
+    { 1,10, 0,1 , 512,LO, 400,10,ALL,PULSE, 600, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Piano 1"},             // 4
+    { 1,11,0 ,2 , 512,LO, 300, 4,ALL,PULSE,1200, 1, 6, 0, 1,   0, SAWTH,  0,  0,  0,"El. Piano 2"},             // 5
     { 1,10, 0,1 , 0  ,LO, 245, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Harpsicord"},              // 6
     { 0,10, 0,6 , 0  ,LO, 864,15,ALL,SAWTH,1800, 0, 10,0, 6,   0, SAWTH,  0,  0,  0,"Clavi"},                   // 7
     { 0,10, 0,3 ,2048,LO, 128, 0,NON,TRIAN,2400, 0, 8, 0, 2,   0, TRIAN,  0,  0,  0,"Celesta"},                 // 8
@@ -74,17 +66,17 @@ SID_conf GeneralMIDI[256] = {
     { 1,1 ,15, 2, 512,LO, 320, 0,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Accordion"},               // 21
     { 7,2 ,13, 2, 512,LO, 336, 0,ALL,PULSE, 601, 7,13,13, 2,3360, PULSE,  0,  0,  0,"Harmonica"},               // 22
     { 1,2 ,12,2 ,1024,LO, 512, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Tango Accordion"},         // 23
-    { 0,10, 0, 4, 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Acoustic Guitar (nylon)"}, // 24
-    { 0,10, 0, 4, 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Acoustic Guitar (steel)"}, // 25
-    { 0,10, 0,5 , 256,LO, 256, 0,ALL,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (jazz)"},  // 26
-    { 0,10, 0,5 , 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (clean)"}, // 27
-    { 0,11,0 ,2 , 256,LO, 160, 0,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Guitar (muted)"}, // 28
+    { 0,10, 0, 4, 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Ac. Guitar (nylon)"},      // 24
+    { 0,10, 0, 4, 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Ac. Guitar (steel)"},      // 25
+    { 0,10, 0,5 , 256,LO, 256, 0,ALL,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Guitar (jazz)"},       // 26
+    { 0,10, 0,5 , 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Guitar (clean)"},      // 27
+    { 0,11,0 ,2 , 256,LO, 160, 0,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Guitar (muted)"},      // 28
     { 0,12,0 ,3 , 512,LO, 432, 9,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Overdriven Guitar"},       // 29
     { 0,12,0 ,3 , 256,LO, 512, 8,ALL,PULSE, 600, 0,12, 0, 3, 512, PULSE,  0,  0,  0,"Distortion Guitar"},       // 30
     { 0,12,0 ,3 , 0  ,HI, 256, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Guitar Harmonics"},        // 31
-    { 1,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,  0,  0,  0,"Acoustic Bass"},           // 32
-    { 1,12,0 , 4, 0  ,LO, 250, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Bass (finger)"},  // 33
-    { 1,12,0 , 4, 0  ,LO, 792, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Electric Bass (pick)"},    // 34
+    { 1,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,  0,  0,  0,"Ac. Bass"},                // 32
+    { 1,12,0 , 4, 0  ,LO, 250, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Bass (finger)"},       // 33
+    { 1,12,0 , 4, 0  ,LO, 792, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Bass (pick)"},         // 34
     { 2,11,0 , 3, 0  ,LO, 688,15,ALL,SAWTH, 600, 2,10, 0, 3,   0, NONE ,  2,  2,  0,"Fretless Bass"},           // 35
     { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 1"},             // 36
     { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 2"},             // 37

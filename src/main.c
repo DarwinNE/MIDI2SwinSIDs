@@ -63,7 +63,7 @@ int32_t  LargeMovement=0;
 
 int currentField;
 
-#define NUM_FIELD 20
+#define NUM_FIELD 21
 
 
 int8_t currentWave1;
@@ -86,6 +86,8 @@ int16_t currentCutoff;
 int8_t currentResonance;
 int8_t currentFilterMode;
 int8_t currentRouting;
+int8_t currentPortamento;
+
 
 int8_t currentChannel;
 // The TT element is just there to force the enum to be signed, so that one
@@ -571,10 +573,14 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentResonance,0,15,1);
             updateFilterResonanceMessage();
             break;
-        case 18:    // MIDI channel
+        case 18:    // Portamento
+            UPDATE_PAR(currentPortamento,0,100,1);
+            GeneralMIDI[CurrInst].portamento=currentPortamento;
+            break;
+        case 19:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
             break;
-        case 19:    // MIDI mode
+        case 20:    // MIDI mode
             UPDATE_PAR(currentMode,0,3,1);
             break;
         default:
@@ -844,9 +850,9 @@ void ShowInstrument(void)
     DrawADSR(150,150-16,
         GeneralMIDI[CurrInst].a2, GeneralMIDI[CurrInst].d2,
         GeneralMIDI[CurrInst].s2, GeneralMIDI[CurrInst].r2);
-    DrawWave(150,20,GeneralMIDI[CurrInst].voice,
+    DrawWave(150,23,GeneralMIDI[CurrInst].voice,
          GeneralMIDI[CurrInst].duty_cycle);
-    DrawWave(150,100,GeneralMIDI[CurrInst].voice2,
+    DrawWave(150,108,GeneralMIDI[CurrInst].voice2,
          GeneralMIDI[CurrInst].duty_cycle2);
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
 
@@ -942,17 +948,17 @@ void ShowInstrument(void)
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
     if(GeneralMIDI[CurrInst].filt_routing == NON) {
-        sprintf(buffer, "Filter mode: NONE ");
+        sprintf(buffer, "Filter mode:  NONE");
     } else {
         switch(GeneralMIDI[CurrInst].filt_mode) {
             case LO:
-                sprintf(buffer, "Filter mode: LOW  ");
+                sprintf(buffer, "Filter mode:   LOW");
                 break;
             case BP:
-                sprintf(buffer, "Filter mode: BAND ");
+                sprintf(buffer, "Filter mode:  BAND");
                 break;
             case HI:
-                sprintf(buffer, "Filter mode: HI   ");
+                sprintf(buffer, "Filter mode:    HI");
                 break;
             case M3:
                 sprintf(buffer, "Filter mode: MUTE3");
@@ -968,6 +974,9 @@ void ShowInstrument(void)
     setEv(l);
     sprintf(buffer, "Filt. reson.:   %2d",
         GeneralMIDI[CurrInst].filt_resonance);
+    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    setEv(l);
+    sprintf(buffer, "Portamento:    %3d", GeneralMIDI[CurrInst].portamento);
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
 
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);

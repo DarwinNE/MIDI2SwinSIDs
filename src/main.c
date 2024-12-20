@@ -22,10 +22,12 @@
 #include <stdio.h>
 #include <math.h>
 #include "SID_def.h"
+#include "MIDI_def.h"
 #include "Utilities/Fonts/fonts.h"
 
-void ShowInstrument(void);
 
+
+void ShowInstrument(void);
 
 /* UART handler declaration */
 volatile UART_HandleTypeDef UartHandle;
@@ -41,6 +43,7 @@ extern volatile uint8_t Master_Volume;     // 0 to 15
 
 
 extern SID_conf GeneralMIDI[];
+extern SID_composite DrumKit[];
 extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
 
 #define MESSAGE_SIZE 256
@@ -90,13 +93,7 @@ int8_t currentPortamento;
 
 
 int8_t currentChannel;
-// The TT element is just there to force the enum to be signed, so that one
-// can do tests such as if(currentMode>0) etc...
-enum MIDI_mode {TT=-1,
-    OMNI=0,                 // Respond to all events on all channels
-    POLY,                   // Respond only to events on the current channel
-    MULTI,                  // Respond to events on all channels separately
-    MONO} currentMode;      // Respond to events on all channels, monophonic
+enum MIDI_mode currentMode;
 
 
 extern int8_t LFO_Table[];
@@ -985,7 +982,11 @@ void ShowInstrument(void)
 
     setEv(l);
     BSP_LCD_SetFont(&Font16);
-    sprintf(buffer, "Channel: %2d", currentChannel+1);
+    if (currentChannel == 9) {
+        sprintf(buffer, "Channel: 10 (DrumKit)");
+    } else {
+        sprintf(buffer, "Channel: %2d", currentChannel+1);
+    }
     BSP_LCD_DisplayStringAt(0,280,(uint8_t *)buffer, LEFT_MODE);
     ++l;
     setEv(l);
@@ -1047,6 +1048,7 @@ volatile int velocity;
 volatile int key;
 volatile int control;
 volatile int value;
+volatile int event_channel;
 
 /*
     Check if we should process events on the given channel.
@@ -1074,10 +1076,23 @@ int validateChannel(uint8_t ch)
     return ret;
 }
 
+#define ADJUST_NOTE_KEY(note, inst)\
+    (note)=key; \
+    (inst)=CurrInst;\
+    if (currentMode==OMNI) {\
+        event_channel=currentChannel;\
+    }\
+    if(event_channel==9) {\
+        (inst)=DrumKit[key].instrument;\
+        (note)=DrumKit[key].note;\
+    }
 
 void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
 {
-// MIDI receive state machine.
+    // MIDI receive state machine.
+    uint8_t note;
+    uint8_t inst;
+    
     switch (MIDI_ReceiveState) {
         case idle:
             // We are in this state most of the time, until an event is
@@ -1087,14 +1102,14 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             if(event>=0x80 && validateChannel(channel)==FALSE)
                 break;
             
-            
-            if(event==0x90) {           // NOTE_ON
+            event_channel=channel;
+            if(event==NOTE_ON) {                  // NOTE_ON
                 MIDI_ReceiveState = note_on_k;
-            } else if(event==0x80) {    // NOTE_OFF
+            } else if(event==NOTE_OFF) {          // NOTE_OFF
                 MIDI_ReceiveState = note_off_k;
-            } else if(event==0xB0) {    // CONTROL CHANGE
+            } else if(event==CONTROL_CHANGE) {    // CONTROL CHANGE
                 MIDI_ReceiveState = control_c;
-            } else if(event==0xC0) {    // PROGRAM CHANGE
+            } else if(event==PROGRAM_CHANGE) {    // PROGRAM CHANGE
                 MIDI_ReceiveState = program_c;
             }
             break;
@@ -1110,7 +1125,11 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             velocity = rec;
             MIDI_ReceiveState = idle;
             // Play the note here!
-            SID_Note_On(key, velocity, &GeneralMIDI[CurrInst]);
+            ADJUST_NOTE_KEY(note, inst);
+            //sprintf(Message, "int= %d, note=%d ", inst, note);
+            //MessageCountdown = 20;
+            
+            SID_Note_On(note, velocity, &GeneralMIDI[inst]);
             break;
         case note_off_k:
             key = rec;
@@ -1119,8 +1138,11 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
         case note_off_v:
             velocity = rec;
             MIDI_ReceiveState = idle;
-            // Stop the note here.
-            SID_Note_Off(key);
+            
+            ADJUST_NOTE_KEY(note, inst);
+            
+            // TODO: the note off should check the channel!!!
+            SID_Note_Off(note);
             break;
         case control_c:
             control = rec;
@@ -1129,7 +1151,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
         case control_v:
             value = rec;
             MIDI_ReceiveState = idle;
-            if(control == 64) {     // SUSTAIN PEDAL
+            if(control == CTRL_PEDAL) {     // SUSTAIN PEDAL
                 if (value>63) {     // SUSTAIN ON
                     SustainPedal=1;
                 } else {            // SUSTAIN OFF

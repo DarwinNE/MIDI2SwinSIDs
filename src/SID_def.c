@@ -13,10 +13,10 @@ uint32_t counter = 0;
 
 
 uint16_t C64_freq_table[]={
-    278, 295, 313, 331, 351, 372, 394, 417, 442, 468, 496, 526, 557, 590, 625, 
-    662, 702, 743, 788, 834, 884, 937, 992, 1051, 1114, 1180, 1250, 1325, 1403, 
-    1487, 1575, 1669, 1768, 1873, 1985, 2103, 2228, 2360, 2500, 2649, 2807, 
-    2973, 3150, 3338, 3536, 3746, 3969, 4205, 4455, 4720, 5001, 5298, 5613, 
+    278, 295, 313, 331, 351, 372, 394, 417, 442, 468, 496, 526, 557, 590, 625,
+    662, 702, 743, 788, 834, 884, 937, 992, 1051, 1114, 1180, 1250, 1325, 1403,
+    1487, 1575, 1669, 1768, 1873, 1985, 2103, 2228, 2360, 2500, 2649, 2807,
+    2973, 3150, 3338, 3536, 3746, 3969, 4205, 4455, 4720, 5001, 5298, 5613,
     5947, 6300, 6675, 7072, 7493, 7938, 8410, 8910, 9440, 10001, 10596, 11226,
     11894, 12601, 13350, 14144, 14985, 15876, 16820, 17820, 18880, 20003, 21192,
     22452, 23787, 25202, 26700, 28288, 29970, 31752, 33640, 35641, 37760, 40005,
@@ -65,6 +65,10 @@ SID_conf GeneralMIDI[256] = {
     { 1,1 ,15, 2,1024,LO, 128, 4,ALL,PULSE, 600, 1, 1,15, 1,   0, TRIAN,  0,  0,  0,"Reed Organ"},              // 20
     { 1,1 ,15, 2, 512,LO, 320, 0,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Accordion"},               // 21
     { 7,2 ,13, 2, 512,LO, 336, 0,ALL,PULSE, 601, 7,13,13, 2,3360, PULSE,  0,  0,  0,"Harmonica"},               // 22
+//   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
+//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
+    
     { 1,2 ,12,2 ,1024,LO, 512, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Tango Accordion"},         // 23
     { 0,10, 0, 4, 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Ac. Guitar (nylon)"},      // 24
     { 0,10, 0, 4, 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Ac. Guitar (steel)"},      // 25
@@ -88,6 +92,10 @@ SID_conf GeneralMIDI[256] = {
     { 8,10,13, 3, 900,LO, 480, 5,ALL,PULSE, 600, 6, 8,11, 9,   0, SAWTH,  0,  0,  0,"Contrabass"},              // 43
     { 7, 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH, 20,  8,  0,"Tremolo Strings"},         // 44
     { 0, 9, 0, 2, 0  ,LO, 800, 6,ALL,SAWTH, 598, 1, 9 ,0, 1,1824, PULSE,  0,  0,  0,"Pizzicato Strings"},       // 45
+//   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
+//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
+
     { 1,10, 0,1 , 0  ,LO, 245, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Orchestral Harp"},         // 46
     { 0,10, 0,10, 0  ,LO, 512, 0,ALL,NOISE, 600, 0,10, 0,10,   0, NOISE,  0,  0,  0,"Timpani"},                 // 47
     { 7, 7,13, 3, 0  ,LO, 496, 2,ALL,SAWTH, 602, 6, 8,11, 5,   0, SAWTH,  0,  0,  0,"String Ensemble 1"},       // 48
@@ -111,6 +119,9 @@ SID_conf GeneralMIDI[256] = {
     {8 ,10,13, 3, 768,LO, 500,12,ALL,PULSE, 600, 8, 8,11, 9,   0, SAWTH,  0,  0,  0,"Tenor Sax"},               // 66
     {8 ,10,13, 3, 768,LO, 450,15,ALL,PULSE, 600, 8, 8,11, 9,   0, SAWTH,  0,  0,  0,"Baritone Sax"},            // 67
     { 3,7 ,14, 2,1888,LO, 560,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Oboe"},                    // 68
+//   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
+//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
     { 3,7 ,14, 2,1888,LO, 144, 2,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"English Horn"},            // 69
     { 3,7 ,14, 2, 352,LO, 288, 4,ALL,PULSE, 602, 3, 8,10, 4, 960, PULSE,  0,  0,  0,"Bassoon"},                 // 70
     { 4,7 ,14, 2, 480,LO, 480, 4,ALL,PULSE, 602, 4, 4,10, 4, 480, PULSE,  0,  0,  0,"Clarinet"},                // 71
@@ -134,6 +145,9 @@ SID_conf GeneralMIDI[256] = {
     {13, 9,13, 5, 0  ,LO, 432, 4,ALL,SAWTH,1200,12,10,11, 5,   0, SAWTH,  0,  0, 20,"Pad 2 (warm)"},            // 89
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 3 (polysynth)*"},      // 90
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 4 (choir)*"},          // 91
+//   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
+//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 5 (bowed)*"},          // 92
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 6 (metallic)*"},       // 93
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 7 (halo)*"},           // 94
@@ -156,11 +170,14 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Tinkle Bell*"},            // 111
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Agogo*"},                  // 112
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Steel Drums*"},            // 113
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Woodblock*"},              // 114
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Taiko Drum*"},             // 115
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Melodic Tom*"},            // 116
-    { 2, 9,0 ,10, 0  ,BP, 112, 0,ALL,NOISE,1200, 1,10, 0,10,   0, NOISE,  0,  0,  0,"Synth Drum"},              // 117
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Reverse Cymbal*"},         // 118
+    { 1, 3, 0, 2, 0  ,LO, 507,15,ALL,NOISE,2400, 1, 4, 0, 2,   0, TRIAN,  0,  0,  0,"Woodblock"},               // 114
+//   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
+//   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |     |                          |
+    { 2, 6,0 , 3, 0  ,LO, 225,10,ALL,NOISE,3850, 1, 6, 0, 3,   0, TRIAN,  0,  0,  0,"Taiko Drum*"},             // 115
+    { 2, 6,0 , 3, 0  ,LO, 225,10,ALL,NOISE,3850, 1, 6, 0, 3,   0, NOISE,  0,  0,  0,"Melodic Tom"},             // 116
+    { 2, 6,0 , 3, 0  ,LO, 112,10,ALL,NOISE, 203, 1, 6, 0, 3,   0, NOISE,  0,  0,  0,"Synth Drum"},              // 117
+    {10, 1,0 , 0, 0  ,LO,1024, 0,NON,NOISE,2861,10, 1, 0, 0,   0, NOISE,  0,  0,  0,"Reverse Cymbal"},          // 118
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Guitar Fret Noise*"},      // 119
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Breath Noise*"},           // 120
     {12,11, 2,10, 0  ,LO,1024, 0,NON,NOISE, 800,11,12, 2,11,   0, NOISE,  0,  0,  0,"Seashore"},                // 121
@@ -170,7 +187,96 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Applause*"},               // 125
     { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NOISE, 800, 0, 9, 0, 0,   0, NOISE,  0,  0,  0,"Gunshot"},                 // 126
     { 0,9 , 0, 0, 0  ,LO,1024, 0,NON,NONE ,   0, 0, 9, 0, 0,   0, NONE ,  0,  0,  0,"None"}                     // 127
-}; 
+};
+
+// Channel 10 drum kit
+SID_composite DrumKit[128] = {
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+    {0,0},
+
+// INSTR NOTE
+//   |    |
+    {117, 45},    // 35 B0  Acoustic Bass Drum
+    {117, 55},    // 36 C1  Bass Drum 1
+    {114, 52},    // 37 C#1 Side Stick          *
+    {117, 55},    // 38 D1  Acoustic Snare      *
+    {117, 55},    // 39 D#1 Hand Clap           *
+    {117, 55},    // 40 E1  Electric Snare      *
+    {116, 48},    // 41 E#1 Low Floor Tom
+    {117, 55},    // 42 F1  Closed Hi Hat       *
+    {116, 55},    // 43 F#1 High Floor Tom      *
+    {117, 55},    // 44 G1  Pedal Hi Hat        *
+    {117, 55},    // 45 G#1 Low Tom
+    {117, 55},    // 46 A   Open Hi Hat         *
+    {116, 52},    // 47 Low Mid Tom
+    {116, 53},    // 48 Hi Mid Tom
+    {117, 55},    // 49 Crash Cymbal 1          *
+    {116, 60},    // 50 High Tom
+    {117, 55},    // 51 Ride Cymbal 1           *
+    {117, 55},    // 52 Chinese Cymbal          *
+    {117, 55},    // 53 Ride Bell               *
+    {117, 55},    // 54 Tambourine              *
+    {117, 55},    // 55 Splash Cymbal           *
+    {117, 55},    // 56 Cowbell                 *
+    {117, 55},    // 57 Crash Cymbal            *
+    {117, 55},    // 58 Vibrasplash             *
+    {117, 55},    // 59 Ride Cymbal 2           *
+    {117, 55},    // 60 Hi Bongo                *
+    {117, 55},    // 61 Low Bongo               *
+    {117, 55},    // 62 Mute Hi Conga           *
+    {117, 55},    // 63 Open Hi Conga           *
+    {117, 55},    // 64 Low Conga               *
+    {117, 55},    // 65 High Timbale            *
+    {117, 55},    // 66 Low Timbale             *
+    {117, 55},    // 67 High Agogo              *
+    {117, 55},    // 68 Low Agogo               *
+    {117, 55},    // 69 Cbasa                   *
+    {117, 55},    // 70 Maracas                 *
+    {117, 55},    // 71 Short Whistle           *
+    {117, 55},    // 72 Long Whistle            *
+    {117, 55},    // 73 Short Guiro             *
+    {117, 55},    // 74 Long Guiro              *
+    {117, 67},    // 75 Claves                  *
+    {114, 60},    // 76 E4  Hi Wood Block
+    {114, 55},    // 77 F4  Low Wood Block
+    {117, 55},    // 78 F#4 Mute Cuica          *
+    {117, 55},    // 79 G4  Open Cuica          *
+    {117, 55},    // 80 G4# Mute Triangle       *
+    {117, 55}     // 81 A4  Open Triangle       *
+};
 
 /* SID interface functions */
 
@@ -276,7 +382,7 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst)
         Voices[voice].voice=inst->voice;
         Voices[voice].inst=*inst;
         uint16_t freq= C64_freq_table[key]*FREQ_CORRECTION;
-        Voices[voice].freq=freq; 
+        Voices[voice].freq=freq;
 
         int sid_num = 0;
 
@@ -309,20 +415,20 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst)
     if(inst->voice2 != NONE) {
         uint8_t voice = GetFreeVoice(key_m*SECONDVOICE);
         uint32_t v2freq_l = C64_freq_table[key]*FREQ_CORRECTION;
-        
+
         Voices[voice].key=((int16_t)key_m)*SECONDVOICE;
         Voices[voice].timestamp=counter;
         Voices[voice].voice=inst->voice2;
         Voices[voice].inst=*inst;
-        
+
         if(v2freq_l*inst->diff>0)
             v2freq_l = (v2freq_l*inst->diff*2)/1200;
         else
             v2freq_l = (v2freq_l*1200)/inst->diff/2;
-    
+
         if(v2freq_l>65536)
             return;
-                
+
         int16_t v2freq = (int16_t) v2freq_l;
         Voices[voice].freq = v2freq;
 
@@ -402,7 +508,7 @@ void UpdateLFO(void)
                 vv=i;
             }
             uint8_t offset = SID_VOICE_OFFSET*vv;
-            
+
             float alpha = 1;
             if(Voices[i].inst.portamento)
                 alpha = (float)(counter-Voices[i].timestamp)/Voices[i].inst.portamento;
@@ -415,7 +521,7 @@ void UpdateLFO(void)
             freq += (uint16_t)(Voices[i].inst.lfo_depth/127.0*LFO_Table[LFO_Pointer]*(Voices[i].freq>>8));
             SID_Set_Reg(SID_V1_FREQ_HI+offset, (uint8_t)((freq & 0xFF00)>>8), sid_num);
             SID_Set_Reg(SID_V1_FREQ_LO+offset, (uint8_t)(freq & 0x00FF), sid_num);
-       
+
         }
     }
     ++counter;
@@ -437,7 +543,7 @@ uint8_t GetFreeVoice(int key)
         }
     }
     // If pedal is depressed, select the oldest voice currently sustained.
-    
+
     uint32_t oldest = Voices[0].timestamp;
     uint8_t  pos = 0;
     uint8_t  susnotes = 0;  // Flag: if != 0, there are sustained notes.

@@ -5,6 +5,13 @@
 #define SECONDVOICE     128
 #define LFO_SIZE        256
 
+// Composite instrument for drumkits on channel 10.
+typedef struct SID_composite_tag {
+    uint8_t  instrument;        // Number of the instrument
+    uint8_t  note;              // Note to be played
+} SID_composite;
+
+// Definition of an instrument.
 typedef struct SID_conf_tag {
     uint8_t  a;                 // Attack
     uint8_t  d;                 // Decay

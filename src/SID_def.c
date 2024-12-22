@@ -78,8 +78,8 @@ SID_conf GeneralMIDI[256] = {
     { 0,12,0 ,3 , 256,LO, 512, 8,ALL,PULSE, 600, 0,12, 0, 3, 512, PULSE,  0,  0,  0,"Distortion Guitar"},       // 31
     { 0,12,0 ,3 , 0  ,HI, 256, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Guitar Harmonics"},        // 32
     { 1,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,  0,  0,  0,"Ac. Bass"},                // 33
-    { 1,12,0 , 4, 0  ,LO, 250, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Bass (finger)"},       // 34
-    { 1,12,0 , 4, 0  ,LO, 792, 8,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Bass (pick)"},         // 35
+    { 1,12,0 , 4, 0  ,LO, 250, 8,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"El. Bass (finger)"},       // 34
+    { 1,12,0 , 4, 0  ,LO, 792, 8,NON,TRIAN, 600, 0, 0, 0, 0,2112, PULSE,  0,  0,  0,"El. Bass (pick)"},         // 35
     { 2,11,0 , 3, 0  ,LO, 688,15,ALL,SAWTH, 600, 2,10, 0, 3,   0, NONE ,  2,  2,  0,"Fretless Bass"},           // 36
     { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 1"},             // 37
     { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,"Slap Bass 2"},             // 38
@@ -168,7 +168,7 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Shanai*"},                 // 112
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Tinkle Bell*"},            // 113
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Agogo*"},                  // 114
-    { 0, 8, 0, 5, 0  ,HI, 530,11,ALL,NOISE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Steel Drums"},             // 115
+    { 0, 5, 0, 3, 0  ,HI, 530,11,ALL,NOISE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Steel Drums"},             // 115
     { 1, 3, 0, 2, 0  ,LO, 507,15,ALL,NOISE,2400, 1, 4, 0, 2,   0, TRIAN,  0,  0,  0,"Woodblock"},               // 116
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
@@ -228,59 +228,58 @@ SID_composite DrumKit[128] = {
 
 // INSTR NOTE
 //   |    |
-    {118, 45},    // 35 B0  Acoustic Bass Drum
-    {118, 55},    // 36 C1  Bass Drum 1
-    {115, 52},    // 37 C#1 Side Stick
-    {116, 43},    // 38 D1  Acoustic Snare
-    {118, 55},    // 39 D#1 Hand Clap           *
-    {118, 55},    // 40 E1  Electric Snare      *
-    {117, 48},    // 41 F1  Low Floor Tom
-    {114, 79},    // 42 F#1 Closed Hi Hat
-    {117, 55},    // 43 G1  High Floor Tom      *
-    {118, 55},    // 44 G#1 Pedal Hi Hat        *
-    {118, 55},    // 45 A1  Low Tom
-    {118, 55},    // 46 A#1 Open Hi Hat         *
-    {117, 52},    // 47 Low Mid Tom
-    {117, 53},    // 48 Hi Mid Tom
-    {47 , 96},    // 49 Crash Cymbal 1
-    {117, 60},    // 50 High Tom
-    {47 , 90},    // 51 Ride Cymbal 1
-    {47 , 103},   // 52 Chinese Cymbal
-    {118, 55},    // 53 Ride Bell               *
-    {118, 55},    // 54 Tambourine              *
-    {47 , 85},    // 55 Splash Cymbal
-    {118, 55},    // 56 Cowbell                 *
-    {47 , 90},    // 57 Crash Cymbal
-    {118, 55},    // 58 Vibrasplash             *
-    {118, 55},    // 59 Ride Cymbal 2           *
-    {118, 55},    // 60 Hi Bongo                *
-    {118, 55},    // 61 Low Bongo               *
-    {118, 55},    // 62 Mute Hi Conga           *
-    {118, 55},    // 63 Open Hi Conga           *
-    {118, 55},    // 64 Low Conga               *
-    {118, 55},    // 65 High Timbale            *
-    {118, 55},    // 66 Low Timbale             *
-    {118, 55},    // 67 High Agogo              *
-    {118, 55},    // 68 Low Agogo               *
-    {118, 55},    // 69 Cbasa                   *
-    {118, 55},    // 70 Maracas                 *
-    {118, 55},    // 71 Short Whistle           *
-    {118, 55},    // 72 Long Whistle            *
-    {118, 55},    // 73 Short Guiro             *
-    {118, 55},    // 74 Long Guiro              *
-    {118, 67},    // 75 Claves                  *
-    {115, 60},    // 76 E4  Hi Wood Block
-    {115, 55},    // 77 F4  Low Wood Block
-    {118, 55},    // 78 F#4 Mute Cuica          *
-    {118, 55},    // 79 G4  Open Cuica          *
-    {118, 55},    // 80 G4# Mute Triangle       *
-    {118, 55}     // 81 A4  Open Triangle       *
+    {119-1, 45},    // 35 B0  Acoustic Bass Drum
+    {119-1, 55},    // 36 C1  Bass Drum 1
+    {116-1, 52},    // 37 C#1 Side Stick
+    {117-1, 43},    // 38 D1  Acoustic Snare
+    {119-1, 55},    // 39 D#1 Hand Clap           *
+    {119-1, 55},    // 40 E1  Electric Snare      *
+    {118-1, 48},    // 41 F1  Low Floor Tom
+    {115-1, 79},    // 42 F#1 Closed Hi Hat
+    {118-1, 55},    // 43 G1  High Floor Tom      *
+    {119-1, 55},    // 44 G#1 Pedal Hi Hat        *
+    {119-1, 55},    // 45 A1  Low Tom
+    {119-1, 55},    // 46 A#1 Open Hi Hat         *
+    {118-1, 52},    // 47 Low Mid Tom
+    {118-1, 53},    // 48 Hi Mid Tom
+    {48 -1, 96},    // 49 Crash Cymbal 1
+    {118-1, 60},    // 50 High Tom
+    {48 -1, 90},    // 51 Ride Cymbal 1
+    {48 -1, 103},   // 52 Chinese Cymbal
+    {119-1, 55},    // 53 Ride Bell               *
+    {119-1, 55},    // 54 Tambourine              *
+    {47 -1, 85},    // 55 Splash Cymbal
+    {119-1, 55},    // 56 Cowbell                 *
+    {48 -1, 90},    // 57 Crash Cymbal
+    {119-1, 55},    // 58 Vibrasplash             *
+    {119-1, 55},    // 59 Ride Cymbal 2           *
+    {119-1, 55},    // 60 Hi Bongo                *
+    {119-1, 55},    // 61 Low Bongo               *
+    {119-1, 55},    // 62 Mute Hi Conga           *
+    {119-1, 55},    // 63 Open Hi Conga           *
+    {119-1, 55},    // 64 Low Conga               *
+    {119-1, 55},    // 65 High Timbale            *
+    {119-1, 55},    // 66 Low Timbale             *
+    {119-1, 55},    // 67 High Agogo              *
+    {119-1, 55},    // 68 Low Agogo               *
+    {119-1, 55},    // 69 Cbasa                   *
+    {119-1, 55},    // 70 Maracas                 *
+    {119-1, 55},    // 71 Short Whistle           *
+    {119-1, 55},    // 72 Long Whistle            *
+    {119-1, 55},    // 73 Short Guiro             *
+    {119-1, 55},    // 74 Long Guiro              *
+    {119-1, 67},    // 75 Claves                  *
+    {116-1, 60},    // 76 E4  Hi Wood Block
+    {116-1, 55},    // 77 F4  Low Wood Block
+    {119-1, 55},    // 78 F#4 Mute Cuica          *
+    {119-1, 55},    // 79 G4  Open Cuica          *
+    {119-1, 55},    // 80 G4# Mute Triangle       *
+    {119-1, 55}     // 81 A4  Open Triangle       *
 };
 
 /* SID interface functions */
 
-volatile int CurrInst;
-volatile uint8_t SustainPedal;
+volatile uint8_t SustainPedal;      // TODO: associate it to a channel
 volatile uint8_t Master_Volume;     // 0 to 15
 
 
@@ -344,17 +343,20 @@ void SID_Set_RW(int rw)
     // A rising transition just happened.
 }*/
 
+/** Select the given SID (or none of them id is different from 0 or 1)
+*/
 void SID_Select(int id)
 {
+    // CS SID active low.
     if(id==1) {
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_RESET);
     } else if (id==0) {
-        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_SET);
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_RESET);
-    } else {
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_SET);
+    } else {
         HAL_GPIO_WritePin(GPIOE, GPIO_PIN_4, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(GPIOE, GPIO_PIN_5, GPIO_PIN_SET);
     }
 }
 
@@ -366,37 +368,37 @@ void SID_Set_Reg(int address, int data, int sid_num)
     // Pulse the CS line to strobe data.
     SID_Select(sid_num);
     SID_Select(-1);
-
-
 }
 /** Switch on one of the SID oscillators, configure the instrument.
 */
 void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
     uint8_t channel)
 {
-    uint8_t key=key_m-BASE_MIDI_NOTE;
+    // BASE_MIDI_NOTE represents the offset between note 0 in the GeneralMIDI
+    // standard and the frequency table for the SID.
+    // Use key_m every time you need to use the GeneralMIDI event.
+    uint8_t key_fr=key_m-BASE_MIDI_NOTE;
 
     // If the first oscillator is active, play it.
     if(inst->voice != NONE) {
         uint8_t voice = GetFreeVoice(key_m, channel);
-        Voices[voice].key=key_m;
+        Voices[voice].key=key_m,
+        Voices[voice].channel=channel;
         Voices[voice].timestamp=counter;
         Voices[voice].voice=inst->voice;
         Voices[voice].inst=*inst;
-        uint16_t freq= C64_freq_table[key]*FREQ_CORRECTION;
+        if (key_fr >= COUNTOF(C64_freq_table))
+            return;
+        uint16_t freq= C64_freq_table[key_fr]*FREQ_CORRECTION;
         Voices[voice].freq=freq;
 
+        // Select the correct SID, depending on the voice number.
         int sid_num = 0;
-
         if(voice > 2) {
             voice -= 3;
             sid_num = 1;
         }
         uint8_t offset = SID_VOICE_OFFSET*voice;
-
-        if (key >= COUNTOF(C64_freq_table))
-            return;
-        SID_Select(-1);
 
         SID_Set_Reg(SID_MODE_VOL, (Master_Volume & 0x0F) |
             (inst->filt_mode & 0xF)<<4, sid_num);
@@ -419,15 +421,20 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
         SID_Set_Reg(SID_V1_CONTROL+offset, inst->voice, sid_num);
     }
 
-    // Check if a second voice is present and if yes play it.
+    // Check if a second voice is present and, if yes, play it.
     if(inst->voice2 != NONE) {
         uint8_t voice = GetFreeVoice(key_m*SECONDVOICE, channel);
-        uint32_t v2freq_l = C64_freq_table[key]*FREQ_CORRECTION;
 
         Voices[voice].key=((int16_t)key_m)*SECONDVOICE;
+        Voices[voice].channel=channel;
         Voices[voice].timestamp=counter;
-        Voices[voice].voice=inst->voice2;
         Voices[voice].inst=*inst;
+        Voices[voice].voice=inst->voice2;
+
+        if (key_fr >= COUNTOF(C64_freq_table))
+            return;
+        uint32_t v2freq_l = C64_freq_table[key_fr]*FREQ_CORRECTION;
+
 
         if(v2freq_l*inst->diff>0)
             v2freq_l = (v2freq_l*inst->diff*2)/1200;
@@ -440,6 +447,7 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
         int16_t v2freq = (int16_t) v2freq_l;
         Voices[voice].freq = v2freq;
 
+        // Select the correct SID, depending on the voice number.
         int sid_num = 0;
         if(voice > 2) {
             voice -= 3;
@@ -447,7 +455,7 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
         }
 
         uint8_t offset = SID_VOICE_OFFSET*voice;
-        SID_Select(-1);
+
         SID_Set_Reg(SID_MODE_VOL, (Master_Volume & 0x0F) |
             (inst->filt_mode & 0xF)<<4, sid_num);
         SID_Set_Reg(SID_FC_LO,inst->filt_cutoff & 0x0007, sid_num);
@@ -483,10 +491,12 @@ void SID_Note_Off(uint8_t key, uint8_t channel)
             || (Voices[i].key == key_V2)
             || (Voices[i].key == -key_V2)))
         {
+            // TODO: pedal should be associated to a channel.
             if(SustainPedal && Voices[i].key>0) {
                 // If the pedal is depressed, mark note as sustained.
                 Voices[i].key=-Voices[i].key;
              } else if(!SustainPedal) {
+                // If not, switch off the note.
                 SID_Stop_Voice(i);
                 Voices[i].key=0;
                 Voices[i].oldfreq=Voices[i].freq;
@@ -496,11 +506,14 @@ void SID_Note_Off(uint8_t key, uint8_t channel)
 }
 
 /** Send a stop command to a SID oscillator.
+    Frees the voice.
 */
 void SID_Stop_Voice(uint8_t v_t)
 {
     uint8_t sid_num = 0;
     uint8_t voice = v_t;
+    Voices[v_t].key=0;
+    Voices[v_t].oldfreq=Voices[v_t].freq;
     // Voices 0,1,2 are attributed to SID0, voices 3,4,5 to SID1
     if(voice > 2) {
         voice -= 3;
@@ -559,15 +572,23 @@ void UpdateLFO(void)
 */
 uint8_t GetFreeVoice(int key, uint8_t channel)
 {
+    // Order in which the voices are attributed. Try to share them between the
+    // two SIDs in the best possible way. The main problem is that the filter
+    // setting of the last played note will interact with the filter settings
+    // of all the SID. If only two notes are played, that at least is OK.
+    uint8_t or[]={0,3,1,4,2,5};
+    uint8_t i;
     // Search if the same note has already have been played on the same
     // channel. In this case, we are going to reuse the same voice.
     // Sustained notes have key<0;
-    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+    for(uint8_t k=0; k<NUM_VOICES; ++k) {
+        i=or[k];
         if(Voices[i].key==key && Voices[i].channel==channel) {
             return i;
         }
     }    // Search if there is a voice not being played.
-    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+    for(uint8_t k=0; k<NUM_VOICES; ++k) {
+        i=or[k];
         if(Voices[i].key==0) {
             // If it is found, use it.
             return i;
@@ -578,7 +599,8 @@ uint8_t GetFreeVoice(int key, uint8_t channel)
     uint8_t  pos = 0;       // Position being tested.
     uint8_t  susnotes = 0;  // Flag: if it is != 0, there are sustained notes.
     // Search for the oldest sustained note.
-    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+    for(uint8_t k=0; k<NUM_VOICES; ++k) {
+        i=or[k];
         if(Voices[i].key<0 && Voices[i].timestamp<=oldest) {
             pos = i;
             susnotes = 1;
@@ -597,12 +619,12 @@ uint8_t GetFreeVoice(int key, uint8_t channel)
         SID_Stop_Voice(pos);
         SID_Stop_Voice(pos);
         // Free the place
-        Voices[pos].key=0;
-        Voices[pos].oldfreq=Voices[pos].freq;
+        
         return pos;
     }
     // If there are no sustained notes, pick up the oldest note currently on.
-    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+    for(uint8_t k=0; k<NUM_VOICES; ++k) {
+        i=or[k];
         if(Voices[i].timestamp<oldest) {
             pos = i;
         }

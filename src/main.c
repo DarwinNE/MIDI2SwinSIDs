@@ -15,33 +15,38 @@
 
 */
 /* Includes ------------------------------------------------------------------*/
-#include "main.h"
-#include "stm32f429i_discovery_lcd.h"
-#include "stm32f4xx_hal.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
+
+#include "main.h"
+#include "stm32f429i_discovery_lcd.h"
+#include "stm32f4xx_hal.h"
+#include "Utilities/Fonts/fonts.h"
+
 #include "SID_def.h"
 #include "MIDI_def.h"
-#include "Utilities/Fonts/fonts.h"
 
 
 
 void ShowInstrument(void);
+void ShowVoices(void);
 
 /* UART handler declaration */
 volatile UART_HandleTypeDef UartHandle;
+
 
 /* Buffer used for reception */
 uint8_t aRxBuffer[RXBUFFERSIZE];
 
 int receive=0;
 
-extern volatile int CurrInst;
 extern volatile uint8_t SustainPedal;
-extern volatile uint8_t Master_Volume;     // 0 to 15
+extern volatile uint8_t Master_Volume;  // 0 to 15
 
-
+extern VoiceDef Voices[];               // This should be there just for debug
 extern SID_conf GeneralMIDI[];
 extern SID_composite DrumKit[];
 extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
@@ -69,6 +74,8 @@ int8_t somethingChanged;
 int currentField;
 
 #define NUM_FIELD 21
+
+volatile int CurrInst;
 
 
 int8_t currentWave1;
@@ -129,11 +136,19 @@ void ConfigureGPIOPorts(void)
     GPIO_InitTypeDef GPIO_Init_F={0};
     GPIO_InitTypeDef GPIO_Init_G={0};
 
+    // Setting for the button
+    GPIO_Init_A.Pin =   GPIO_PIN_0;
+    GPIO_Init_A.Mode =  GPIO_MODE_INPUT;
+    GPIO_Init_A.Pull =  GPIO_NOPULL;
+    GPIO_Init_A.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_Init_A);
+
     /* Settings for the data bus */
     GPIO_Init_A.Pin =   GPIO_PIN_5;
     GPIO_Init_A.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_A.Pull =  GPIO_NOPULL;
     GPIO_Init_A.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_Init_A);
 
     GPIO_Init_B.Pin =   GPIO_PIN_4 | GPIO_PIN_7;
     GPIO_Init_B.Mode =  GPIO_MODE_OUTPUT_PP;
@@ -171,7 +186,6 @@ void ConfigureGPIOPorts(void)
     GPIO_Init_G.Speed = GPIO_SPEED_LOW;
 
 
-    HAL_GPIO_Init(GPIOA, &GPIO_Init_A);
     HAL_GPIO_Init(GPIOB, &GPIO_Init_B);
     HAL_GPIO_Init(GPIOC, &GPIO_Init_C);
     HAL_GPIO_Init(GPIOD, &GPIO_Init_D);
@@ -366,7 +380,7 @@ void updateRelease1Message(int inst)
 
 void updateDutyCycle1Message(int inst)
 {
-    GeneralMIDI[CurrInst].duty_cycle=currentDutyCycle1;
+    GeneralMIDI[inst].duty_cycle=currentDutyCycle1;
     sprintf(Message, "Duty 1: %d  ",currentDutyCycle1);
     NOTIFY_CHANGES();
 }
@@ -374,7 +388,7 @@ void updateDutyCycle1Message(int inst)
 void updateCurrentV1toV2Message(int inst)
 {
     GeneralMIDI[inst].diff=currentV1toV2;
-    sprintf(Message, "Rel v1 to v2: %4d", GeneralMIDI[CurrInst].diff);
+    sprintf(Message, "Rel v1 to v2: %4d", GeneralMIDI[inst].diff);
 
     NOTIFY_CHANGES();
 }
@@ -446,14 +460,14 @@ void updateFilterModeMessage(int inst)
 void updateFilterCutoffMessage(int inst)
 {
     GeneralMIDI[inst].filt_cutoff=currentCutoff;
-    sprintf(Message, "Cutoff: %d  ", GeneralMIDI[CurrInst].filt_cutoff);
+    sprintf(Message, "Cutoff: %d  ", GeneralMIDI[inst].filt_cutoff);
     NOTIFY_CHANGES();
 }
 
 void updateFilterResonanceMessage(int inst)
 {
     GeneralMIDI[inst].filt_resonance=currentResonance;
-    sprintf(Message, "Resonance: %d  ", GeneralMIDI[CurrInst].filt_resonance);
+    sprintf(Message, "Resonance: %d  ", GeneralMIDI[inst].filt_resonance);
     NOTIFY_CHANGES();
 }
 
@@ -509,7 +523,7 @@ void updateCurrentValue(uint8_t direction)
 
     switch(currentField) {
         case 0:     // Change instrument
-            UPDATE_PAR(CurrInst,0,127,increment_l);
+            UPDATE_PAR(CurrInst,0,128,increment_l);
             updateInstrument(CurrInst);
             break;
         case 2:     // Wave 1
@@ -653,6 +667,7 @@ int main(void)
     }
     MIDI_ReceiveState = idle;
     somethingChanged=TRUE;
+    currentMode=MULTI;
 
     Master_Volume = MAXVOL;
     BSP_LCD_Init();
@@ -698,10 +713,21 @@ int main(void)
         LFO_Table[i]=(int)(127.0*sin((float)i/LFO_SIZE*2.0*M_PI));
 
     while (1) {
+        static int clearScreen;
         // Refresh the information every 10 repetitions of this loop.
         if(CounterRefreshInfos++>10) {
             CounterRefreshInfos=0;
-            ShowInstrument();
+            if(HAL_GPIO_ReadPin (GPIOA, GPIO_PIN_0)) {
+                ShowVoices();
+                clearScreen=TRUE;
+            } else {
+                if(clearScreen) {
+                    clearScreen=FALSE;
+                    BSP_LCD_Clear(LCD_COLOR_BLUE);
+                    somethingChanged=TRUE;
+                }
+                ShowInstrument();
+            }
             // Show that something is being changed in the last line.
             if(MessageCountdown) {
                 --MessageCountdown;
@@ -847,6 +873,62 @@ void DrawInstrNumber(int x, int y)
     BSP_LCD_DrawRect(x+1,y+1,38,18);
 }
 
+/** Show the current voice attributions and state
+*/
+void ShowVoices(void)
+{
+    char buffer[256];
+    int x=28, y=100;
+    int border=5;
+    
+    int xsize=240-2*x;
+    int ysize=320-2*y;
+
+    int i;
+    int l=0;
+
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_FillRect(x,y,xsize,ysize);
+    BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+
+    BSP_LCD_DrawRect(x,y,xsize,ysize);
+
+    
+    BSP_LCD_SetFont(&Font12);
+    y+=border;
+    BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_DisplayStringAt(x+border,y, "-----------SID0----------", LEFT_MODE);
+    y+=12;
+    BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
+    BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+
+    BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
+    for(i=0; i<3; ++i) {
+        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i+1, 
+            Voices[i].key,Voices[i].channel);
+        BSP_LCD_DisplayStringAt(x+border,y, (uint8_t *) buffer, LEFT_MODE);
+        y+=12;
+    }
+    y+=12;
+    BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_DisplayStringAt(x+border,y, "-----------SID1----------", LEFT_MODE);
+     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
+    BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
+    y+=12;
+    for(i=3; i<6; ++i) {
+        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i-2, 
+            Voices[i].key,Voices[i].channel);
+        BSP_LCD_DisplayStringAt(x+border,y, (uint8_t *) buffer, LEFT_MODE);
+        y+=12;
+    }
+}
+
+/** Show the current state of the selected channel: the instrument and its
+    configuration (voices, filters, etc.)
+    Show also the current MIDI channel and mode.
+*/
 void ShowInstrument(void)
 {
     char buffer[256];
@@ -1130,11 +1212,12 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
         case program_c:
             channelsInstr[event_channel] = rec;
             if(event_channel==currentChannel) {
+                CurrInst=rec;
                 updateInstrument(rec);
             }
-            sprintf(Message, "Pr. ch.: ch %2d pr %3d  ", event_channel+1,
+            /*sprintf(Message, "Pr. ch.: ch %2d pr %3d  ", event_channel+1,
                 channelsInstr[event_channel]);
-            NOTIFY_CHANGES();
+            NOTIFY_CHANGES();*/
             somethingChanged=TRUE;
             MIDI_ReceiveState = idle;
             break;
@@ -1147,9 +1230,11 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             MIDI_ReceiveState = idle;
             // Play the note here!
             ADJUST_NOTE_KEY(note, inst);
-            //sprintf(Message, "int= %d, note=%d ", inst, note);
-            //NOTIFY_CHANGES();
+            /*sprintf(Message, "ch=%d int= %d, note=%d ", 
+                event_channel+1, inst+1, note);
+            NOTIFY_CHANGES();*/
             SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
+            NOTIFY_CHANGES();
             break;
         case note_off_k:
             key = rec;
@@ -1160,6 +1245,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             MIDI_ReceiveState = idle;
             ADJUST_NOTE_KEY(note, inst);
             SID_Note_Off(note,event_channel);
+
             break;
         case control_c:
             control = rec;

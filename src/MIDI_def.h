@@ -15,5 +15,24 @@ enum MIDI_mode {TT=-1,
 #define PROGRAM_CHANGE  0xC0
 
 #define CTRL_PEDAL      64
+#define CTRL_CH_WHEEL   0x72
+#define CTRL_DUTY1      0x4C
+#define CTRL_DUTY2      0x4D
+#define CTRL_ATTACK1    0x49
+#define CTRL_ATTACK2    0x50
+#define CTRL_DECAY1     0x4B
+#define CTRL_DECAY2     0x51
+#define CTRL_SUSTAIN1   0x4F
+#define CTRL_SUSTAIN2   0x52
+#define CTRL_RELEASE1   0x48
+#define CTRL_RELEASE2   0x53
+#define CTRL_CUTOFF     0x4A
+#define CTRL_RESONANCE  0x47
+#define CTRL_MASTERVOL  0x55
+#define CTRL_WAVE1      0x5D
+#define CTRL_WAVE2      0x12
+#define CTRL_FILTTYPE   0x13
+#define CTRL_DIFFC      0x10
+#define CTRL_DIFFF      0x11
 
 #endif

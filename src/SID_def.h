@@ -54,6 +54,9 @@ typedef struct VoiceDef_tag {
 #define PULSE   65
 #define SAWTH   33
 #define TRIAN   17
+
+// Special waveforms
+#define FM      21
 #define NONE    0
 
 // SID filter modes
@@ -116,6 +119,8 @@ void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *instrument,
     uint8_t channel);
 void SID_Note_Off(uint8_t key, uint8_t channel);
 uint8_t GetFreeVoice(int key, uint8_t channel);
+uint8_t GetFMVoices(int key, uint8_t channel);
+
 void SID_Stop_Voice(uint8_t voice);
 void UpdateLFO(void);
 

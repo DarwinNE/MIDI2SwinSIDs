@@ -135,7 +135,7 @@ SID_conf GeneralMIDI[256] = {
     { 2,0 ,15, 0, 0  ,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 2 (SAWTH)"},          // 82
     { 3,7 ,14, 2,1888,LO, 368, 7,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,"Lead 3 (calliope)"},       // 83
     { 2, 9, 0, 0, 704,LO, 592, 5,ALL,PULSE, 600, 0, 9, 0, 0, 640, SAWTH,  0,  0,  0,"Lead 4 (chiff)"},          // 84
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Lead 5 (charang)*"},       // 85
+    { 0,12,0 ,3 , 256,LO, 512, 8,NON,PULSE, 600, 0,12, 0, 3, 512, SAWTH,  0,  0,  0,"Lead 5 (charang)"},        // 85
     { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  1,  1,  3,"Lead 6 (voice)*"},         // 86
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,1800, 2, 4,10, 6,2336, PULSE,  0,  0,  0,"Lead 7 (fifths)"},         // 87
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,SAWTH,2415, 2, 4,10, 6,2336, PULSE,  1,  1,  0,"Lead 8 (bass+lead)"},      // 88
@@ -158,7 +158,7 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 6 (goblins)*"},         // 102
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 7 (echoes)*"},          // 103
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 8 (sci-fi)*"},          // 104
-    { 1, 8, 0,1 , 0  ,LO, 300, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Sitar"},                   // 105
+    { 1, 8, 0,1 , 0  ,LO, 400, 0,NON,   FM, 400, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Sitar"},                   // 105
     { 1, 7, 0,1 , 0  ,LO, 245, 0,NON,SAWTH, 600, 0, 6, 0, 1,   0, SAWTH,  0,  0,  0,"Banjo"},                   // 106
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Shamisen*"},               // 107
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Koto*"},                   // 108
@@ -378,27 +378,40 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
     // standard and the frequency table for the SID.
     // Use key_m every time you need to use the GeneralMIDI event.
     uint8_t key_fr=key_m-BASE_MIDI_NOTE;
-
+    uint8_t voice1, voice2;
+    
     // If the first oscillator is active, play it.
     if(inst->voice != NONE) {
-        uint8_t voice = GetFreeVoice(key_m, channel);
-        Voices[voice].key=key_m,
-        Voices[voice].channel=channel;
-        Voices[voice].timestamp=counter;
-        Voices[voice].voice=inst->voice;
-        Voices[voice].inst=*inst;
+        // The FM modulator is a little particular, as voice2 must be the third
+        // oscillator in one of the SID's
+        if(inst->voice==FM) {
+            voice1=GetFMVoices(key_m, channel);
+            // Choose SID0 or SID1 for voice2.
+            if(voice1<2)
+                voice2=2;
+            else
+                voice2=5;
+        } else {
+            voice1=GetFreeVoice(key_m, channel);
+        }
+
+        Voices[voice1].key=key_m,
+        Voices[voice1].channel=channel;
+        Voices[voice1].timestamp=counter;
+        Voices[voice1].voice=inst->voice;
+        Voices[voice1].inst=*inst;
         if (key_fr >= COUNTOF(C64_freq_table))
             return;
         uint16_t freq= C64_freq_table[key_fr]*FREQ_CORRECTION;
-        Voices[voice].freq=freq;
+        Voices[voice1].freq=freq;
 
         // Select the correct SID, depending on the voice number.
         int sid_num = 0;
-        if(voice > 2) {
-            voice -= 3;
+        if(voice1 > 2) {
+            voice1 -= 3;
             sid_num = 1;
         }
-        uint8_t offset = SID_VOICE_OFFSET*voice;
+        uint8_t offset = SID_VOICE_OFFSET*voice1;
 
         SID_Set_Reg(SID_MODE_VOL, (Master_Volume & 0x0F) |
             (inst->filt_mode & 0xF)<<4, sid_num);
@@ -418,18 +431,23 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
             sid_num);
         SID_Set_Reg(SID_V1_PW_HI+offset,
             (uint8_t)((inst->duty_cycle & 0xFF00)>>8), sid_num);
+
         SID_Set_Reg(SID_V1_CONTROL+offset, inst->voice, sid_num);
     }
 
     // Check if a second voice is present and, if yes, play it.
-    if(inst->voice2 != NONE) {
-        uint8_t voice = GetFreeVoice(key_m*SECONDVOICE, channel);
+    if(inst->voice2 != NONE || inst->voice==FM) {
+        if(inst->voice==FM) {
+            // voice2 is already correct.
+        } else {
+            voice2 = GetFreeVoice(key_m*SECONDVOICE, channel);
+        }
 
-        Voices[voice].key=((int16_t)key_m)*SECONDVOICE;
-        Voices[voice].channel=channel;
-        Voices[voice].timestamp=counter;
-        Voices[voice].inst=*inst;
-        Voices[voice].voice=inst->voice2;
+        Voices[voice2].key=((int16_t)key_m)*SECONDVOICE;
+        Voices[voice2].channel=channel;
+        Voices[voice2].timestamp=counter;
+        Voices[voice2].inst=*inst;
+        Voices[voice2].voice=inst->voice2;
 
         if (key_fr >= COUNTOF(C64_freq_table))
             return;
@@ -445,16 +463,16 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
             return;
 
         int16_t v2freq = (int16_t) v2freq_l;
-        Voices[voice].freq = v2freq;
+        Voices[voice2].freq = v2freq;
 
         // Select the correct SID, depending on the voice number.
         int sid_num = 0;
-        if(voice > 2) {
-            voice -= 3;
+        if(voice2 > 2) {
+            voice2 -= 3;
             sid_num = 1;
         }
 
-        uint8_t offset = SID_VOICE_OFFSET*voice;
+        uint8_t offset = SID_VOICE_OFFSET*voice2;
 
         SID_Set_Reg(SID_MODE_VOL, (Master_Volume & 0x0F) |
             (inst->filt_mode & 0xF)<<4, sid_num);
@@ -566,6 +584,34 @@ void UpdateLFO(void)
     ++counter;
 }
 
+/** Gets the voice for the first FM operator.
+    If the result is 0 or 1, this means that the voice 3 of SID0 has to be used.
+    If the result is 3 or 4, this means that the voice 3 of SID1 has to be used.
+*/
+uint8_t GetFMVoices(int key, uint8_t channel)
+{
+    // Try to see if SID0, voice 3 is free
+    if(Voices[2].key==0) {
+        // try to see if SID0, voice 1 is free
+        if(Voices[0].key==0)
+            return 0;
+        // try to see if SID0, voice 2 is free
+        if(Voices[1].key==0)
+            return 1;
+    }
+
+    // Try to see if SID1, voice 3 is free
+    if(Voices[5].key==0) {
+        // try to see if SID1, voice 1 is free
+        if(Voices[3].key==0)
+            return 3;
+        // try to see if SID1, voice 2 is free
+        if(Voices[4].key==0)
+            return 4;
+    }
+    // If no voice 3 is available, use SID0
+    return 0;
+}
 
 /** Get the first available voice to play the given key.
     Return NUM_VOICES if no voice is available

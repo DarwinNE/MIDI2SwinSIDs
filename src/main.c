@@ -46,6 +46,7 @@ extern SID_conf GeneralMIDI[];
 extern SID_composite DrumKit[];
 extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
 
+
 #define MESSAGE_SIZE 256
 char Message[MESSAGE_SIZE];
 
@@ -62,6 +63,7 @@ int8_t changeField;
 int8_t editorAction;
 int8_t toggleEdit;
 int32_t  LargeMovement=0;
+int8_t somethingChanged;
 
 
 int currentField;
@@ -94,6 +96,7 @@ int8_t currentPortamento;
 
 int8_t currentChannel;
 enum MIDI_mode currentMode;
+int channelsInstr[16];          // Instruments associated to channels.
 
 
 extern int8_t LFO_Table[];
@@ -287,35 +290,38 @@ void TB_init(void)
     __HAL_TIM_ENABLE_IT(&TimHandle, TIM_IT_UPDATE);
 }
 
-
-
-
-void updateInstrument(void)
+void updateInstrument(int inst)
 {
-    currentWave1=GeneralMIDI[CurrInst].voice;
-    currentAttack1=GeneralMIDI[CurrInst].a;
-    currentDecay1=GeneralMIDI[CurrInst].d;
-    currentSustain1=GeneralMIDI[CurrInst].s;
-    currentRelease1=GeneralMIDI[CurrInst].r;
-    currentDutyCycle1=GeneralMIDI[CurrInst].duty_cycle;
+    channelsInstr[currentChannel]=inst;
 
-    currentV1toV2=GeneralMIDI[CurrInst].diff;
+    currentWave1=GeneralMIDI[inst].voice;
+    currentAttack1=GeneralMIDI[inst].a;
+    currentDecay1=GeneralMIDI[inst].d;
+    currentSustain1=GeneralMIDI[inst].s;
+    currentRelease1=GeneralMIDI[inst].r;
+    currentDutyCycle1=GeneralMIDI[inst].duty_cycle;
 
-    currentWave2=GeneralMIDI[CurrInst].voice2;
-    currentAttack2=GeneralMIDI[CurrInst].a2;
-    currentDecay2=GeneralMIDI[CurrInst].d2;
-    currentSustain2=GeneralMIDI[CurrInst].s2;
-    currentRelease2=GeneralMIDI[CurrInst].r2;
-    currentDutyCycle2=GeneralMIDI[CurrInst].duty_cycle2;
+    currentV1toV2=GeneralMIDI[inst].diff;
 
-    currentCutoff=GeneralMIDI[CurrInst].filt_cutoff;
-    currentResonance=GeneralMIDI[CurrInst].filt_resonance;
-    currentFilterMode=GeneralMIDI[CurrInst].filt_mode;
-    //currentRouting=GeneralMIDI[CurrInst].filt_routing;
+    currentWave2=GeneralMIDI[inst].voice2;
+    currentAttack2=GeneralMIDI[inst].a2;
+    currentDecay2=GeneralMIDI[inst].d2;
+    currentSustain2=GeneralMIDI[inst].s2;
+    currentRelease2=GeneralMIDI[inst].r2;
+    currentDutyCycle2=GeneralMIDI[inst].duty_cycle2;
+
+    currentCutoff=GeneralMIDI[inst].filt_cutoff;
+    currentResonance=GeneralMIDI[inst].filt_resonance;
+    currentFilterMode=GeneralMIDI[inst].filt_mode;
+    somethingChanged=TRUE;
 
 }
 
-void updateWave1Message(void)
+#define NOTIFY_CHANGES()\
+    MessageCountdown = 20;\
+    somethingChanged=TRUE;
+
+void updateWave1Message(int inst)
 {
     char*   wav[5] =
         {"None      ",
@@ -325,55 +331,55 @@ void updateWave1Message(void)
          "Noise     "};
     uint8_t choice[5]={NONE, TRIAN, SAWTH, PULSE, NOISE};
 
-    GeneralMIDI[CurrInst].voice = choice[currentWave1];
+    GeneralMIDI[inst].voice = choice[currentWave1];
     sprintf(Message, "Wave 1: %s  ", wav[currentWave1]);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateAttack1Message(void)
+void updateAttack1Message(int inst)
 {
-    GeneralMIDI[CurrInst].a=currentAttack1;
+    GeneralMIDI[inst].a=currentAttack1;
     sprintf(Message, "Attack 1: %d  ", currentAttack1);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateDecay1Message(void)
+void updateDecay1Message(int inst)
 {
-    GeneralMIDI[CurrInst].d=currentDecay1;
+    GeneralMIDI[inst].d=currentDecay1;
     sprintf(Message, "Decay 1: %d  ", currentDecay1);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateSustain1Message(void)
+void updateSustain1Message(int inst)
 {
-    GeneralMIDI[CurrInst].s=currentSustain1;
+    GeneralMIDI[inst].s=currentSustain1;
     sprintf(Message, "Sustain 1: %d  ", currentSustain1);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateRelease1Message(void)
+void updateRelease1Message(int inst)
 {
-    GeneralMIDI[CurrInst].r=currentRelease1;
+    GeneralMIDI[inst].r=currentRelease1;
     sprintf(Message, "Release 1: %d  ", currentRelease1);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateDutyCycle1Message(void)
+void updateDutyCycle1Message(int inst)
 {
     GeneralMIDI[CurrInst].duty_cycle=currentDutyCycle1;
     sprintf(Message, "Duty 1: %d  ",currentDutyCycle1);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateCurrentV1toV2Message(void)
+void updateCurrentV1toV2Message(int inst)
 {
-    GeneralMIDI[CurrInst].diff=currentV1toV2;
+    GeneralMIDI[inst].diff=currentV1toV2;
     sprintf(Message, "Rel v1 to v2: %4d", GeneralMIDI[CurrInst].diff);
 
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateWave2Message(void)
+void updateWave2Message(int inst)
 {
     char*   wav[5] =
         {"None      ",
@@ -383,78 +389,78 @@ void updateWave2Message(void)
          "Noise     "};
     uint8_t choice[5]={NONE, TRIAN, SAWTH, PULSE, NOISE};
 
-    GeneralMIDI[CurrInst].voice2 = choice[currentWave2];
+    GeneralMIDI[inst].voice2 = choice[currentWave2];
     sprintf(Message, "Wave 2: %s  ", wav[currentWave2]);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateAttack2Message(void)
+void updateAttack2Message(int inst)
 {
-    GeneralMIDI[CurrInst].a2=currentAttack2;
+    GeneralMIDI[inst].a2=currentAttack2;
     sprintf(Message, "Attack 2: %d  ", currentAttack2);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateDecay2Message(void)
+void updateDecay2Message(int inst)
 {
-    GeneralMIDI[CurrInst].d2=currentDecay2;
+    GeneralMIDI[inst].d2=currentDecay2;
     sprintf(Message, "Decay 2: %d  ", currentDecay2);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateSustain2Message(void)
+void updateSustain2Message(int inst)
 {
-    GeneralMIDI[CurrInst].s2=currentSustain2;
+    GeneralMIDI[inst].s2=currentSustain2;
     sprintf(Message, "Sustain 2: %d  ", currentSustain2);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateRelease2Message(void)
+void updateRelease2Message(int inst)
 {
-    GeneralMIDI[CurrInst].r2=currentRelease2;
+    GeneralMIDI[inst].r2=currentRelease2;
     sprintf(Message, "Release 2: %d  ", currentRelease2);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateDutyCycle2Message(void)
+void updateDutyCycle2Message(int inst)
 {
-    GeneralMIDI[CurrInst].duty_cycle2=currentDutyCycle2;
+    GeneralMIDI[inst].duty_cycle2=currentDutyCycle2;
     sprintf(Message, "Duty 2: %d  ",currentDutyCycle2);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateFilterModeMessage(void)
+void updateFilterModeMessage(int inst)
 {
     uint8_t choice[3]={LO, HI, BP};
     char*   wav[4] = {"NONE", "Low pass", "Hi Pass", "Band pass"};
     if(currentFilterMode > 0) {
-        GeneralMIDI[CurrInst].filt_mode = choice[currentFilterMode-1];
-        GeneralMIDI[CurrInst].filt_routing = ALL;
+        GeneralMIDI[inst].filt_mode = choice[currentFilterMode-1];
+        GeneralMIDI[inst].filt_routing = ALL;
     } else {
-        GeneralMIDI[CurrInst].filt_routing = NON;
+        GeneralMIDI[inst].filt_routing = NON;
     }
     sprintf(Message, "Filter: %s    ", wav[currentFilterMode]);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateFilterCutoffMessage(void)
+void updateFilterCutoffMessage(int inst)
 {
-    GeneralMIDI[CurrInst].filt_cutoff=currentCutoff;
+    GeneralMIDI[inst].filt_cutoff=currentCutoff;
     sprintf(Message, "Cutoff: %d  ", GeneralMIDI[CurrInst].filt_cutoff);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
-void updateFilterResonanceMessage(void)
+void updateFilterResonanceMessage(int inst)
 {
-    GeneralMIDI[CurrInst].filt_resonance=currentResonance;
+    GeneralMIDI[inst].filt_resonance=currentResonance;
     sprintf(Message, "Resonance: %d  ", GeneralMIDI[CurrInst].filt_resonance);
-    MessageCountdown = 20;
+    NOTIFY_CHANGES();
 }
 
 /*
-void updateFilterRoutingMessage(void)
+void updateFilterRoutingMessage(int inst)
 {
-    GeneralMIDI[CurrInst].filt_routing=currentRouting;
+    GeneralMIDI[inst].filt_routing=currentRouting;
     if(GeneralMIDI[CurrInst].filt_routing==7) {
         sprintf(Message, "Filter routing: ALL ");
     } else if(GeneralMIDI[CurrInst].filt_routing==0) {
@@ -504,71 +510,71 @@ void updateCurrentValue(uint8_t direction)
     switch(currentField) {
         case 0:     // Change instrument
             UPDATE_PAR(CurrInst,0,127,increment_l);
-            updateInstrument();
+            updateInstrument(CurrInst);
             break;
         case 2:     // Wave 1
             UPDATE_PAR(currentWave1,0,4,1);
-            updateWave1Message();
+            updateWave1Message(CurrInst);
             break;
         case 3:     // Attack 1
             UPDATE_PAR(currentAttack1,0,15,1);
-            updateAttack1Message();
+            updateAttack1Message(CurrInst);
             break;
         case 4:     // Decay 1
             UPDATE_PAR(currentDecay1,0,15,1);
-            updateDecay1Message();
+            updateDecay1Message(CurrInst);
             break;
         case 5:     // Sustain 1
             UPDATE_PAR(currentSustain1,0,15,1);
-            updateSustain1Message();
+            updateSustain1Message(CurrInst);
             break;
         case 6:     // Release 1
             UPDATE_PAR(currentRelease1,0,15,1);
-            updateRelease1Message();
+            updateRelease1Message(CurrInst);
             break;
         case 7:     // Duty Cycle 1
             UPDATE_PAR(currentDutyCycle1,0,4095,increment);
-            updateDutyCycle1Message();
+            updateDutyCycle1Message(CurrInst);
             break;
         case 8:     // Rel v1 to v2
             UPDATE_PAR(currentV1toV2,0,9600,increment);
-            updateCurrentV1toV2Message();
+            updateCurrentV1toV2Message(CurrInst);
             break;
         case 9:     // Wave2
             UPDATE_PAR(currentWave2,0,4,1);
-            updateWave2Message();
+            updateWave2Message(CurrInst);
             break;
         case 10:     // Attack 2
             UPDATE_PAR(currentAttack2,0,15,1);
-            updateAttack2Message();
+            updateAttack2Message(CurrInst);
             break;
         case 11:     // Decay 2
             UPDATE_PAR(currentDecay2,0,15,1);
-            updateDecay2Message();
+            updateDecay2Message(CurrInst);
             break;
         case 12:     // Sustain 2
             UPDATE_PAR(currentSustain2,0,15,1);
-            updateSustain2Message();
+            updateSustain2Message(CurrInst);
             break;
         case 13:     // Release 2
             UPDATE_PAR(currentRelease2,0,15,1);
-            updateRelease2Message();
+            updateRelease2Message(CurrInst);
             break;
         case 14:     // Duty Cycle 2
             UPDATE_PAR(currentDutyCycle2,0,4095,increment);
-            updateDutyCycle2Message();
+            updateDutyCycle2Message(CurrInst);
             break;
         case 15:    // Filter mode
             UPDATE_PAR(currentFilterMode,0,3,1);
-            updateFilterModeMessage();
+            updateFilterModeMessage(CurrInst);
             break;
         case 16:    // Filter cutoff
             UPDATE_PAR(currentCutoff,0,2047,increment);
-            updateFilterCutoffMessage();
+            updateFilterCutoffMessage(CurrInst);
             break;
         case 17:    // Filter resonance
             UPDATE_PAR(currentResonance,0,15,1);
-            updateFilterResonanceMessage();
+            updateFilterResonanceMessage(CurrInst);
             break;
         case 18:    // Portamento
             UPDATE_PAR(currentPortamento,0,100,1);
@@ -576,6 +582,8 @@ void updateCurrentValue(uint8_t direction)
             break;
         case 19:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
+            CurrInst=channelsInstr[currentChannel];
+            updateInstrument(CurrInst);
             break;
         case 20:    // MIDI mode
             UPDATE_PAR(currentMode,0,3,1);
@@ -590,6 +598,7 @@ void UserAction(void)
 {
 
     if(changeField) {
+        somethingChanged=TRUE;
         if(encoderDirection) {
             ++currentField;
             if(currentField==1) currentField=2; // Avoid the separating line
@@ -597,8 +606,9 @@ void UserAction(void)
             --currentField;
             if(currentField==1) currentField=0; // Avoid the separating line
         }
-        if(currentField<0) currentField=0;
-        if(currentField>=NUM_FIELD) currentField=NUM_FIELD-1;
+        // Circular movement on the menus
+        if(currentField<0) currentField=NUM_FIELD-1;
+        if(currentField>=NUM_FIELD) currentField=0;
     } else {
         updateCurrentValue(encoderDirection);
     }
@@ -642,6 +652,8 @@ int main(void)
         Error_Handler();
     }
     MIDI_ReceiveState = idle;
+    somethingChanged=TRUE;
+
     Master_Volume = MAXVOL;
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, (uint32_t) LCD_FRAME_BUFFER);
@@ -695,7 +707,7 @@ int main(void)
                 --MessageCountdown;
                 ToErase=1;
                 BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
-                BSP_LCD_SetFont(&Font16);
+                BSP_LCD_SetFont(&Font12);
                 BSP_LCD_DisplayStringAt(0,250,
                     (uint8_t *) Message, CENTER_MODE);
             } else {
@@ -714,6 +726,7 @@ int main(void)
         ++LargeMovement;
         LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
         if(encoderAction) {
+            somethingChanged=TRUE;
             UserAction();
             encoderAction=FALSE;
             CounterRefreshInfos=20;
@@ -724,6 +737,7 @@ int main(void)
             } else {
                 changeField = TRUE;
             }
+            somethingChanged=TRUE;
             toggleEdit=FALSE;
             CounterRefreshInfos=20;
         }
@@ -789,8 +803,6 @@ void DrawWave(int x, int y, int wave, int duty)
             }
             break;
         case PULSE:
-
-
             BSP_LCD_DrawLine(x,y+height,            x,y+2*height);
             BSP_LCD_DrawLine(x,y+2*height,          x+ll*dd,y+2*height);
             BSP_LCD_DrawLine(x+ll*dd,y+2*height,    x+ll*dd,y);
@@ -839,8 +851,10 @@ void ShowInstrument(void)
 {
     char buffer[256];
     int l=0;
+    if(somethingChanged==FALSE)
+        return;
 
-
+    somethingChanged=FALSE;
     DrawADSR(150,50,
         GeneralMIDI[CurrInst].a, GeneralMIDI[CurrInst].d,
         GeneralMIDI[CurrInst].s, GeneralMIDI[CurrInst].r);
@@ -985,13 +999,13 @@ void ShowInstrument(void)
     if (currentChannel == 9) {
         sprintf(buffer, "Channel: 10 (DrumKit)");
     } else {
-        sprintf(buffer, "Channel: %2d", currentChannel+1);
+        sprintf(buffer, "Channel: %2d           ", currentChannel+1);
     }
     BSP_LCD_DisplayStringAt(0,280,(uint8_t *)buffer, LEFT_MODE);
     ++l;
     setEv(l);
     char* m_mode[4]={"OMNI ", "POLY ", "MULTI", "MONO "};
-    
+
     sprintf(buffer, "MIDI Mode: %s", m_mode[currentMode]);
     BSP_LCD_DisplayStringAt(0,300,(uint8_t *)buffer, LEFT_MODE);
     ++l;
@@ -1065,8 +1079,6 @@ int validateChannel(uint8_t ch)
                 ret=TRUE;
             break;
         case MULTI:
-            // TODO: recall here the channel configuration so that each one can
-            // be played on a different instrument.
             ret=TRUE;
             break;
         case MONO:
@@ -1081,6 +1093,8 @@ int validateChannel(uint8_t ch)
     (inst)=CurrInst;\
     if (currentMode==OMNI) {\
         event_channel=currentChannel;\
+    } else if(currentMode==MULTI) {\
+        (inst)=channelsInstr[event_channel];\
     }\
     if(event_channel==9) {\
         (inst)=DrumKit[key].instrument;\
@@ -1092,16 +1106,16 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
     // MIDI receive state machine.
     uint8_t note;
     uint8_t inst;
-    
+
     switch (MIDI_ReceiveState) {
         case idle:
             // We are in this state most of the time, until an event is
             // received.
-            
+
             // Check if we should respond to an event
             if(event>=0x80 && validateChannel(channel)==FALSE)
                 break;
-            
+
             event_channel=channel;
             if(event==NOTE_ON) {                  // NOTE_ON
                 MIDI_ReceiveState = note_on_k;
@@ -1114,7 +1128,14 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             }
             break;
         case program_c:
-            CurrInst = rec;
+            channelsInstr[event_channel] = rec;
+            if(event_channel==currentChannel) {
+                updateInstrument(rec);
+            }
+            sprintf(Message, "Pr. ch.: ch %2d pr %3d  ", event_channel+1,
+                channelsInstr[event_channel]);
+            NOTIFY_CHANGES();
+            somethingChanged=TRUE;
             MIDI_ReceiveState = idle;
             break;
         case note_on_k:
@@ -1127,9 +1148,8 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             // Play the note here!
             ADJUST_NOTE_KEY(note, inst);
             //sprintf(Message, "int= %d, note=%d ", inst, note);
-            //MessageCountdown = 20;
-            
-            SID_Note_On(note, velocity, &GeneralMIDI[inst]);
+            //NOTIFY_CHANGES();
+            SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
             break;
         case note_off_k:
             key = rec;
@@ -1138,11 +1158,8 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
         case note_off_v:
             velocity = rec;
             MIDI_ReceiveState = idle;
-            
             ADJUST_NOTE_KEY(note, inst);
-            
-            // TODO: the note off should check the channel!!!
-            SID_Note_Off(note);
+            SID_Note_Off(note,event_channel);
             break;
         case control_c:
             control = rec;
@@ -1173,78 +1190,77 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 }
             } else if(control == 0x4c) {    // Change DUTY 1  NOTE: FIND CC
                 currentDutyCycle1 = value << 5;
-                updateDutyCycle1Message();
+                updateDutyCycle1Message(channelsInstr[event_channel]);
             } else if(control == 0x4d) {    // Change DUTY 2  NOTE: FIND CC
-                GeneralMIDI[CurrInst].duty_cycle2 = value << 5;
+                GeneralMIDI[channelsInstr[event_channel]].duty_cycle2=value<<5;
                 sprintf(Message, "Duty 2 : %d",
-                    GeneralMIDI[CurrInst].duty_cycle2);
-                MessageCountdown = 20;
+                    GeneralMIDI[channelsInstr[event_channel]].duty_cycle2);
+                NOTIFY_CHANGES();
             } /*else if(control == 0x4c) {    // Change LFO depth/amount
                 GeneralMIDI[CurrInst].lfo_rate = value;
                 sprintf(Message, "LFO rate : %d",
                     GeneralMIDI[CurrInst].lfo_rate);
-                MessageCountdown = 20;
+                NOTIFY_CHANGES();
             } else if(control == 0x4D) {    // Change LFO depth/amount
                 GeneralMIDI[CurrInst].lfo_depth = value;
                 sprintf(Message, "LFO amount : %d",
                     GeneralMIDI[CurrInst].lfo_depth);
-                MessageCountdown = 20;
+                NOTIFY_CHANGES();
             }*/ else if(control == 0x49) {    // Change attack 1
                 currentAttack1 = value >> 3;
-                updateAttack1Message();
+                updateAttack1Message(channelsInstr[event_channel]);
             } else if(control == 0x50) {    // Change attack 2
                 currentAttack2 = value >> 3;
-                updateAttack2Message();
+                updateAttack2Message(channelsInstr[event_channel]);
             } else if(control == 0x4B) {    // Change decay 1
                 currentDecay1 = value >> 3;
-                updateDecay1Message();
+                updateDecay1Message(channelsInstr[event_channel]);
             } else if(control == 0x51) {    // Change decay 2
                 currentDecay2 = value >> 3;
-                updateDecay2Message();
+                updateDecay2Message(channelsInstr[event_channel]);
             } else if(control == 0x4F) {    // Change sustain 1
                 currentSustain1 = value >> 3;
-                updateSustain1Message();
+                updateSustain1Message(channelsInstr[event_channel]);
             } else if(control == 0x52) {    // Change sustain 2
                 currentSustain2 = value >> 3;
-                updateSustain2Message();
-                MessageCountdown = 20;
+                updateSustain2Message(channelsInstr[event_channel]);
+                NOTIFY_CHANGES();
             } else if(control == 0x48) {    // Change release 1
                 currentRelease1 = value >> 3;
-                updateRelease1Message();
+                updateRelease1Message(channelsInstr[event_channel]);
             } else if(control == 0x53) {    // Change release 2
                 currentRelease2 = value >> 3;
-                updateRelease2Message();
+                updateRelease2Message(channelsInstr[event_channel]);
             } else if(control == 0x4A) {    // Change cutoff
                 currentCutoff = value << 4;
-                updateFilterCutoffMessage();
+                updateFilterCutoffMessage(channelsInstr[event_channel]);
             } else if(control == 0x47) {    // Change resonance
                 currentResonance = value >>3;
-
             } else if(control == 0x55) {    // Change master volume
                 Master_Volume = value >>3;
                 sprintf(Message, "Volume: %d", Master_Volume);
-                MessageCountdown = 20;
+                NOTIFY_CHANGES();
             } else if(control == 0x5D) {    // Change waveform 1
                 currentWave1 = (int)(value)*5/127;
-                updateWave1Message();
+                updateWave1Message(channelsInstr[event_channel]);
             } else if(control == 0x12) {    // Change waveform 2
                 currentWave2 = (int)(value)*5/127;
-                updateWave2Message();
+                updateWave2Message(channelsInstr[event_channel]);
             } else if(control == 0x13) {    // Filter type
                 currentFilterMode = value>>5;
-                updateFilterModeMessage();
+                updateFilterModeMessage(channelsInstr[event_channel]);
             } else if(control == 0x10) {    // Voice 2 to voice 1 diff COARSE
-                GeneralMIDI[CurrInst].diff = (value>>2) * 100;
+                GeneralMIDI[channelsInstr[event_channel]].diff=(value>>2)*100;
                 sprintf(Message, "V2 to V1 : %d",
-                    GeneralMIDI[CurrInst].diff);
-                MessageCountdown = 20;
+                    GeneralMIDI[channelsInstr[event_channel]].diff);
+                NOTIFY_CHANGES();
             } else if(control == 0x11) {    // Voice 2 to voice 1 diff FINE
-                GeneralMIDI[CurrInst].diff =
-                    ((int)(GeneralMIDI[CurrInst].diff/100)*100)
-                    +(value);
+                GeneralMIDI[channelsInstr[event_channel]].diff =
+                    ((int)(GeneralMIDI[channelsInstr[event_channel]].diff/100)
+                    *100)+(value);
                 sprintf(Message, "V2 to V1 : %d",
-                    GeneralMIDI[CurrInst].diff);
-                MessageCountdown = 20;
+                    GeneralMIDI[channelsInstr[event_channel]].diff);
+                NOTIFY_CHANGES();
             }
 
             break;
@@ -1267,7 +1283,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
 
     uint8_t rec = aRxBuffer[0];
     uint8_t channel = rec & 0x0F;
-    uint8_t event =   rec & 0xF0;      
+    uint8_t event =   rec & 0xF0;
 
     MIDIStateMachine(rec, channel, event);
 

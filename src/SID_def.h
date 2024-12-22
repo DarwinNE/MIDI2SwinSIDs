@@ -40,13 +40,13 @@ typedef struct SID_conf_tag {
 
 typedef struct VoiceDef_tag {
     int16_t  key;
+    uint8_t  channel;
     uint32_t timestamp;
     uint8_t  voice;
     SID_conf inst;
     int16_t  freq;
     int16_t  oldfreq;
 } VoiceDef;
-
 
 
 // SID waveforms  (+ gate)
@@ -112,9 +112,10 @@ typedef struct VoiceDef_tag {
 
 /* Exported functions (public). */
 void SID_Set_Reg(int address, int data, int sid_num);
-void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *instrument);
-void SID_Note_Off(uint8_t voice);
-uint8_t GetFreeVoice(int key);
+void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *instrument,
+    uint8_t channel);
+void SID_Note_Off(uint8_t key, uint8_t channel);
+uint8_t GetFreeVoice(int key, uint8_t channel);
 void SID_Stop_Voice(uint8_t voice);
 void UpdateLFO(void);
 

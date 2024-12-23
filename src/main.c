@@ -1268,7 +1268,6 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 event_channel+1, inst+1, note);
             NOTIFY_CHANGES();*/
             SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
-            NOTIFY_CHANGES();
             break;
         case note_off_k:
             key = rec;
@@ -1301,9 +1300,11 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 }
             } else if(control == CTRL_CH_WHEEL) {    // Arturia change wheel
                 if(value == 0x41) {                 // Increase program change
+                    somethingChanged=TRUE;
                     if(++CurrInst>128)
                         CurrInst = 128;
                 } else if(value == 0x3F) {          // Decrease program change
+                    somethingChanged=TRUE;
                     if(--CurrInst<0)
                         CurrInst = 0;
                 }

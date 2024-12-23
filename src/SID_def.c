@@ -59,7 +59,7 @@ SID_conf GeneralMIDI[256] = {
     { 0,10, 0,6 , 0  ,LO, 700,15,ALL,TRIAN,1805, 0, 10,0, 6,   0, SAWTH,  2,  7,  0,"Tubular Bells"},           // 15
     { 0,6 ,0 ,2 , 0  ,LO,1024, 0,NON,SAWTH, 600, 0, 6, 0, 2,   0, NONE ,  0,  0,  0,"Dulcimer"},                // 16
     { 2,1 ,15,1 , 0  ,LO, 512, 4,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Drawbar Organ"},           // 17
-    { 1,1 ,13,1 , 0  ,LO,1024, 4,ALL,SAWTH,   0, 0, 6, 0, 1,2048, PULSE,  0,  0,  0,"Percussive Organ"},        // 18
+    { 1,1 ,13,1 , 0  ,LO,1024, 4,ALL,SAWTH,1200, 0, 6, 0, 1,2048, PULSE,  0,  0,  0,"Percussive Organ"},        // 18
     { 1,2 ,13,1 , 0  ,LO, 624, 4,ALL,TRIAN,1200, 1, 6, 0, 4,   0, TRIAN,  0,  0,  0,"Rock Organ"},              // 19
     { 1,2 ,15, 1, 0  ,LO, 512, 4,NON,TRIAN,2400, 1, 2,15, 1,   0, TRIAN,  0,  0,  0,"Church Organ"},            // 20
     { 1,1 ,15, 2,1024,LO, 128, 4,ALL,PULSE, 600, 1, 1,15, 1,   0, TRIAN,  0,  0,  0,"Reed Organ"},              // 21
@@ -158,9 +158,9 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 6 (goblins)*"},         // 102
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 7 (echoes)*"},          // 103
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"FX 8 (sci-fi)*"},          // 104
-    { 1, 8, 0,1 , 0  ,LO, 400, 0,NON,   FM, 400, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Sitar"},                   // 105
-    { 1, 7, 0,1 , 0  ,LO, 245, 0,NON,SAWTH, 600, 0, 6, 0, 1,   0, SAWTH,  0,  0,  0,"Banjo"},                   // 106
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Shamisen*"},               // 107
+    { 1, 8, 0, 1, 0  ,LO, 400, 0,NON,   FM, 400, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Sitar FM"},                // 105
+    { 1, 7, 0, 1, 0  ,LO, 245, 0,NON,   FM, 600, 0, 6, 0, 1,   0, SAWTH,  0,  0,  0,"Banjo FM"},                // 106
+    { 0,12, 0, 4, 0  ,LO,1024, 0,NON,   FM, 360, 0, 0, 4, 0,   0, NONE ,  0,  0,  1,"Shamisen FM"},             // 107
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Koto*"},                   // 108
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Kalimba*"},                // 109
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Bag Pipe*"},               // 110
@@ -379,7 +379,7 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
     // Use key_m every time you need to use the GeneralMIDI event.
     uint8_t key_fr=key_m-BASE_MIDI_NOTE;
     uint8_t voice1, voice2;
-    
+
     // If the first oscillator is active, play it.
     if(inst->voice != NONE) {
         // The FM modulator is a little particular, as voice2 must be the third
@@ -609,7 +609,19 @@ uint8_t GetFMVoices(int key, uint8_t channel)
         if(Voices[4].key==0)
             return 4;
     }
-    // If no voice 3 is available, use SID0
+    // If no voice 3 is available, use the SID that has been used first
+    if(Voices[2].timestamp<Voices[5].timestamp) {
+        // Stop voices being played.
+        SID_Stop_Voice(0);
+        SID_Stop_Voice(2);
+        return 0;
+    } else {
+        // Stop voices being played.
+        SID_Stop_Voice(3);
+        SID_Stop_Voice(5);
+        return 3;
+    }
+
     return 0;
 }
 
@@ -665,7 +677,7 @@ uint8_t GetFreeVoice(int key, uint8_t channel)
         SID_Stop_Voice(pos);
         SID_Stop_Voice(pos);
         // Free the place
-        
+
         return pos;
     }
     // If there are no sustained notes, pick up the oldest note currently on.

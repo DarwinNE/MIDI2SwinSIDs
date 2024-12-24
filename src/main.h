@@ -56,7 +56,7 @@
 #define TIMx_IRQHandler                 TIM3_IRQHandler
 
 
-/* User can use this section to tailor USARTx/UARTx instance used and associated 
+/* User can use this section to tailor USARTx/UARTx instance used and associated
    resources */
 /* Definition for USARTx clock resources */
 #define USARTx                          USART1

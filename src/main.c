@@ -43,8 +43,8 @@ uint8_t aRxBuffer[RXBUFFERSIZE];
 
 int receive=0;
 
-extern volatile uint8_t SustainPedal;
-extern volatile uint8_t Master_Volume;  // 0 to 15
+extern volatile uint8_t SustainPedal[];
+extern volatile int8_t Master_Volume;  // 0 to 15
 
 extern VoiceDef Voices[];               // This should be there just for debug
 extern SID_conf GeneralMIDI[];
@@ -73,7 +73,7 @@ int8_t somethingChanged;
 
 int currentField;
 
-#define NUM_FIELD 21
+#define NUM_FIELD 22
 
 volatile int CurrInst;
 
@@ -595,12 +595,15 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentPortamento,0,100,1);
             GeneralMIDI[CurrInst].portamento=currentPortamento;
             break;
-        case 19:    // MIDI channel
+        case 19:    // Master volume
+            UPDATE_PAR(Master_Volume,0,15,1);
+            break;
+        case 20:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
             CurrInst=channelsInstr[currentChannel];
             updateInstrument(CurrInst);
             break;
-        case 20:    // MIDI mode
+        case 21:    // MIDI mode
             UPDATE_PAR(currentMode,0,3,1);
             break;
         default:
@@ -611,7 +614,6 @@ void updateCurrentValue(uint8_t direction)
 
 void UserAction(void)
 {
-
     if(changeField) {
         somethingChanged=TRUE;
         if(encoderDirection) {
@@ -732,16 +734,16 @@ int main(void)
             // Show that something is being changed in the last line.
             if(MessageCountdown) {
                 --MessageCountdown;
-                ToErase=1;
+                ToErase=TRUE;
                 BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
                 BSP_LCD_SetFont(&Font12);
-                BSP_LCD_DisplayStringAt(0,250,
+                BSP_LCD_DisplayStringAt(0,230,
                     (uint8_t *) Message, CENTER_MODE);
             } else {
                 if(ToErase) {
                     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-                    BSP_LCD_FillRect(0,250,240,16);         // Noisy!!!
-                    ToErase=0;
+                    BSP_LCD_FillRect(0,230,240,16);         // Noisy!!!
+                    ToErase=FALSE;
                 }
             }
         }
@@ -773,7 +775,6 @@ int main(void)
 
         if(LFO_Pointer >= LFO_SIZE)
             LFO_Pointer = 0;
-
     }
 }
 
@@ -909,7 +910,7 @@ void ShowVoices(void)
     char buffer[256];
     int x=28, y=100;
     int border=5;
-    
+
     int xsize=240-2*x;
     int ysize=320-2*y;
 
@@ -933,7 +934,7 @@ void ShowVoices(void)
 
     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
     for(i=0; i<3; ++i) {
-        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i+1, 
+        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i+1,
             Voices[i].key,Voices[i].channel);
         BSP_LCD_DisplayStringAt(x+border,y, (uint8_t *) buffer, LEFT_MODE);
         y+=12;
@@ -946,7 +947,7 @@ void ShowVoices(void)
     BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
     y+=12;
     for(i=3; i<6; ++i) {
-        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i-2, 
+        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i-2,
             Voices[i].key,Voices[i].channel);
         BSP_LCD_DisplayStringAt(x+border,y, (uint8_t *) buffer, LEFT_MODE);
         y+=12;
@@ -1107,11 +1108,14 @@ void ShowInstrument(void)
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
 
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
-    BSP_LCD_DrawHLine(0,270,240);
-    BSP_LCD_DrawHLine(0,271,240);
-
-    setEv(l);
+    BSP_LCD_DrawHLine(0,250,240);
+    BSP_LCD_DrawHLine(0,251,240);
     BSP_LCD_SetFont(&Font16);
+    setEv(l);
+    sprintf(buffer, "Master Volume: %2d",Master_Volume);
+    BSP_LCD_DisplayStringAt(0,260,(uint8_t *)buffer, LEFT_MODE);
+    ++l;
+    setEv(l);
     if (currentChannel == 9) {
         sprintf(buffer, "Channel: 10 (DrumKit)");
     } else {
@@ -1264,7 +1268,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             MIDI_ReceiveState = idle;
             // Play the note here!
             ADJUST_NOTE_KEY(note, inst);
-            /*sprintf(Message, "ch=%d int= %d, note=%d ", 
+            /*sprintf(Message, "ch=%d int= %d, note=%d ",
                 event_channel+1, inst+1, note);
             NOTIFY_CHANGES();*/
             SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
@@ -1288,9 +1292,9 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             MIDI_ReceiveState = idle;
             if(control == CTRL_PEDAL) {     // SUSTAIN PEDAL
                 if (value>63) {     // SUSTAIN ON
-                    SustainPedal=1;
+                    SustainPedal[event_channel]=TRUE;
                 } else {            // SUSTAIN OFF
-                    SustainPedal=0;
+                    SustainPedal[event_channel]=FALSE;
                     for(uint8_t i=0; i<NUM_VOICES; ++i) {
                         if(Voices[i].key<0) {
                             SID_Stop_Voice(i);

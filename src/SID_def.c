@@ -141,7 +141,7 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,SAWTH,2415, 2, 4,10, 6,2336, PULSE,  1,  1,  0,"Lead 8 (bass+lead)"},      // 88
     { 7, 7,13, 3, 0  ,LO,1000, 8,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,  0,  0, 10,"Pad 1 (new age)"},         // 89
     {13, 9,13, 5, 0  ,LO, 432, 4,ALL,SAWTH,1200,12,10,11, 5,   0, SAWTH,  0,  0, 20,"Pad 2 (warm)"},            // 90
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 3 (polysynth)*"},      // 91
+    { 5,7 ,14, 2,1152,LO, 608,13,ALL,PULSE,2402, 7, 8,10, 4, 960, PULSE,  1,  1,  0,"Pad 3 (polysynth)"},       // 91
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,"Pad 4 (choir)*"},          // 92
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT  NAME                     NUMBER
@@ -279,8 +279,8 @@ SID_composite DrumKit[128] = {
 
 /* SID interface functions */
 
-volatile uint8_t SustainPedal;      // TODO: associate it to a channel
-volatile uint8_t Master_Volume;     // 0 to 15
+volatile uint8_t SustainPedal[16]; // Pedal state for each channel
+volatile int8_t Master_Volume;     // 0 to 15
 
 
 #define COUNTOF(__BUFFER__)   (sizeof(__BUFFER__) / sizeof(*(__BUFFER__)))
@@ -510,10 +510,10 @@ void SID_Note_Off(uint8_t key, uint8_t channel)
             || (Voices[i].key == -key_V2)))
         {
             // TODO: pedal should be associated to a channel.
-            if(SustainPedal && Voices[i].key>0) {
+            if(SustainPedal[channel] && Voices[i].key>0) {
                 // If the pedal is depressed, mark note as sustained.
                 Voices[i].key=-Voices[i].key;
-             } else if(!SustainPedal) {
+             } else if(!SustainPedal[channel]) {
                 // If not, switch off the note.
                 SID_Stop_Voice(i);
                 Voices[i].key=0;

@@ -46,10 +46,9 @@ int receive=0;
 extern volatile uint8_t SustainPedal[];
 extern volatile int8_t Master_Volume;  // 0 to 15
 
-extern VoiceDef Voices[];               // This should be there just for debug
+extern VoiceDef Voices[];
 extern SID_conf GeneralMIDI[];
 extern SID_composite DrumKit[];
-extern VoiceDef Voices[]; // Shall we refactor code so we do not need it?
 
 
 #define MESSAGE_SIZE 256
@@ -1295,12 +1294,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                     SustainPedal[event_channel]=TRUE;
                 } else {            // SUSTAIN OFF
                     SustainPedal[event_channel]=FALSE;
-                    for(uint8_t i=0; i<NUM_VOICES; ++i) {
-                        if(Voices[i].key<0) {
-                            SID_Stop_Voice(i);
-                            Voices[i].key=0;
-                        }
-                    }
+                    StopPedalVoices(event_channel);
                 }
             } else if(control == CTRL_CH_WHEEL) {    // Arturia change wheel
                 if(value == 0x41) {                 // Increase program change

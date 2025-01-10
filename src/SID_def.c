@@ -4,12 +4,16 @@
 
 
 VoiceDef Voices[NUM_VOICES];
+VoiceDef Arp[NUM_ARP];
 
 int8_t  LFO_Table[LFO_SIZE];
 uint16_t LFO_Pointer=0;
 uint8_t LFO_Amount = 0;
 uint8_t LFO_Rate = 0;
 uint32_t counter = 0;
+
+uint8_t arpeggiator = 0;
+uint8_t arp_pos = 0;
 
 
 uint16_t C64_freq_table[]={
@@ -240,35 +244,35 @@ SID_composite DrumKit[128] = {
     {119-1, 55},    // 44 G#1 Pedal Hi Hat        *
     {119-1, 55},    // 45 A1  Low Tom
     {119-1, 55},    // 46 A#1 Open Hi Hat         *
-    {118-1, 52},    // 47 Low Mid Tom
-    {118-1, 53},    // 48 Hi Mid Tom
-    {48 -1, 96},    // 49 Crash Cymbal 1
-    {118-1, 60},    // 50 High Tom
-    {48 -1, 90},    // 51 Ride Cymbal 1
-    {48 -1, 103},   // 52 Chinese Cymbal
-    {119-1, 55},    // 53 Ride Bell               *
-    {119-1, 55},    // 54 Tambourine              *
-    {47 -1, 85},    // 55 Splash Cymbal
-    {119-1, 55},    // 56 Cowbell                 *
-    {48 -1, 90},    // 57 Crash Cymbal
-    {119-1, 55},    // 58 Vibrasplash             *
-    {119-1, 55},    // 59 Ride Cymbal 2           *
-    {119-1, 55},    // 60 Hi Bongo                *
-    {119-1, 55},    // 61 Low Bongo               *
-    {119-1, 55},    // 62 Mute Hi Conga           *
-    {119-1, 55},    // 63 Open Hi Conga           *
-    {119-1, 55},    // 64 Low Conga               *
-    {119-1, 55},    // 65 High Timbale            *
-    {119-1, 55},    // 66 Low Timbale             *
-    {119-1, 55},    // 67 High Agogo              *
-    {119-1, 55},    // 68 Low Agogo               *
-    {119-1, 55},    // 69 Cbasa                   *
-    {119-1, 55},    // 70 Maracas                 *
-    {119-1, 55},    // 71 Short Whistle           *
-    {119-1, 55},    // 72 Long Whistle            *
-    {119-1, 55},    // 73 Short Guiro             *
-    {119-1, 55},    // 74 Long Guiro              *
-    {119-1, 67},    // 75 Claves                  *
+    {118-1, 52},    // 47 B1  Low Mid Tom
+    {118-1, 53},    // 48 C2  Hi Mid Tom
+    {48 -1, 96},    // 49 C#2 Crash Cymbal 1
+    {118-1, 60},    // 50 D2  High Tom
+    {48 -1, 90},    // 51 D#2 Ride Cymbal 1
+    {48 -1, 103},   // 52 E2  Chinese Cymbal
+    {119-1, 55},    // 53 F2  Ride Bell           *
+    {119-1, 55},    // 54 F#2 Tambourine          *
+    {47 -1, 85},    // 55 G2  Splash Cymbal
+    {119-1, 55},    // 56 G#2 Cowbell             *
+    {48 -1, 90},    // 57 A2  Crash Cymbal
+    {119-1, 55},    // 58 A#2 Vibrasplash         *
+    {119-1, 55},    // 59 B2  Ride Cymbal 2       *
+    {119-1, 55},    // 60 C3  Hi Bongo            *
+    {119-1, 55},    // 61 C#3 Low Bongo           *
+    {119-1, 55},    // 62 D3  Mute Hi Conga       *
+    {119-1, 55},    // 63 D#3 Open Hi Conga       *
+    {119-1, 55},    // 64 E3  Low Conga           *
+    {119-1, 55},    // 65 F3  High Timbale        *
+    {119-1, 55},    // 66 F#3 Low Timbale         *
+    {119-1, 55},    // 67 G3  High Agogo          *
+    {119-1, 55},    // 68 G#3 Low Agogo           *
+    {119-1, 55},    // 69 A3  Cbasa               *
+    {119-1, 55},    // 70 A#3 Maracas             *
+    {119-1, 55},    // 71 B3  Short Whistle       *
+    {119-1, 55},    // 72 C4  Long Whistle        *
+    {119-1, 55},    // 73 C#4 Short Guiro         *
+    {119-1, 55},    // 74 D4  Long Guiro          *
+    {119-1, 67},    // 75 D#4 Claves              *
     {116-1, 60},    // 76 E4  Hi Wood Block
     {116-1, 55},    // 77 F4  Low Wood Block
     {119-1, 55},    // 78 F#4 Mute Cuica          *
@@ -310,6 +314,9 @@ void SID_Set_Data(int data)
         (data & 0x80) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
+/** 
+    Set a certain adress on the pins of the SID.
+*/
 void SID_Set_Address(int address)
 {
     HAL_GPIO_WritePin(GPIOD, GPIO_PIN_2,
@@ -324,26 +331,18 @@ void SID_Set_Address(int address)
         (address & 0x10) ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
+/**
+    Set the read/write pin.
+    Use the macro SID_WRITE and SID_READ.
+*/
 void SID_Set_RW(int rw)
 {
     HAL_GPIO_WritePin(GPIOE, GPIO_PIN_6,
         rw ? GPIO_PIN_SET : GPIO_PIN_RESET);
 }
 
-/** SID chips latch data and address buses at the falling edge of their clock.
-    Here, we wait for a rising state of the clock.
-*/
-/*void SID_Sync_Clock(void)
-{
-    // Wait for a RESET state
-    while (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_3)!=GPIO_PIN_RESET) ;
-    // Here we surely are in a RESET state (or very close to a transition).
-    // Wait for a SET state.
-    while (HAL_GPIO_ReadPin(GPIOE, GPIO_PIN_3)!=GPIO_PIN_SET) ;
-    // A rising transition just happened.
-}*/
-
-/** Select the given SID (or none of them id is different from 0 or 1)
+/**
+    Select the given SID (or none of them id is different from 0 or 1)
 */
 void SID_Select(int id)
 {
@@ -360,6 +359,9 @@ void SID_Select(int id)
     }
 }
 
+/**
+    Set one of the sid register.
+*/
 void SID_Set_Reg(int address, int data, int sid_num)
 {
     SID_Set_Address(address);
@@ -369,7 +371,8 @@ void SID_Set_Reg(int address, int data, int sid_num)
     SID_Select(sid_num);
     SID_Select(-1);
 }
-/** Switch on one of the SID oscillators, configure the instrument.
+/**
+    Switch on one of the SID oscillators, configure the instrument.
 */
 void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
     uint8_t channel)
@@ -582,6 +585,16 @@ void UpdateLFO(void)
         }
     }
     ++counter;
+}
+
+void StopPedalVoices(uint8_t channel)
+{
+    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+        if(Voices[i].key && Voices[i].channel==channel<0){
+            SID_Stop_Voice(i);
+            Voices[i].key=0;
+        }
+    }
 }
 
 /** Gets the voice for the first FM operator.

@@ -7,7 +7,8 @@ enum MIDI_mode {TT=-1,
     OMNI=0,                 // Respond to all events on all channels
     POLY,                   // Respond only to events on the current channel
     MULTI,                  // Respond to events on all channels separately
-    MONO} ;                 // Respond to events on all channels, monophonic
+    MONO,                   // Respond to events on all channels, monophonic
+    HARP};                  // Arpeggiator
 
 #define NOTE_ON         0x90
 #define NOTE_OFF        0x80

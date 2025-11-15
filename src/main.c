@@ -75,7 +75,9 @@ int8_t somethingChanged;
 
 int currentField;
 
-#define NUM_FIELD 22
+#define NUM_FIELD_ARP       24
+#define NUM_FIELD_OTHER     22
+#define NUM_FIELD (currentMode==HARP?NUM_FIELD_ARP:NUM_FIELD_OTHER)
 
 volatile int CurrInst;
 
@@ -112,6 +114,14 @@ extern int8_t LFO_Table[];
 extern uint16_t LFO_Pointer;
 extern uint8_t LFO_Amount;
 extern uint8_t LFO_Rate;
+
+int division=3;
+int bpm=120;
+int division_table[7]={1,2,3,4,8,16,32};
+
+TIM_HandleTypeDef TimHandle;
+
+uint32_t uwPrescalerValue = 0;
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -240,15 +250,15 @@ void ConfigureGPIOPorts(void)
 /* Private variables --------------------------------------------------------*/
 TIM_HandleTypeDef    TimHandle;
 
-
-uint16_t uwPrescalerValue = 0;
-
 /* Private function prototypes ----------------------------------------------*/
 static void SystemClock_Config(void);
 static void Error_Handler(void);
 
 /* Private functions --------------------------------------------------------*/
 
+/*
+    Configure the timer
+*/
 void TB_init(void)
 {
   /*##-1- Configure the TIM peripheral ######################################*/
@@ -275,19 +285,20 @@ void TB_init(void)
          clock frequency
   ----------------------------------------------------------------------- */
 
-  /* Compute the prescaler value to have TIM3 counter clock equal to 30 MHz */
-  uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 30000000) - 1;
+  /* Compute the prescaler value to have TIM3 counter clock equal to 100 kHz */
+  uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 100000) - 1;
 
   /* Set TIMx instance */
   TimHandle.Instance = TIMx;
 
   /* Initialize TIM3 peripheral as follows:
-       + Period = 10000 - 1
+       + Period = 100 - 1
        + Prescaler = ((SystemCoreClock/2)/10000) - 1
        + ClockDivision = 0
        + Counter direction = Up
   */
-  TimHandle.Init.Period = 10000 - 1;
+  // The interrupt is called at 1 ms intervals
+  TimHandle.Init.Period = 100 - 1;
   TimHandle.Init.Prescaler = uwPrescalerValue;
   TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
@@ -610,6 +621,12 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentMode,0,4,1);
             harp_reset();
             break;
+        case 22:    // BPM (for the arpeggiator)
+            UPDATE_PAR(bpm,40,260,1);
+            break;
+        case 23:    // time division
+            UPDATE_PAR(division,0,6,1);
+            break;
         default:
     }
 }
@@ -702,6 +719,7 @@ int main(void)
     if(HAL_UART_Receive_IT(&UartHandle, aRxBuffer, 1) != HAL_OK) {
         Error_Handler();
     }
+    
     receive=0;
     currentField=0;
     changeField=0;
@@ -714,7 +732,6 @@ int main(void)
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
 
     uint32_t CounterRefreshInfos=0;
-    uint32_t CounterRefreshArp=0;
     
     uint8_t  ToErase=0;
 
@@ -723,10 +740,7 @@ int main(void)
 
     while (1) {
         static int clearScreen;
-        if(CounterRefreshArp++>5) {
-            CounterRefreshArp=0;
-            harp_navigate();
-        }
+
         // Refresh the information every 10 repetitions of this loop.
         if(CounterRefreshInfos++>10) {
             CounterRefreshInfos=0;
@@ -760,7 +774,7 @@ int main(void)
         UpdateLFO();
 
         BSP_LED_Toggle(LED4);
-        BSP_LED_Off(LED3);
+        //BSP_LED_Off(LED3);
         HAL_Delay(10);
         ++LargeMovement;
         LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
@@ -1123,7 +1137,7 @@ void ShowInstrument(void)
     BSP_LCD_SetFont(&Font16);
     setEv(l);
     sprintf(buffer, "Master Volume: %2d",Master_Volume);
-    BSP_LCD_DisplayStringAt(0,260,(uint8_t *)buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAt(0,255,(uint8_t *)buffer, LEFT_MODE);
     ++l;
     setEv(l);
     if (currentChannel == 9) {
@@ -1131,15 +1145,32 @@ void ShowInstrument(void)
     } else {
         sprintf(buffer, "Channel: %2d           ", currentChannel+1);
     }
-    BSP_LCD_DisplayStringAt(0,280,(uint8_t *)buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAt(0,270,(uint8_t *)buffer, LEFT_MODE);
     ++l;
     setEv(l);
     char* m_mode[6]={"OMNI ", "POLY ", "MULTI", "MONO ", "ARP  "};
 
     sprintf(buffer, "MIDI Mode: %s", m_mode[currentMode]);
-    BSP_LCD_DisplayStringAt(0,300,(uint8_t *)buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAt(0,285,(uint8_t *)buffer, LEFT_MODE);
     ++l;
 
+    if(currentMode==HARP) {    
+        setEv(l);
+        sprintf(buffer, "BPM: %3d", bpm);
+        BSP_LCD_DisplayStringAt(0,300,(uint8_t *)buffer, LEFT_MODE);
+        ++l;
+        
+        setEv(l);
+        char* divisions[7]={"1", "1/2", "1/3", "1/4", "1/8","1/16", "1/32"};
+        sprintf(buffer, "DIV: %4s", divisions[division]);
+        BSP_LCD_DisplayStringAt(120,300,(uint8_t *)buffer, LEFT_MODE);
+        ++l;
+    } else {
+        setEv(-1);      // With -1 this line is never active.
+        sprintf(buffer, "                                   ");
+        BSP_LCD_DisplayStringAt(0,300,(uint8_t *)buffer, LEFT_MODE);
+        ++l;
+    }
 }
 
 
@@ -1151,6 +1182,7 @@ void ShowInstrument(void)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+
     if(AntiBounceHoldoff>0) {
         return;
     }
@@ -1172,11 +1204,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     }
 }
 
+/*
+    Encoder movement
+*/
 void EXTI9_5_IRQHandler(void)
 {
     HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+
 }
 
+/*
+    Button press
+*/
 void EXTI3_IRQHandler(void)
 {
     HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
@@ -1485,13 +1524,20 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *handle)
 
 
 /**
-  * @brief  Period elapsed callback in non blocking mode
+  * @brief  Period elapsed callback in non blocking mode (see TB_init), called
+        at 1ms intervals
   * @param  htim: TIM handle
   * @retval None
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    //HAL_GPIO_TogglePin(GPIOE, GPIO_PIN_3);
+    static int32_t counter;
+    ++counter;
+    float interval = 1000.0*60/bpm/division_table[division];
+    if(counter>(int32_t) interval){
+        counter=0;
+        harp_navigate();
+    }
 }
 
 /**
@@ -1593,7 +1639,6 @@ static void SystemClock_Config(void)
   */
  void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    /* Turn LED3 on: Transfer error in reception/transmission process */
     //BSP_LED_On(LED3);
     if (huart->ErrorCode == HAL_UART_ERROR_ORE){
         // remove the error condition

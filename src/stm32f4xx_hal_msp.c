@@ -201,16 +201,27 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *huart)
   /*##-1- Reset peripherals ##################################################*/
   USARTx_FORCE_RESET();
   USARTx_RELEASE_RESET();
-
+  /* TIMx Peripheral clock enable */
+  //__HAL_RCC_TIM3_CLK_ENABLE();
+  TIMx_CLK_ENABLE();
+  
   /*##-2- Disable peripherals and GPIO Clocks ################################*/
   /* Configure UART Tx as alternate function */
   HAL_GPIO_DeInit(USARTx_TX_GPIO_PORT, USARTx_TX_PIN);
   /* Configure UART Rx as alternate function */
   HAL_GPIO_DeInit(USARTx_RX_GPIO_PORT, USARTx_RX_PIN);
-  
+  /*## Configure the NVIC for TIMx ########################################*/
+  /* Set Interrupt Group Priority */ 
+  HAL_NVIC_SetPriority(TIMx_IRQn, 4, 0);
+  /* Enable the TIMx global Interrupt */
+  HAL_NVIC_EnableIRQ(TIMx_IRQn);
+
   /*##-3- Disable the NVIC for UART ##########################################*/
   HAL_NVIC_DisableIRQ(USARTx_IRQn);
+
 }
+
+
 
 
 

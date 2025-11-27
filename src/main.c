@@ -60,12 +60,11 @@ char Message[MESSAGE_SIZE];
 #define TRUE    1
 #define FALSE   0
 
-#define ANTIBOUNCE_VALUE 2
+#define ANTIBOUNCE_VALUE 20
 
 int  MessageCountdown;
-int  AntiBounceHoldoff;
 int8_t encoderAction;
-int8_t encoderDirection;
+int8_t encoderIncrease;
 int8_t changeField;
 int8_t editorAction;
 int8_t toggleEdit;
@@ -75,8 +74,8 @@ int8_t somethingChanged;
 
 int currentField;
 
-#define NUM_FIELD_ARP       24
-#define NUM_FIELD_OTHER     22
+#define NUM_FIELD_ARP       27
+#define NUM_FIELD_OTHER     25
 #define NUM_FIELD (currentMode==HARP?NUM_FIELD_ARP:NUM_FIELD_OTHER)
 
 volatile int CurrInst;
@@ -101,8 +100,11 @@ int16_t currentDutyCycle2;
 int16_t currentCutoff;
 int8_t currentResonance;
 int8_t currentFilterMode;
-int8_t currentRouting;
 int8_t currentPortamento;
+
+int8_t currentLfo_rate;
+int8_t currentLfo_depth;
+int8_t currentLfo_filter;
 
 
 int8_t currentChannel;
@@ -110,7 +112,7 @@ enum MIDI_mode currentMode;
 int channelsInstr[16];          // Instruments associated to channels.
 
 
-extern int8_t LFO_Table[];
+extern float LFO_Table[];
 extern uint16_t LFO_Pointer;
 extern uint8_t LFO_Amount;
 extern uint8_t LFO_Rate;
@@ -119,9 +121,10 @@ int division=3;
 int bpm=120;
 int division_table[7]={1,2,3,4,8,16,32};
 
-TIM_HandleTypeDef TimHandle;
 
 uint32_t uwPrescalerValue = 0;
+TIM_HandleTypeDef htim3;
+
 
 
 /* Private function prototypes -----------------------------------------------*/
@@ -163,49 +166,61 @@ void ConfigureGPIOPorts(void)
     GPIO_Init_A.Speed = GPIO_SPEED_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_Init_A);
 
-    GPIO_Init_B.Pin =   GPIO_PIN_4 | GPIO_PIN_7;
+    GPIO_Init_B.Pin =   GPIO_PIN_7;
     GPIO_Init_B.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_B.Pull =  GPIO_NOPULL;
     GPIO_Init_B.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_Init_B);
+
+    // Setting for phi2
+
+    GPIO_Init_B.Pin = GPIO_PIN_4;
+    GPIO_Init_B.Mode = GPIO_MODE_AF_PP;     // alternate function push-pull
+    GPIO_Init_B.Pull = GPIO_NOPULL;
+    GPIO_Init_B.Speed = GPIO_SPEED_HIGH;
+    GPIO_Init_B.Alternate = GPIO_AF2_TIM3;  // TIM3_CH1 on PB4
+    HAL_GPIO_Init(GPIOB, &GPIO_Init_B);
+
 
     GPIO_Init_C.Pin =   GPIO_PIN_3 | GPIO_PIN_8 | GPIO_PIN_11
             | GPIO_PIN_12 | GPIO_PIN_13;
     GPIO_Init_C.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_C.Pull =  GPIO_NOPULL;
     GPIO_Init_C.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_Init_C);
 
     /* Settings for the address bus and other signals */
     GPIO_Init_D.Pin =   GPIO_PIN_2 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_7;
     GPIO_Init_D.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_D.Pull =  GPIO_NOPULL;
     GPIO_Init_D.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOD, &GPIO_Init_D);
+    
 
-    GPIO_Init_E.Pin =   GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5
+
+    GPIO_Init_E.Pin =   GPIO_PIN_2 |GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5
             | GPIO_PIN_6;
     GPIO_Init_E.Mode =  GPIO_MODE_OUTPUT_PP;
     GPIO_Init_E.Pull =  GPIO_NOPULL;
     GPIO_Init_E.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOE, &GPIO_Init_E);
+
 
     //   Encoder interrupt source (PF6)
     GPIO_Init_F.Pin =   GPIO_PIN_6;
     GPIO_Init_F.Mode =  GPIO_MODE_IT_FALLING;
     GPIO_Init_F.Pull =  GPIO_PULLUP;
     GPIO_Init_F.Speed = GPIO_SPEED_LOW;
+    HAL_GPIO_Init(GPIOF, &GPIO_Init_F);
 
     //   Encoder interrupt direction (PG2)
     GPIO_Init_G.Pin =   GPIO_PIN_2;
     GPIO_Init_G.Mode =  GPIO_MODE_INPUT;
     GPIO_Init_G.Pull =  GPIO_PULLUP;
     GPIO_Init_G.Speed = GPIO_SPEED_LOW;
-
-
-    HAL_GPIO_Init(GPIOB, &GPIO_Init_B);
-    HAL_GPIO_Init(GPIOC, &GPIO_Init_C);
-    HAL_GPIO_Init(GPIOD, &GPIO_Init_D);
-    HAL_GPIO_Init(GPIOE, &GPIO_Init_E);
-    HAL_GPIO_Init(GPIOF, &GPIO_Init_F);
     HAL_GPIO_Init(GPIOG, &GPIO_Init_G);
-        //   Encoder interrupt button (PG3)
+
+    //   Encoder interrupt button (PG3)
     GPIO_Init_G.Pin =   GPIO_PIN_3;
     GPIO_Init_G.Mode =  GPIO_MODE_IT_FALLING;
     GPIO_Init_G.Pull =  GPIO_PULLUP;
@@ -217,6 +232,9 @@ void ConfigureGPIOPorts(void)
     HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI9_5_IRQn));
     HAL_NVIC_SetPriority((IRQn_Type)(EXTI3_IRQn), 0x0F, 0x00);
     HAL_NVIC_EnableIRQ((IRQn_Type)(EXTI3_IRQn));
+
+    HAL_NVIC_SetPriority(TIM4_IRQn, 0x0F, 0);
+    HAL_NVIC_EnableIRQ(TIM4_IRQn);
 
 //    SYSCFG_EXTILineConfig(EXTI_PortSourceGPIOD, EXTI_PinSource0);
 
@@ -263,13 +281,13 @@ void TB_init(void)
 {
   /*##-1- Configure the TIM peripheral ######################################*/
   /* -----------------------------------------------------------------------
-    In this example TIM3 input clock (TIM3CLK) is set to 2 * APB1 clock (PCLK1),
+    In this example TIM4 input clock (TIM4CLK) is set to 2 * APB1 clock (PCLK1),
     since APB1 prescaler is different from 1.
-      TIM3CLK = 2 * PCLK1
+      TIM4CLK = 2 * PCLK1
       PCLK1 = HCLK / 4
-      => TIM3CLK = HCLK / 2 = SystemCoreClock /2
-    To get TIM3 counter clock at 1 MHz, the Prescaler is computed as following:
-    Prescaler = (TIM3CLK / TIM3 counter clock) - 1
+      => TIM4CLK = HCLK / 2 = SystemCoreClock /2
+    To get TIM4 counter clock at 1 MHz, the Prescaler is computed as following:
+    Prescaler = (TIM4CLK / TIM4 counter clock) - 1
     Prescaler = ((SystemCoreClock /2) /1 MHz) - 1
 
     Note:
@@ -285,28 +303,28 @@ void TB_init(void)
          clock frequency
   ----------------------------------------------------------------------- */
 
-  /* Compute the prescaler value to have TIM3 counter clock equal to 100 kHz */
-  uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 100000) - 1;
+    /* Compute the prescaler value to have TIM4 counter clock equal to 1MHz */
+    uwPrescalerValue = (uint32_t) ((SystemCoreClock /2) / 1000000) - 1;
 
-  /* Set TIMx instance */
-  TimHandle.Instance = TIMx;
+    /* Set TIMx instance */
+    TimHandle.Instance = TIM4;
 
-  /* Initialize TIM3 peripheral as follows:
+    /* Initialize TIM4 peripheral as follows:
        + Period = 100 - 1
        + Prescaler = ((SystemCoreClock/2)/10000) - 1
        + ClockDivision = 0
        + Counter direction = Up
-  */
-  // The interrupt is called at 1 ms intervals
-  TimHandle.Init.Period = 100 - 1;
-  TimHandle.Init.Prescaler = uwPrescalerValue;
-  TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
-  if(HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
-  {
-    /* Initialization Error */
-    Error_Handler();
-  }
+    */
+    // The interrupt is called at 1 ms intervals
+    TimHandle.Init.Period = 1000- 1;
+    TimHandle.Init.Prescaler = uwPrescalerValue;
+    TimHandle.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    TimHandle.Init.CounterMode = TIM_COUNTERMODE_UP;
+    if(HAL_TIM_Base_Init(&TimHandle) != HAL_OK)
+    {
+        /* Initialization Error */
+        Error_Handler();
+   }
 
     /*##-2- Start the TIM Base generation in interrupt mode #################*/
     /* Start Channel1 */
@@ -341,6 +359,11 @@ void updateInstrument(int inst)
     currentCutoff=GeneralMIDI[inst].filt_cutoff;
     currentResonance=GeneralMIDI[inst].filt_resonance;
     currentFilterMode=GeneralMIDI[inst].filt_mode;
+    
+    currentPortamento=GeneralMIDI[inst].portamento;
+    currentLfo_rate=GeneralMIDI[inst].lfo_rate;
+    currentLfo_depth=GeneralMIDI[inst].lfo_depth;
+
     somethingChanged=TRUE;
 
 }
@@ -486,21 +509,6 @@ void updateFilterResonanceMessage(int inst)
     NOTIFY_CHANGES();
 }
 
-/*
-void updateFilterRoutingMessage(int inst)
-{
-    GeneralMIDI[inst].filt_routing=currentRouting;
-    if(GeneralMIDI[CurrInst].filt_routing==7) {
-        sprintf(Message, "Filter routing: ALL ");
-    } else if(GeneralMIDI[CurrInst].filt_routing==0) {
-        sprintf(Message, "Filter routing: NONE ");
-    } else {
-        sprintf(Message, "Filter routing: %d  ",
-            GeneralMIDI[CurrInst].filt_routing);
-    }
-}
-*/
-
 // Macro useful to easily update values.
 #define UPDATE_PAR(P,MIN,MAX,INC) \
             if(direction) {\
@@ -609,22 +617,34 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentPortamento,0,100,1);
             GeneralMIDI[CurrInst].portamento=currentPortamento;
             break;
-        case 19:    // Master volume
+        case 19:    // LFO rate
+            UPDATE_PAR(currentLfo_rate,0,100,1);
+            GeneralMIDI[CurrInst].lfo_rate=currentLfo_rate;
+            break;
+        case 20:    // LFO depth
+            UPDATE_PAR(currentLfo_depth,0,100,1);
+            GeneralMIDI[CurrInst].lfo_depth=currentLfo_depth;
+            break;
+        case 21:    // LFO filter
+            UPDATE_PAR(currentLfo_filter,0,100,1);
+            GeneralMIDI[CurrInst].lfo_filter=currentLfo_filter;
+            break;
+        case 22:    // Master volume
             UPDATE_PAR(Master_Volume,0,15,1);
             break;
-        case 20:    // MIDI channel
+        case 23:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
             CurrInst=channelsInstr[currentChannel];
             updateInstrument(CurrInst);
             break;
-        case 21:    // MIDI mode
+        case 24:    // MIDI mode
             UPDATE_PAR(currentMode,0,4,1);
             harp_reset();
             break;
-        case 22:    // BPM (for the arpeggiator)
+        case 25:    // BPM (for the arpeggiator)
             UPDATE_PAR(bpm,40,260,1);
             break;
-        case 23:    // time division
+        case 26:    // time division
             UPDATE_PAR(division,0,6,1);
             break;
         default:
@@ -637,7 +657,7 @@ void UserAction(void)
 {
     if(changeField) {
         somethingChanged=TRUE;
-        if(encoderDirection) {
+        if(encoderIncrease) {
             ++currentField;
             if(currentField==1) currentField=2; // Avoid the separating line
         } else {
@@ -648,8 +668,27 @@ void UserAction(void)
         if(currentField<0) currentField=NUM_FIELD-1;
         if(currentField>=NUM_FIELD) currentField=0;
     } else {
-        updateCurrentValue(encoderDirection);
+        updateCurrentValue(encoderIncrease);
     }
+}
+
+static void MX_TIM3_Init(void)
+{
+    TIM_OC_InitTypeDef sConfigOC = {0};
+
+    htim3.Instance = TIM3;
+    htim3.Init.Prescaler = 0;                    // 84 MHz
+    htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim3.Init.Period = 83;                     // 84 MHz / (83+1) = 1 MHz
+    htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+    HAL_TIM_PWM_Init(&htim3);
+
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 42;                       // 50% duty cycle
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+
+    HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1);
 }
 
 
@@ -661,16 +700,32 @@ void UserAction(void)
  */
 int main(void)
 {
+
     HAL_Init();
     SystemClock_Config();
+    // Prepare the phi2 clock
+    __TIM3_CLK_ENABLE();
+    __TIM4_CLK_ENABLE();
+
     BSP_LED_Init(LED3);
     BSP_LED_Init(LED4);
     BSP_LED_Off(LED3);
     TB_init();
-
     ConfigureGPIOPorts();
+
+
+    MX_TIM3_Init();
+    // Start the phi2 clock (PWM signal)
+    if(HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_1)!=HAL_OK) {
+        while(1);
+    }
+    // Test if the phi2 clock is running.
+    while (HAL_GPIO_ReadPin (GPIOB, GPIO_PIN_4));
+    while (HAL_GPIO_ReadPin (GPIOB, GPIO_PIN_4)==0);
+
+
     /*##-1- Configure the UART peripheral ###################################*/
-    /* Put the USART peripheral in the Asynchronous mode (UART Mode) */
+    /* Put the USART peripheral in the asynchronous mode (UART Mode) */
     /* UART1 configured as follow:
       - Word Length = 8 Bits
       - Stop Bit = One Stop bit
@@ -693,7 +748,7 @@ int main(void)
     somethingChanged=TRUE;
     currentMode=MULTI;
 
-    Master_Volume = MAXVOL;
+    Master_Volume = 10;     // At 15 the ARMSID saturates (as the real SID)
     BSP_LCD_Init();
     BSP_LCD_LayerDefaultInit(0, (uint32_t) LCD_FRAME_BUFFER);
     BSP_LCD_SetLayerVisible(0, ENABLE);
@@ -722,7 +777,7 @@ int main(void)
     
     receive=0;
     currentField=0;
-    changeField=0;
+    changeField=TRUE;
 
     uint8_t old_instrument=255;
     MessageCountdown = 0;
@@ -736,7 +791,7 @@ int main(void)
     uint8_t  ToErase=0;
 
     for(int i=0; i<LFO_SIZE; ++i)
-        LFO_Table[i]=(int)(127.0*sin((float)i/LFO_SIZE*2.0*M_PI));
+        LFO_Table[i]=127.0*sin((float)i/LFO_SIZE*2.0*M_PI);
 
     while (1) {
         static int clearScreen;
@@ -755,18 +810,25 @@ int main(void)
                 }
                 ShowInstrument();
             }
+            
             // Show that something is being changed in the last line.
             if(MessageCountdown) {
                 --MessageCountdown;
                 ToErase=TRUE;
+                BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+                BSP_LCD_FillRect(10,225,220,20);
+                BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
+                BSP_LCD_DrawRect(10,225,220,20);
+                
                 BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
                 BSP_LCD_SetFont(&Font12);
                 BSP_LCD_DisplayStringAt(0,230,
                     (uint8_t *) Message, CENTER_MODE);
             } else {
                 if(ToErase) {
+                    somethingChanged=TRUE;
                     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-                    BSP_LCD_FillRect(0,230,240,16);         // Noisy!!!
+                    BSP_LCD_FillRect(0,225,240,25);         // Noisy!!!
                     ToErase=FALSE;
                 }
             }
@@ -774,7 +836,6 @@ int main(void)
         UpdateLFO();
 
         BSP_LED_Toggle(LED4);
-        //BSP_LED_Off(LED3);
         HAL_Delay(10);
         ++LargeMovement;
         LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
@@ -794,8 +855,6 @@ int main(void)
             toggleEdit=FALSE;
             CounterRefreshInfos=20;
         }
-        if(AntiBounceHoldoff>0)
-            --AntiBounceHoldoff;
 
         if(LFO_Pointer >= LFO_SIZE)
             LFO_Pointer = 0;
@@ -926,6 +985,45 @@ void DrawInstrNumber(int x, int y)
     BSP_LCD_DrawRect(x+1,y+1,38,18);
 }
 
+/** Draw the MIDI Channel (currentChannel+1) in a small rectangle.
+*/
+void DrawMidiChannel(int x, int y, int l)
+{
+    char buffer[256];
+    if(l==currentField) {
+        if(changeField) {
+            BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+            BSP_LCD_FillRect(x,y,60,25);
+            BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
+            BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+        } else {
+            BSP_LCD_SetTextColor(LCD_COLOR_LIGHTRED);
+            BSP_LCD_FillRect(x,y,60,25);
+            BSP_LCD_SetBackColor(LCD_COLOR_LIGHTRED);
+            BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+        }
+    } else {
+        BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+        BSP_LCD_FillRect(x,y,60,25);
+        BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
+        BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    }
+    sprintf(buffer, "CH%2d",currentChannel+1);
+    BSP_LCD_SetFont(&Font20);
+    BSP_LCD_DisplayStringAt(x+4,y+4,(uint8_t *)buffer, LEFT_MODE);
+    if(l==currentField) {
+        if(changeField) {
+            BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+        } else {
+            BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
+        }
+    } else {
+        BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    }
+    BSP_LCD_DrawRect(x+1,y+1,57,22);
+}
+
+
 /** Show the current voice attributions and state in a window centered in the
     screen.
 */
@@ -993,12 +1091,12 @@ void ShowInstrument(void)
     DrawADSR(150,50,
         GeneralMIDI[CurrInst].a, GeneralMIDI[CurrInst].d,
         GeneralMIDI[CurrInst].s, GeneralMIDI[CurrInst].r);
-    DrawADSR(150,150-16,
+    DrawADSR(150,130-16,
         GeneralMIDI[CurrInst].a2, GeneralMIDI[CurrInst].d2,
         GeneralMIDI[CurrInst].s2, GeneralMIDI[CurrInst].r2);
     DrawWave(150,23,GeneralMIDI[CurrInst].voice,
          GeneralMIDI[CurrInst].duty_cycle);
-    DrawWave(150,108,GeneralMIDI[CurrInst].voice2,
+    DrawWave(150,88,GeneralMIDI[CurrInst].voice2,
          GeneralMIDI[CurrInst].duty_cycle2);
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
 
@@ -1046,23 +1144,27 @@ void ShowInstrument(void)
     }
     BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *)buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Attack 1:  %2d", GeneralMIDI[CurrInst].a);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "A1: %2d", GeneralMIDI[CurrInst].a);
+    BSP_LCD_DisplayStringAt(0,LINE(l), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
-    sprintf(buffer, "Decay 1:   %2d", GeneralMIDI[CurrInst].d);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "D1: %2d", GeneralMIDI[CurrInst].d);
+    BSP_LCD_DisplayStringAt(60,LINE(l-1), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
-    sprintf(buffer, "Sustain 1: %2d", GeneralMIDI[CurrInst].s);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "S1: %2d", GeneralMIDI[CurrInst].s);
+    BSP_LCD_DisplayStringAt(0,LINE(l-1), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
-    sprintf(buffer, "Release 1: %2d", GeneralMIDI[CurrInst].r);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "R1: %2d", GeneralMIDI[CurrInst].r);
+    BSP_LCD_DisplayStringAt(60,LINE(l-2), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
     sprintf(buffer, "Duty Cycle 1: %4d", GeneralMIDI[CurrInst].duty_cycle);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -2, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
     sprintf(buffer, "Rel v1 to v2: %4d", GeneralMIDI[CurrInst].diff);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -2, (uint8_t *) buffer, LEFT_MODE);
 
     setEv(l);
     switch(GeneralMIDI[CurrInst].voice2) {
@@ -1082,22 +1184,26 @@ void ShowInstrument(void)
             sprintf(buffer, "Wave 2: NOISE     ");
             break;
     }
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -2, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
-    sprintf(buffer, "Attack 2:  %2d", GeneralMIDI[CurrInst].a2);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "A2: %2d", GeneralMIDI[CurrInst].a2);
+    BSP_LCD_DisplayStringAt(0,LINE(l-2), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
-    sprintf(buffer, "Decay 2:   %2d", GeneralMIDI[CurrInst].d2);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "D2: %2d", GeneralMIDI[CurrInst].d2);
+    BSP_LCD_DisplayStringAt(60,LINE(l-3), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
-    sprintf(buffer, "Sustain 2: %2d", GeneralMIDI[CurrInst].s2);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "S2: %2d", GeneralMIDI[CurrInst].s2);
+    BSP_LCD_DisplayStringAt(0,LINE(l-3), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
-    sprintf(buffer, "Release 2: %2d", GeneralMIDI[CurrInst].r2);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    sprintf(buffer, "R2: %2d", GeneralMIDI[CurrInst].r2);
+    BSP_LCD_DisplayStringAt(60,LINE(l-4), (uint8_t *) buffer, LEFT_MODE);
+    ++l;
     setEv(l);
     sprintf(buffer, "Duty Cycle 2: %4d", GeneralMIDI[CurrInst].duty_cycle2);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
     if(GeneralMIDI[CurrInst].filt_routing == NON) {
         sprintf(buffer, "Filter mode:  NONE");
@@ -1119,39 +1225,61 @@ void ShowInstrument(void)
         }
     }
 
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
     sprintf(buffer, "Filt. cutoff: %4d", GeneralMIDI[CurrInst].filt_cutoff);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
     sprintf(buffer, "Filt. reson.:   %2d",
         GeneralMIDI[CurrInst].filt_resonance);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
     setEv(l);
+    /*     uint32_t cnt =  TIM3->CNT;
+        sprintf(buffer, "Counter:    %ld", cnt);
+*/
     sprintf(buffer, "Portamento:    %3d", GeneralMIDI[CurrInst].portamento);
-    BSP_LCD_DisplayStringAtLineMode(l++, (uint8_t *) buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
+    
+    setEv(l);
+    sprintf(buffer, "VCO rate:      %3d", GeneralMIDI[CurrInst].lfo_rate);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
+
+    setEv(l);
+    sprintf(buffer, "VCO depth:     %3d", GeneralMIDI[CurrInst].lfo_depth);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
+
+    setEv(l);
+    sprintf(buffer, "VCO filter:    %3d", GeneralMIDI[CurrInst].lfo_filter);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
+
 
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
-    BSP_LCD_DrawHLine(0,250,240);
-    BSP_LCD_DrawHLine(0,251,240);
+    BSP_LCD_DrawHLine(0,255,240);
+    BSP_LCD_DrawHLine(0,256,240);
+    //BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    BSP_LCD_FillRect(170,257,240-170,40);
+    
     BSP_LCD_SetFont(&Font16);
     setEv(l);
-    sprintf(buffer, "Master Volume: %2d",Master_Volume);
-    BSP_LCD_DisplayStringAt(0,255,(uint8_t *)buffer, LEFT_MODE);
+    sprintf(buffer, "Volume: %2d",Master_Volume);
+    BSP_LCD_DisplayStringAt(0,265,(uint8_t *)buffer, LEFT_MODE);
     ++l;
     setEv(l);
-    if (currentChannel == 9) {
+    /*if (currentChannel == 9) {
         sprintf(buffer, "Channel: 10 (DrumKit)");
     } else {
         sprintf(buffer, "Channel: %2d           ", currentChannel+1);
     }
-    BSP_LCD_DisplayStringAt(0,270,(uint8_t *)buffer, LEFT_MODE);
+    BSP_LCD_DisplayStringAt(0,270,(uint8_t *)buffer, LEFT_MODE);*/
+    DrawMidiChannel(175,265, l);
+    BSP_LCD_SetFont(&Font16);
+    
     ++l;
     setEv(l);
     char* m_mode[6]={"OMNI ", "POLY ", "MULTI", "MONO ", "ARP  "};
 
-    sprintf(buffer, "MIDI Mode: %s", m_mode[currentMode]);
-    BSP_LCD_DisplayStringAt(0,285,(uint8_t *)buffer, LEFT_MODE);
+    sprintf(buffer, "Mode: %s", m_mode[currentMode]);
+    BSP_LCD_DisplayStringAt(0,281,(uint8_t *)buffer, LEFT_MODE);
     ++l;
 
     if(currentMode==HARP) {    
@@ -1180,28 +1308,40 @@ void ShowInstrument(void)
  **
  *****************************************************************************/
 
+uint32_t last_tick;
+int8_t last_encoderIncrease;
+
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-
-    if(AntiBounceHoldoff>0) {
+    uint32_t tick = HAL_GetTick();
+    if(tick-last_tick<ANTIBOUNCE_VALUE) {
         return;
     }
-    AntiBounceHoldoff=ANTIBOUNCE_VALUE;
-    if(GPIO_Pin==GPIO_PIN_6 && encoderAction==FALSE) {
+    if(GPIO_Pin==GPIO_PIN_6) {
+
         // GP2 gives the direction of the encoder
         if(HAL_GPIO_ReadPin (GPIOG, GPIO_PIN_2) ) {
-            encoderDirection = TRUE;
+            encoderIncrease = TRUE;
+            
         } else {
-            encoderDirection = FALSE;
+            encoderIncrease = FALSE;
         }
-
+        if (last_encoderIncrease!=encoderIncrease && tick-last_tick<80) {
+            return;
+        }
         encoderAction=TRUE;
+        last_encoderIncrease=encoderIncrease;
+        
     } else if(GPIO_Pin==GPIO_PIN_3 && toggleEdit==FALSE) {
         // GP3 is the button. Press to change field (the pin goes to zero)
+        if(tick-last_tick<300) {
+            return;
+        }
         toggleEdit=TRUE;
-        BSP_LED_On(LED3);
-
     }
+    last_tick=tick;
+
 }
 
 /*
@@ -1210,7 +1350,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 void EXTI9_5_IRQHandler(void)
 {
     HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
-
 }
 
 /*
@@ -1220,6 +1359,12 @@ void EXTI3_IRQHandler(void)
 {
     HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_3);
 }
+
+void TIM4_IRQHandler(void)
+{
+    HAL_TIM_IRQHandler(&TimHandle);
+}
+
 
 /*****************************************************************************
  **
@@ -1379,6 +1524,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 harp_push(event_channel, note);
             } else {
                 SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
+                UpdateLFO();
             }
             break;
         case note_off_k:
@@ -1410,7 +1556,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                     SustainPedal[event_channel]=FALSE;
                     StopPedalVoices(event_channel);
                 }
-            } else if(control == CTRL_CH_WHEEL) {    // Arturia change wheel
+            } else if(control == CTRL_CH_WHEEL) {   // Arturia change wheel
                 if(value == 0x41) {                 // Increase program change
                     somethingChanged=TRUE;
                     if(++CurrInst>128)
@@ -1420,6 +1566,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                     if(--CurrInst<0)
                         CurrInst = 0;
                 }
+                updateInstrument(CurrInst);
             } else if(control == CTRL_DUTY1) { // Change DUTY 1  NOTE: FIND CC
                 currentDutyCycle1 = value << 5;
                 updateDutyCycle1Message(channelsInstr[event_channel]);
@@ -1533,7 +1680,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     static int32_t counter;
     ++counter;
-    float interval = 1000.0*60/bpm/division_table[division];
+    BSP_LED_Toggle(LED3);
+
+    float interval = 1000*60/bpm/division_table[division];
     if(counter>(int32_t) interval){
         counter=0;
         harp_navigate();
@@ -1547,9 +1696,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   */
 static void Error_Handler(void)
 {
-    /* Turn LED3 on */
-    //BSP_LED_On(LED3);
-    while(1) {  }
+    while(1) { 
+    
+    }
 }
 
 
@@ -1619,10 +1768,10 @@ static void SystemClock_Config(void)
 
     /*##-2- LTDC Clock Configuration ###########################################*/
     /* LCD clock configuration */
-    /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 Mhz */
-    /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAIN = 192 Mhz */
-    /* PLLLCDCLK = PLLSAI_VCO Output/PLLSAIR = 192/4 = 48 Mhz */
-    /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDIVR_8 = 48/8 = 6 Mhz */
+    /* PLLSAI_VCO Input = HSE_VALUE/PLL_M = 1 MHz */
+    /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAIN = 192 MHz */
+    /* PLLLCDCLK = PLLSAI_VCO Output/PLLSAIR = 192/4 = 48 MHz */
+    /* LTDC clock frequency = PLLLCDCLK / RCC_PLLSAIDIVR_8 = 48/8 = 6 MHz */
     PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_LTDC;
     PeriphClkInitStruct.PLLSAI.PLLSAIN = 192;
     PeriphClkInitStruct.PLLSAI.PLLSAIR = 4;
@@ -1639,12 +1788,16 @@ static void SystemClock_Config(void)
   */
  void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
-    //BSP_LED_On(LED3);
     if (huart->ErrorCode == HAL_UART_ERROR_ORE){
-        // remove the error condition
-        huart->ErrorCode = HAL_UART_ERROR_NONE;
-        // set the correct state, so that the UART_RX_IT works correctly
-        huart->State = HAL_UART_STATE_BUSY_RX;
+        sprintf(Message, "MIDI ERROR ORE");
+        NOTIFY_CHANGES();
+    } else {
+        sprintf(Message, "MIDI COM ERROR ");
+        NOTIFY_CHANGES();
     }
+    // remove the error condition
+    huart->ErrorCode = HAL_UART_ERROR_NONE;
+    // set the correct state, so that the UART_RX_IT works correctly
+    huart->State = HAL_UART_STATE_BUSY_RX;
 }
 

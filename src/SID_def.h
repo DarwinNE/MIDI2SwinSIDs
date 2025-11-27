@@ -33,6 +33,7 @@ typedef struct SID_conf_tag {
     uint8_t  lfo_rate;          // LFO rate
     uint8_t  lfo_depth;         // LFO depth -> pitch
     uint8_t  portamento;        // Portamento
+    uint8_t  lfo_filter;        // LFO depth -> filter freq.
     char    *name;              // Name of the instrument
 } SID_conf;
 
@@ -47,6 +48,7 @@ typedef struct VoiceDef_tag {
     SID_conf inst;
     int16_t  freq;
     int16_t  oldfreq;
+    int16_t  lfo_filter;
 } VoiceDef;
 
 

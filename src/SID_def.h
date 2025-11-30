@@ -38,7 +38,6 @@ typedef struct SID_conf_tag {
 } SID_conf;
 
 #define NUM_VOICES 6
-#define NUM_ARP 128
 
 typedef struct VoiceDef_tag {
     int16_t  key;
@@ -120,7 +119,7 @@ typedef struct VoiceDef_tag {
 void SID_Set_Reg(int address, int data, int sid_num);
 void SID_Note_On(uint8_t key, uint8_t velocity, SID_conf *instrument,
     uint8_t channel);
-void SID_Note_Off(uint8_t key, uint8_t channel);
+void SID_Note_Off(int8_t key, uint8_t channel);
 uint8_t GetFreeVoice(int key, uint8_t channel);
 uint8_t GetFMVoices(int key, uint8_t channel);
 void StopPedalVoices(uint8_t channel);
@@ -128,6 +127,11 @@ void StopPedalVoices(uint8_t channel);
 
 void SID_Stop_Voice(uint8_t voice);
 void UpdateLFO(void);
+
+void harp_reset(void);
+void harp_push(int8_t ch, int8_t key);
+void harp_remove(int8_t ch, int8_t key);
+void harp_navigate(void);
 
 
 #endif

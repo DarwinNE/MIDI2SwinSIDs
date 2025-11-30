@@ -4,7 +4,12 @@
 
 
 VoiceDef Voices[NUM_VOICES];
-VoiceDef Arp[NUM_ARP];
+
+#define MAX_HARP_SIZE 16
+int8_t harp_stack[16][MAX_HARP_SIZE];
+uint8_t harp_size[16];
+uint8_t harp_iterator[16];
+
 
 float  LFO_Table[LFO_SIZE];
 uint16_t LFO_Pointer=0;
@@ -15,6 +20,8 @@ uint32_t counter = 0;
 uint8_t arpeggiator = 0;
 uint8_t arp_pos = 0;
 
+extern int channelsInstr[16];
+
 
 uint16_t C64_freq_table[]={
     278, 295, 313, 331, 351, 372, 394, 417, 442, 468, 496, 526, 557, 590, 625,
@@ -24,7 +31,7 @@ uint16_t C64_freq_table[]={
     5947, 6300, 6675, 7072, 7493, 7938, 8410, 8910, 9440, 10001, 10596, 11226,
     11894, 12601, 13350, 14144, 14985, 15876, 16820, 17820, 18880, 20003, 21192,
     22452, 23787, 25202, 26700, 28288, 29970, 31752, 33640, 35641, 37760, 40005,
-    42384, 44904, 47574, 50403, 53401, 56576, 59940, 63504, 67280}; // PAL
+    42384, 44904, 47574, 50403, 53401, 56576, 59940, 63504}; // PAL
 
 // #define FREQ_CORRECTION 98/100   // Settings for the SwinSID
 
@@ -68,7 +75,7 @@ SID_conf GeneralMIDI[256] = {
     { 1,1 ,13,1 , 0  ,LO,1024, 4,ALL,SAWTH,1200, 0, 6, 0, 1,2048, PULSE,  0,  0,  0,  0,"Percussive Organ"},        // 18
     { 1,2 ,13,1 , 0  ,LO, 624, 4,ALL,TRIAN,1200, 1, 6, 0, 4,   0, TRIAN,  0,  0,  0,  0,"Rock Organ"},              // 19
     { 1,2 ,15, 1, 0  ,LO, 512, 4,NON,TRIAN,2400, 1, 2,15, 1,   0, TRIAN,  0,  0,  0,  0,"Church Organ"},            // 20
-    { 1,1 ,15, 2,1024,LO, 128, 4,ALL,PULSE, 600, 1, 1,15, 1,   0, TRIAN,  0,  0,  0,  0,"Reed Organ"},              // 21
+    { 1,1 ,15, 2,1024,LO, 407, 4,ALL,PULSE, 600, 1, 1,15, 1,   0, TRIAN,  0,  0,  0,  0,"Reed Organ"},              // 21
     { 1,1 ,15, 2, 512,LO, 320, 0,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Accordion"},               // 22
     { 7,2 ,13, 2, 512,LO, 336, 0,ALL,PULSE, 601, 7,13,13, 2,3360, PULSE,  0,  0,  0,  0,"Harmonica"},               // 23
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
@@ -85,7 +92,7 @@ SID_conf GeneralMIDI[256] = {
     { 0,12,0 ,3 , 0  ,HI, 256, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Guitar Harmonics"},        // 32
     { 1,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,  0,  0,  0,  0,"Ac. Bass"},                // 33
     { 1,12,0 , 4, 0  ,LO, 250, 8,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"El. Bass (finger)"},       // 34
-    { 1,12,0 , 4, 0  ,LO, 792, 8,NON,TRIAN, 600, 0, 0, 0, 0,2112, PULSE,  0,  0,  0,  0,"El. Bass (pick)"},         // 35
+    { 1,12,0 , 4, 0  ,LO, 792, 8,NON,TRIAN, 600, 1, 6, 0, 0,2112, PULSE,  0,  0,  0,  0,"El. Bass (pick)"},         // 35
     { 2,11,0 , 3, 0  ,LO, 688,15,ALL,SAWTH, 600, 2,10, 0, 3,   0, NONE ,  2,  2,  0,  0,"Fretless Bass"},           // 36
     { 5,11,0 , 3, 0  ,LO, 320, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,  0,"Slap Bass 1"},             // 37
     { 5,11,0 , 3, 0  ,LO, 544, 0,ALL,SAWTH, 600, 0, 4, 0, 3,2112, PULSE,  0,  0,  0,  0,"Slap Bass 2"},             // 38
@@ -138,11 +145,11 @@ SID_conf GeneralMIDI[256] = {
     { 5,7 ,14, 2,1152,LO, 608,13,ALL,PULSE,2402, 7, 8,10, 4, 960, PULSE,  1,  1, 10,  0,"Wistle"},                  // 79
     { 5,7 ,14, 2,1536,LO, 368,12,ALL,PULSE,1204, 7, 1,12, 4, 480, PULSE,  1,  1,  1,  0,"Ocarina"},                 // 80
     { 2,0 ,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Lead 1 (square)"},         // 81
-    { 2,0 ,15, 0, 0  ,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Lead 2 (SAWTH)"},          // 82
-    { 3,7 ,14, 2,1888,LO, 368, 7,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,  0,"Lead 3 (calliope)"},       // 83
+    { 2,0 ,15, 0, 0  ,LO,1316, 0,ALL,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Lead 2 (SAWTH)"},          // 82
+    { 3,7 ,14, 2,1888,LO, 368, 7,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  1,  0,  0, 53,"Lead 3 (calliope)"},       // 83
     { 2, 9, 0, 0, 704,LO, 592, 5,ALL,PULSE, 600, 0, 9, 0, 0, 640, SAWTH,  0,  0,  0,  0,"Lead 4 (chiff)"},          // 84
     { 0,12,0 ,3 , 256,LO, 512, 8,NON,PULSE, 600, 0,12, 0, 3, 512, SAWTH,  0,  0,  0,  0,"Lead 5 (charang)"},        // 85
-    { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  1,  1,  3,  0,"Lead 6 (voice)*"},         // 86
+    { 7, 7,13, 3, 0  ,LO, 102,15,ALL,   FM,1202, 6, 8,11, 5,1728, PULSE,  2,  1,  3, 30,"Lead 6 (voice)"},          // 86
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,1800, 2, 4,10, 6,2336, PULSE,  0,  0,  0,  0,"Lead 7 (fifths)"},         // 87
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,SAWTH,2415, 2, 4,10, 6,2336, PULSE,  1,  1,  0,  0,"Lead 8 (bass+lead)"},      // 88
     { 7, 7,13, 3, 0  ,LO,1000, 8,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,  0,  0, 10,  0,"Pad 1 (new age)"},         // 89
@@ -171,7 +178,7 @@ SID_conf GeneralMIDI[256] = {
     { 0, 8, 0, 0, 0  ,LO,1232,10,NON,   FM, 600, 0, 7, 0, 7,   0, SAWTH,  0,  0,  0,  0,"Kalimba"},                 // 109
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Bag Pipe*"},               // 110
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Fiddle*"},                 // 111
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Shanai*"},                 // 112
+    { 2, 0,15, 1, 0  ,LO,1049, 0,ALL,TRIAN,1200, 2, 7, 8, 2,   0, SAWTH,  1,  2,  1, 81,"Shanai"},                  // 112
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Tinkle Bell*"},            // 113
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Agogo*"},                  // 114
     { 0, 5, 0, 3, 0  ,HI, 530,11,ALL,NOISE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,"Steel Drums"},             // 115
@@ -504,9 +511,9 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
     }
 }
 
-/** Shuts off a note being played.
+/** Shuts off a note being played. Check the sustain pedal.
 */
-void SID_Note_Off(uint8_t key, uint8_t channel)
+void SID_Note_Off(int8_t key, uint8_t channel)
 {
     // Search for the note being played.
     int16_t key_V2 = ((int16_t)key)*SECONDVOICE; // Code for the second voice
@@ -526,6 +533,26 @@ void SID_Note_Off(uint8_t key, uint8_t channel)
                 Voices[i].key=0;
                 Voices[i].oldfreq=Voices[i].freq;
             }
+        }
+    }
+}
+
+/** Shuts off a note being played, regardless of the sustain pedal.
+*/
+void SID_Note_Stop(int8_t key, uint8_t channel)
+{
+    // Search for the note being played.
+    int16_t key_V2 = ((int16_t)key)*SECONDVOICE; // Code for the second voice
+    for(uint8_t i=0; i<NUM_VOICES; ++i) {
+        if(    (Voices[i].channel==channel) &&
+              ((Voices[i].key == key)
+            || (Voices[i].key == -key)
+            || (Voices[i].key == key_V2)
+            || (Voices[i].key == -key_V2)))
+        {
+            SID_Stop_Voice(i);
+            Voices[i].key=0;
+            Voices[i].oldfreq=Voices[i].freq;
         }
     }
 }
@@ -608,15 +635,80 @@ void UpdateLFO(void)
 
 /** The pedal is not being depressed anymore: stop all sustained notes.
 */
-void StopPedalVoices(uint8_t channel)
+void StopPedalVoices(uint8_t ch)
 {
+    // Stop all the normal voices being played
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        if(Voices[i].key<0 && Voices[i].channel==channel){
+        if(Voices[i].key<0 && Voices[i].channel==ch){
             SID_Stop_Voice(i);
             Voices[i].key=0;
         }
     }
+    
+    // Stop all the sustained voices in the arpeggiator.
+    redo:
+    for(int i=0; i<harp_size[ch]; ++i) {
+        if (harp_stack[ch][i]<0) {
+            harp_remove(ch, harp_stack[ch][i]);
+            goto redo;
+        }
+    }
 }
+
+void harp_reset(void)
+{
+    for (int i=0; i<16; ++i)
+        harp_size[i]=0;
+}
+
+void harp_push(int8_t ch, int8_t key)
+{
+    if(++(harp_size[ch])>=MAX_HARP_SIZE)
+        harp_size[ch]=MAX_HARP_SIZE-1;
+    harp_stack[ch][harp_size[ch]-1]=key;
+}
+
+void harp_remove(int8_t ch, int8_t key)
+{
+    for(int i=0; i<harp_size[ch];++i) {
+        if(harp_stack[ch][i]==key || harp_stack[ch][i]==-key) {
+             if(SustainPedal[ch]&&key>0) {
+                // If the pedal is depressed, mark note as sustained.
+                harp_stack[ch][i]=-harp_stack[ch][i];
+             } else {
+                --harp_size[ch];
+                for (int j=i+1; j<=harp_size[ch];++j) {
+                    harp_stack[ch][j-1]=harp_stack[ch][j];
+                }
+                SID_Note_Off(key,ch);
+            }
+            break;
+        }
+    }
+}
+
+void harp_navigate(void)
+{
+    int inst;
+    int key;
+
+    for(int ch=0; ch<16; ++ch) {
+        if(harp_size[ch]==0)
+            continue;
+    
+        SID_Note_Stop(harp_stack[ch][harp_iterator[ch]], ch);
+    
+        if(++harp_iterator[ch]>=harp_size[ch])
+            harp_iterator[ch]=0;
+
+        inst = channelsInstr[ch];
+        key = harp_stack[ch][harp_iterator[ch]];
+        if(key<0)
+            key=-key;
+        SID_Note_On(key, 127, &GeneralMIDI[inst],ch);
+    }
+}
+
 
 /** Gets the voice for the first FM operator.
     If the result is 0 or 1, this means that the voice 3 of SID0 has to be used.

@@ -1405,57 +1405,6 @@ int validateChannel(uint8_t ch)
     return ret;
 }
 
-#define MAX_HARP_SIZE 16
-uint8_t harp_stack[16][MAX_HARP_SIZE];
-uint8_t harp_size[16];
-uint8_t harp_iterator[16];
-
-void harp_reset(void)
-{
-    for (int i=0; i<16; ++i)
-        harp_size[i]=0;
-}
-
-void harp_push(int8_t ch, int8_t key)
-{
-    if(++(harp_size[ch])>=MAX_HARP_SIZE)
-        harp_size[ch]=MAX_HARP_SIZE-1;
-    harp_stack[ch][harp_size[ch]-1]=key;
-}
-
-void harp_remove(int8_t ch, int8_t key)
-{
-    for(int i=0; i<harp_size[ch];++i) {
-        if(harp_stack[ch][i]==key) {
-            --harp_size[ch];
-            for (int j=i+1; j<=harp_size[ch];++j) {
-                harp_stack[ch][j-1]=harp_stack[ch][j];
-            }
-            break;
-        }
-    }
-}
-
-void harp_navigate(void)
-{
-    int inst;
-    if(currentMode!=HARP)
-        return;
-
-    for(int ch=0; ch<16; ++ch) {
-        if(harp_size[ch]==0)
-            continue;
-    
-        SID_Note_Off(harp_stack[ch][harp_iterator[ch]], ch);
-    
-        if(++harp_iterator[ch]>=harp_size[ch])
-            harp_iterator[ch]=0;
-
-        inst = channelsInstr[ch];
-        SID_Note_On(harp_stack[ch][harp_iterator[ch]], 127, 
-            &GeneralMIDI[inst],ch);
-    }
-}
 
 #define ADJUST_NOTE_KEY(note, inst)\
     (note)=key; \
@@ -1537,7 +1486,6 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             ADJUST_NOTE_KEY(note, inst);
             if(currentMode==HARP && event_channel!=9) {
                 harp_remove(event_channel, note);
-                SID_Note_Off(note,event_channel);
             } else {
                 SID_Note_Off(note,event_channel);
             }
@@ -1685,7 +1633,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     float interval = 1000*60/bpm/division_table[division];
     if(counter>(int32_t) interval){
         counter=0;
-        harp_navigate();
+        if(currentMode==HARP)
+            harp_navigate();
     }
 }
 

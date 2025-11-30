@@ -628,7 +628,7 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentLfo_filter,0,100,1);
             GeneralMIDI[CurrInst].lfo_filter=currentLfo_filter;
             break;
-        case 22:    // Filter swing
+        case 22:    // Filter sweep
             UPDATE_PAR(currentFilter_sw,-100,100,1);
             GeneralMIDI[CurrInst].filter_sw=currentFilter_sw;
             break;
@@ -1258,7 +1258,7 @@ void ShowInstrument(void)
     BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
 
     setEv(l);
-    sprintf(buffer, "Filter swing: %4d", GeneralMIDI[CurrInst].filter_sw);
+    sprintf(buffer, "Filter sweep: %4d", GeneralMIDI[CurrInst].filter_sw);
     BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
 
 

@@ -74,8 +74,8 @@ int8_t somethingChanged;
 
 int currentField;
 
-#define NUM_FIELD_ARP       27
-#define NUM_FIELD_OTHER     25
+#define NUM_FIELD_ARP       28
+#define NUM_FIELD_OTHER     26
 #define NUM_FIELD (currentMode==HARP?NUM_FIELD_ARP:NUM_FIELD_OTHER)
 
 volatile int CurrInst;
@@ -106,6 +106,8 @@ int8_t currentLfo_rate;
 int8_t currentLfo_depth;
 int8_t currentLfo_filter;
 
+int8_t currentFilter_sw;
+
 
 int8_t currentChannel;
 enum MIDI_mode currentMode;
@@ -113,9 +115,6 @@ int channelsInstr[16];          // Instruments associated to channels.
 
 
 extern float LFO_Table[];
-extern uint16_t LFO_Pointer;
-extern uint8_t LFO_Amount;
-extern uint8_t LFO_Rate;
 
 int division=3;
 int bpm=120;
@@ -629,22 +628,26 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentLfo_filter,0,100,1);
             GeneralMIDI[CurrInst].lfo_filter=currentLfo_filter;
             break;
-        case 22:    // Master volume
+        case 22:    // Filter swing
+            UPDATE_PAR(currentFilter_sw,-100,100,1);
+            GeneralMIDI[CurrInst].filter_sw=currentFilter_sw;
+            break;
+        case 23:    // Master volume
             UPDATE_PAR(Master_Volume,0,15,1);
             break;
-        case 23:    // MIDI channel
+        case 24:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
             CurrInst=channelsInstr[currentChannel];
             updateInstrument(CurrInst);
             break;
-        case 24:    // MIDI mode
+        case 25:    // MIDI mode
             UPDATE_PAR(currentMode,0,4,1);
             harp_reset();
             break;
-        case 25:    // BPM (for the arpeggiator)
+        case 26:    // BPM (for the arpeggiator)
             UPDATE_PAR(bpm,40,260,1);
             break;
-        case 26:    // time division
+        case 27:    // time division
             UPDATE_PAR(division,0,6,1);
             break;
         default:
@@ -838,7 +841,8 @@ int main(void)
         BSP_LED_Toggle(LED4);
         HAL_Delay(10);
         ++LargeMovement;
-        LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
+        updateLFOCounters(CurrInst);
+        
         if(encoderAction) {
             somethingChanged=TRUE;
             UserAction();
@@ -856,8 +860,7 @@ int main(void)
             CounterRefreshInfos=20;
         }
 
-        if(LFO_Pointer >= LFO_SIZE)
-            LFO_Pointer = 0;
+
     }
 }
 
@@ -1023,6 +1026,8 @@ void DrawMidiChannel(int x, int y, int l)
     BSP_LCD_DrawRect(x+1,y+1,57,22);
 }
 
+extern float  Swing_Table[NUM_VOICES];
+
 
 /** Show the current voice attributions and state in a window centered in the
     screen.
@@ -1056,8 +1061,8 @@ void ShowVoices(void)
 
     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
     for(i=0; i<3; ++i) {
-        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i+1,
-            Voices[i].key,Voices[i].channel);
+        sprintf(buffer, "Voice %d key,c:  %5d,%f", i+1,
+            Voices[i].key,Swing_Table[i]); //Voices[i].channel
         BSP_LCD_DisplayStringAt(x+border,y, (uint8_t *) buffer, LEFT_MODE);
         y+=12;
     }
@@ -1250,6 +1255,10 @@ void ShowInstrument(void)
 
     setEv(l);
     sprintf(buffer, "VCO filter:    %3d", GeneralMIDI[CurrInst].lfo_filter);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
+
+    setEv(l);
+    sprintf(buffer, "Filter swing: %4d", GeneralMIDI[CurrInst].filter_sw);
     BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
 
 
@@ -1473,7 +1482,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 harp_push(event_channel, note);
             } else {
                 SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
-                UpdateLFO();
+                //UpdateLFO();
             }
             break;
         case note_off_k:

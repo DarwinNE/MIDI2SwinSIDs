@@ -34,6 +34,7 @@ typedef struct SID_conf_tag {
     uint8_t  lfo_depth;         // LFO depth -> pitch
     uint8_t  portamento;        // Portamento
     uint8_t  lfo_filter;        // LFO depth -> filter freq.
+    int8_t   filter_sw;         // Filter swing.
     char    *name;              // Name of the instrument
 } SID_conf;
 
@@ -127,6 +128,9 @@ void StopPedalVoices(uint8_t channel);
 
 void SID_Stop_Voice(uint8_t voice);
 void UpdateLFO(void);
+void updateLFOCounters(int CurrInst);
+void resetSwing(int voice);
+
 
 void harp_reset(void);
 void harp_push(int8_t ch, int8_t key);

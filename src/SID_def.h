@@ -35,8 +35,12 @@ typedef struct SID_conf_tag {
     uint8_t  portamento;        // Portamento
     uint8_t  lfo_filter;        // LFO depth -> filter freq.
     int8_t   filter_sw;         // Filter swing.
+    int8_t   sync_voice;        // Sync voices
     char    *name;              // Name of the instrument
 } SID_conf;
+
+#define TRUE -1
+#define FALSE 0
 
 #define NUM_VOICES 6
 

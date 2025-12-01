@@ -12,10 +12,13 @@ enum MIDI_mode {TT=-1,
 
 #define NOTE_ON         0x90
 #define NOTE_OFF        0x80
+#define POLY_AFTERTOUCH 0xA0
 #define CONTROL_CHANGE  0xB0
 #define PROGRAM_CHANGE  0xC0
+#define PITCH_BEND      0xE0
 
-#define CTRL_PEDAL      64
+#define CTRL_MOD_WHEEL  0x01
+#define CTRL_PEDAL      0x40
 #define CTRL_CH_WHEEL   0x72
 #define CTRL_DUTY1      0x4C
 #define CTRL_DUTY2      0x4D

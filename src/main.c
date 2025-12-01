@@ -52,6 +52,7 @@ extern volatile int8_t Master_Volume;  // 0 to 15
 extern VoiceDef Voices[];
 extern SID_conf GeneralMIDI[];
 extern SID_composite DrumKit[];
+extern int16_t currentPitchBend;
 
 
 #define MESSAGE_SIZE 256
@@ -68,14 +69,14 @@ int8_t encoderIncrease;
 int8_t changeField;
 int8_t editorAction;
 int8_t toggleEdit;
-int32_t  LargeMovement=0;
+int32_t LargeMovement=0;
 int8_t somethingChanged;
 
 
 int currentField;
 
-#define NUM_FIELD_ARP       28
-#define NUM_FIELD_OTHER     26
+#define NUM_FIELD_ARP       29
+#define NUM_FIELD_OTHER     27
 #define NUM_FIELD (currentMode==HARP?NUM_FIELD_ARP:NUM_FIELD_OTHER)
 
 volatile int CurrInst;
@@ -105,9 +106,8 @@ int8_t currentPortamento;
 int8_t currentLfo_rate;
 int8_t currentLfo_depth;
 int8_t currentLfo_filter;
-
 int8_t currentFilter_sw;
-
+int8_t currentSync_voice;
 
 int8_t currentChannel;
 enum MIDI_mode currentMode;
@@ -131,7 +131,8 @@ static void SystemClock_Config(void);
 
 /* MIDI receive state machine states */
 volatile enum MIDIState {idle, note_on_k, note_on_v, note_off_k,
-    note_off_v, control_c, control_v, program_c} MIDI_ReceiveState;
+    note_off_v, control_c, control_v, program_c, 
+    pitch_b_l, pitch_b_h} MIDI_ReceiveState;
 
 void ConfigureGPIOPorts(void)
 {
@@ -632,22 +633,26 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentFilter_sw,-100,100,1);
             GeneralMIDI[CurrInst].filter_sw=currentFilter_sw;
             break;
-        case 23:    // Master volume
+        case 23:    // Sync voice 1 and 3
+            UPDATE_PAR(currentSync_voice,-1,0,1);
+            GeneralMIDI[CurrInst].sync_voice=currentSync_voice;
+            break;
+        case 24:    // Master volume
             UPDATE_PAR(Master_Volume,0,15,1);
             break;
-        case 24:    // MIDI channel
+        case 25:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
             CurrInst=channelsInstr[currentChannel];
             updateInstrument(CurrInst);
             break;
-        case 25:    // MIDI mode
+        case 26:    // MIDI mode
             UPDATE_PAR(currentMode,0,4,1);
             harp_reset();
             break;
-        case 26:    // BPM (for the arpeggiator)
+        case 27:    // BPM (for the arpeggiator)
             UPDATE_PAR(bpm,40,260,1);
             break;
-        case 27:    // time division
+        case 28:    // time division
             UPDATE_PAR(division,0,6,1);
             break;
         default:
@@ -822,7 +827,7 @@ int main(void)
                 BSP_LCD_FillRect(10,225,220,20);
                 BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
                 BSP_LCD_DrawRect(10,225,220,20);
-                
+                BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
                 BSP_LCD_SetTextColor(LCD_COLOR_YELLOW);
                 BSP_LCD_SetFont(&Font12);
                 BSP_LCD_DisplayStringAt(0,230,
@@ -1026,6 +1031,36 @@ void DrawMidiChannel(int x, int y, int l)
     BSP_LCD_DrawRect(x+1,y+1,57,22);
 }
 
+/** Draw the MIDI Channel (currentChannel+1) in a small rectangle.
+*/
+void DrawPolyphony(int x, int y)
+{
+    int poly=6;
+    char buffer[256];
+
+    BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
+    BSP_LCD_FillRect(x,y,60,25);
+    BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    if(GeneralMIDI[CurrInst].voice==FM || GeneralMIDI[CurrInst].sync_voice)
+        poly=2;
+    else if(GeneralMIDI[CurrInst].voice2 != NONE)
+        poly=3;
+
+
+    sprintf(buffer, "Poly",poly);
+    BSP_LCD_SetFont(&Font8);
+    BSP_LCD_DisplayStringAt(x+24,y+12,(uint8_t *)buffer, LEFT_MODE);
+
+    sprintf(buffer, "%1d",poly);
+    BSP_LCD_SetFont(&Font20);
+    BSP_LCD_DisplayStringAt(x+4,y+4,(uint8_t *)buffer, LEFT_MODE);
+    BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
+    BSP_LCD_DrawRect(x+1,y+1,57,22);
+}
+
+
+
 extern float  Swing_Table[NUM_VOICES];
 
 
@@ -1225,8 +1260,6 @@ void ShowInstrument(void)
                 break;
             case M3:
                 sprintf(buffer, "Filter mode: MUTE3");
-                break;
-
         }
     }
 
@@ -1261,11 +1294,18 @@ void ShowInstrument(void)
     sprintf(buffer, "Filter sweep: %4d", GeneralMIDI[CurrInst].filter_sw);
     BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
 
+    setEv(l);
+    
+    if(GeneralMIDI[CurrInst].sync_voice)
+        sprintf(buffer, "Sync voices:   YES");
+    else
+        sprintf(buffer, "Sync voices:    NO");
+
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
 
     BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
     BSP_LCD_DrawHLine(0,255,240);
     BSP_LCD_DrawHLine(0,256,240);
-    //BSP_LCD_SetTextColor(LCD_COLOR_CYAN);
     BSP_LCD_FillRect(170,257,240-170,40);
     
     BSP_LCD_SetFont(&Font16);
@@ -1308,6 +1348,7 @@ void ShowInstrument(void)
         BSP_LCD_DisplayStringAt(0,300,(uint8_t *)buffer, LEFT_MODE);
         ++l;
     }
+    DrawPolyphony(175,220);
 }
 
 
@@ -1452,7 +1493,19 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 MIDI_ReceiveState = control_c;
             } else if(event==PROGRAM_CHANGE) {    // PROGRAM CHANGE
                 MIDI_ReceiveState = program_c;
+            } else if(event=PITCH_BEND) {
+                MIDI_ReceiveState = pitch_b_l;
             }
+            break;
+        case pitch_b_l:
+            currentPitchBend=rec | currentPitchBend & 0xFF00;
+            MIDI_ReceiveState=pitch_b_h;
+            break;
+        case pitch_b_h:
+            currentPitchBend=rec<<8 | currentPitchBend & 0x00FF;
+            sprintf(Message, "Pitch bend: %d", currentPitchBend);
+            NOTIFY_CHANGES();
+            MIDI_ReceiveState=idle;
             break;
         case program_c:
             channelsInstr[event_channel] = rec;
@@ -1524,6 +1577,8 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                         CurrInst = 0;
                 }
                 updateInstrument(CurrInst);
+            } else if(control == CTRL_MOD_WHEEL) {  // Modulation wheel
+                //=value;
             } else if(control == CTRL_DUTY1) { // Change DUTY 1  NOTE: FIND CC
                 currentDutyCycle1 = value << 5;
                 updateDutyCycle1Message(channelsInstr[event_channel]);
@@ -1532,7 +1587,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 sprintf(Message, "Duty 2 : %d",
                     GeneralMIDI[channelsInstr[event_channel]].duty_cycle2);
                 NOTIFY_CHANGES();
-            } /*else if(control == 0x4c) {    // Change LFO depth/amount
+            } else if(control == 0x4c) {    // Change LFO depth/amount
                 GeneralMIDI[CurrInst].lfo_rate = value;
                 sprintf(Message, "LFO rate : %d",
                     GeneralMIDI[CurrInst].lfo_rate);
@@ -1542,7 +1597,7 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 sprintf(Message, "LFO amount : %d",
                     GeneralMIDI[CurrInst].lfo_depth);
                 NOTIFY_CHANGES();
-            }*/ else if(control == CTRL_ATTACK1) {    // Change attack 1
+            } else if(control == CTRL_ATTACK1) {    // Change attack 1
                 currentAttack1 = value >> 3;
                 updateAttack1Message(channelsInstr[event_channel]);
             } else if(control == CTRL_ATTACK2) {    // Change attack 2

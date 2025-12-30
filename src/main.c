@@ -58,7 +58,7 @@ extern int16_t currentPitchBend;
 #define MESSAGE_SIZE 256
 char Message[MESSAGE_SIZE];
 
-#define TRUE    1
+#define TRUE   -1
 #define FALSE   0
 
 #define ANTIBOUNCE_VALUE 20
@@ -441,6 +441,9 @@ void updateWave2Message(int inst)
          "Noise     "};
     uint8_t choice[5]={NONE, TRIAN, SAWTH, PULSE, NOISE};
 
+    if(currentWave2<0 || currentWave2>4)
+        currentWave2=0;
+
     GeneralMIDI[inst].voice2 = choice[currentWave2];
     sprintf(Message, "Wave 2: %s  ", wav[currentWave2]);
     NOTIFY_CHANGES();
@@ -787,7 +790,6 @@ int main(void)
     currentField=0;
     changeField=TRUE;
 
-    uint8_t old_instrument=255;
     MessageCountdown = 0;
     HAL_Delay(2000);
     BSP_LCD_Clear(LCD_COLOR_BLUE);
@@ -1042,13 +1044,15 @@ void DrawPolyphony(int x, int y)
     BSP_LCD_FillRect(x,y,60,25);
     BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-    if(GeneralMIDI[CurrInst].voice==FM || GeneralMIDI[CurrInst].sync_voice)
+    if(GeneralMIDI[CurrInst].voice==FM || GeneralMIDI[CurrInst].sync_voice) {
         poly=2;
-    else if(GeneralMIDI[CurrInst].voice2 != NONE)
+    } else if(GeneralMIDI[CurrInst].voice2 != NONE && 
+        GeneralMIDI[CurrInst].voice != NONE)
+    {
         poly=3;
+    }
 
-
-    sprintf(buffer, "Poly",poly);
+    sprintf(buffer, "Poly");
     BSP_LCD_SetFont(&Font8);
     BSP_LCD_DisplayStringAt(x+24,y+12,(uint8_t *)buffer, LEFT_MODE);
 
@@ -1077,7 +1081,6 @@ void ShowVoices(void)
     int ysize=320-2*y;
 
     int i;
-    int l=0;
 
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
     BSP_LCD_FillRect(x,y,xsize,ysize);
@@ -1089,22 +1092,24 @@ void ShowVoices(void)
     y+=border;
     BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-    BSP_LCD_DisplayStringAt(x+border,y, "-----------SID0----------", LEFT_MODE);
+    BSP_LCD_DisplayStringAt(x+border,y, 
+        (uint8_t *)"-----------SID0----------", LEFT_MODE);
     y+=12;
     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
     BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
 
     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
     for(i=0; i<3; ++i) {
-        sprintf(buffer, "Voice %d key,c:  %5d,%f", i+1,
-            Voices[i].key,Swing_Table[i]); //Voices[i].channel
+        sprintf(buffer, "Voice %d key,c:  %5d,%2d", i+1,
+            Voices[i].key,Voices[i].channel);
         BSP_LCD_DisplayStringAt(x+border,y, (uint8_t *) buffer, LEFT_MODE);
         y+=12;
     }
     y+=12;
     BSP_LCD_SetBackColor(LCD_COLOR_WHITE);
     BSP_LCD_SetTextColor(LCD_COLOR_BLUE);
-    BSP_LCD_DisplayStringAt(x+border,y, "-----------SID1----------", LEFT_MODE);
+    BSP_LCD_DisplayStringAt(x+border,y, 
+        (uint8_t *)"-----------SID1----------", LEFT_MODE);
     BSP_LCD_SetBackColor(LCD_COLOR_BLUE);
     BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
     y+=12;
@@ -1451,6 +1456,8 @@ int validateChannel(uint8_t ch)
         case HARP:
             ret=TRUE;
             break;
+        default:
+            break;
     }
     return ret;
 }
@@ -1493,16 +1500,16 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
                 MIDI_ReceiveState = control_c;
             } else if(event==PROGRAM_CHANGE) {    // PROGRAM CHANGE
                 MIDI_ReceiveState = program_c;
-            } else if(event=PITCH_BEND) {
+            } else if(event==PITCH_BEND) {
                 MIDI_ReceiveState = pitch_b_l;
             }
             break;
         case pitch_b_l:
-            currentPitchBend=rec | currentPitchBend & 0xFF00;
+            currentPitchBend=rec | (currentPitchBend & 0xFF00);
             MIDI_ReceiveState=pitch_b_h;
             break;
         case pitch_b_h:
-            currentPitchBend=rec<<8 | currentPitchBend & 0x00FF;
+            currentPitchBend=rec<<8 | (currentPitchBend & 0x00FF);
             sprintf(Message, "Pitch bend: %d", currentPitchBend);
             NOTIFY_CHANGES();
             MIDI_ReceiveState=idle;

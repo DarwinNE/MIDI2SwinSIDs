@@ -98,7 +98,7 @@ SID_conf GeneralMIDI[256] = {
     { 0,11,0 ,2 , 256,LO, 160, 0,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "El. Guitar (muted)"},      // 29
     { 0,12,0 ,3 , 512,LO, 432, 9,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Overdriven Guitar"},       // 30
     { 0,12,0 ,3 , 256,LO, 512, 8,ALL,PULSE, 600, 0,12, 0, 3, 512, PULSE,  0,  0,  0,  0,  0, FALSE, "Distortion Guitar"},       // 31
-    { 0,12,0 ,3 , 0  ,HI, 256, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Guitar Harmonics"},        // 32
+    { 0,12,0 ,3 , 0  ,HI, 101, 7,ALL,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Guitar Harmonics"},        // 32
     { 1,12,0 ,3 , 0  ,LO, 200, 0,ALL,TRIAN, 600, 0,12, 0, 3,   0, TRIAN,  0,  0,  0,  0,  0, FALSE, "Ac. Bass"},                // 33
     { 1,12,0 , 4, 0  ,LO, 250, 8,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "El. Bass (finger)"},       // 34
     { 1,12,0 , 4, 0  ,LO, 792, 8,NON,TRIAN, 600, 1, 6, 0, 0,2112, PULSE,  0,  0,  0,  0,  0, FALSE, "El. Bass (pick)"},         // 35
@@ -119,7 +119,7 @@ SID_conf GeneralMIDI[256] = {
     { 1,10, 0,1 , 0  ,LO, 245, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Orchestral Harp"},         // 47
     { 0,10, 0,10, 0  ,LO, 156,15,ALL,NOISE, 600, 0,10, 0,10,   0, NOISE,  0,  0,  0,  0,-10, FALSE, "Timpani"},                 // 48
     { 7, 7,13, 3, 0  ,LO, 391, 2,ALL,SAWTH, 602, 6, 8,11, 5,   0, SAWTH,  0,  0,  0,  0,  0, FALSE, "String Ensemble 1"},       // 49
-    {12, 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598,11, 8,11, 5,   0, SAWTH, 15,  5,  0,  0, -2, FALSE, "String Ensemble 2"},       // 50
+    {12, 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598,11, 8,11, 5,   0, NONE , 15,  5,  0,  0, -2, FALSE, "String Ensemble 2"},       // 50
     { 7, 7,13, 3, 0  ,LO, 496, 2,ALL,SAWTH, 598, 6, 8,11, 5,1824, PULSE,  0,  0,  0,  0,  0, FALSE, "Synth Strings 1"},         // 51
     { 7, 7,13, 3, 0  ,LO, 800, 6,ALL,SAWTH, 598, 6, 8,11, 5,1824, PULSE, 24,  1,  0, 25,  0, FALSE, "Synth Strings 2"},         // 52
     { 7, 7,13, 3, 0  ,BP, 336,15,ALL,PULSE,1203, 6, 8,11, 5,1728, PULSE,  3,  2,  3,  0,  0, FALSE, "Choir Aahs"},              // 53
@@ -173,11 +173,11 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Pad 7 (halo)*"},           // 95
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Pad 8 (sweep)*"},          // 96
     { 5, 0,11, 4, 0  ,BP, 352, 0,ALL,NONE , 200,15,11,13, 6,   0, NOISE,  0,  0, 20,  0,  0, FALSE, "FX 1 (rain)"},             // 97
-    { 2,13, 0, 2,1632,LO, 135,12,ALL,PULSE,1200, 2,13, 9, 2,   0, TRIAN,  0,  0,  0,  0, 94, FALSE, "FX 2 (soundtrack)"},       // 98
+    { 2,13, 0, 2,1178,LO,  79,14,ALL,PULSE,2415, 2,13, 9, 2,   0, TRIAN,  8,  1,  0,  7, 40, FALSE, "FX 2 (soundtrack)"},       // 98
     { 5,12, 5, 1,1213,HI, 480, 4,ALL,TRIAN,1213, 9,14, 9, 8,1408, PULSE,  1,  1,  2,  0,  0, FALSE, "FX 3 (crystal)"},          // 99
     { 2,13, 0, 2,1632,LO,1600,12,ALL,PULSE,1200, 2,13, 9, 2,   0, TRIAN,  0,  0,  0,  0, -6, FALSE, "FX 4 (athmosphere)"},      // 100
     { 2,11, 0, 2,1632,LO, 624,12,ALL,PULSE, 220, 2, 8, 0, 1,   0, TRIAN,  0,  0,  0,  0, -3, TRUE , "FX 5 (brightness)"},       // 101
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "FX 6 (goblins)*"},         // 102
+    { 5, 0,15, 1, 1  ,LO, 656, 6,ALL,   FM, 190, 5, 6,11,10,   0, SAWTH, 23,  6,  0, 12, 21, TRUE , "FX 6 (goblins)"},          // 102
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "FX 7 (echoes)*"},          // 103
     { 2,10,12, 3,1632,LO, 128,15,ALL,   FM, 813, 2, 8,11, 1,   0, TRIAN, 31,  0,  0,  8, 35, TRUE , "FX 8 (sci-fi)"},           // 104
     { 1, 8, 0, 1, 0  ,LO, 400, 0,NON,   FM, 400, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE, "Sitar FM"},                // 105
@@ -402,7 +402,7 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
     // standard and the frequency table for the SID.
     // Use key_m every time you need to use the GeneralMIDI event.
     uint8_t key_fr=key_m-BASE_MIDI_NOTE;
-    uint8_t voice1, voice2;
+    uint8_t voice1=0, voice2=0;
 
     // If the first oscillator is active, play it.
     if(inst->voice != NONE) {
@@ -445,12 +445,13 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
         SID_Set_Reg(SID_FC_HI, (inst->filt_cutoff & 0x07F8)>>3, sid_num);
         SID_Set_Reg(SID_RES_FILT, (inst->filt_resonance & 0xF)<<4 |
             (inst->filt_routing&0x0F), sid_num);
-        if(!inst->portamento) {
+        /*if(!inst->portamento) {
             SID_Set_Reg(SID_V1_FREQ_HI+offset, (uint8_t)((freq & 0xFF00)>>8),
                 sid_num);
             SID_Set_Reg(SID_V1_FREQ_LO+offset, (uint8_t)(freq & 0x00FF),
                 sid_num);
-        }
+        }*/
+        UpdateLFO();
         SID_Set_Reg(SID_V1_AD+offset, inst->a*16+inst->d, sid_num);
         SID_Set_Reg(SID_V1_SR+offset, inst->s*16+inst->r, sid_num);
         SID_Set_Reg(SID_V1_PW_LO+offset, (uint8_t)(inst->duty_cycle & 0x00FF),
@@ -501,19 +502,19 @@ void SID_Note_On(uint8_t key_m, uint8_t velocity, SID_conf *inst,
         }
 
         uint8_t offset = SID_VOICE_OFFSET*voice2;
-        UpdateLFO();
         SID_Set_Reg(SID_MODE_VOL, (Master_Volume & 0x0F) |
             (inst->filt_mode & 0xF)<<4, sid_num);
         SID_Set_Reg(SID_FC_LO,inst->filt_cutoff & 0x0007, sid_num);
         SID_Set_Reg(SID_FC_HI, (inst->filt_cutoff & 0x07F8)>>3, sid_num);
         SID_Set_Reg(SID_RES_FILT, (inst->filt_resonance & 0xF)<<4 |
             (inst->filt_routing&0x0F), sid_num);
-        if(!inst->portamento) {
+        /*if(!inst->portamento) {
             SID_Set_Reg(SID_V1_FREQ_HI+offset, (uint8_t)((v2freq & 0xFF00)>>8),
                 sid_num);
             SID_Set_Reg(SID_V1_FREQ_LO+offset, (uint8_t)(v2freq & 0x00FF),
                 sid_num);
-        }
+        }*/
+        UpdateLFO();
         SID_Set_Reg(SID_V1_AD+offset, inst->a2*16+inst->d2, sid_num);
         SID_Set_Reg(SID_V1_SR+offset, inst->s2*16+inst->r2, sid_num);
         SID_Set_Reg(SID_V1_PW_LO+offset, (uint8_t)(inst->duty_cycle2 & 0x00FF),
@@ -585,8 +586,7 @@ void SID_Stop_Voice(uint8_t v_t)
         voice -= 3;
         sid_num = 1;
     }
-    uint8_t offset = SID_VOICE_OFFSET*voice;
-    // Here offset contains the offset for the voice and sid_num the SID #.
+
     SID_Set_Reg(SID_V1_CONTROL+SID_VOICE_OFFSET*voice,
         Voices[v_t].voice & 0xFE, sid_num);
 }
@@ -601,69 +601,67 @@ void UpdateLFO(void)
     
     uint8_t sid_num=0;
     uint8_t vv;
-    int8_t key;
 
     for(uint8_t i=0; i<NUM_VOICES; ++i) {
-        key=Voices[i].key;
-        if(key!=0) {
-            if(i > 2) {
-                vv = i- 3;
-                sid_num = 1;
-            } else {
-                vv=i;
-            }
-            uint8_t offset = SID_VOICE_OFFSET*vv;
+        if(Voices[i].key==0)
+            continue;
 
-            float alpha = 1;
-            if(Voices[i].inst.portamento)
-                alpha = (float)(counter-Voices[i].timestamp)/
-                    Voices[i].inst.portamento;
-            if(alpha>1)
-                alpha=1;
-            if(alpha<0)
-                alpha=0;
-
-            mod=(float)(currentPitchBend-16384.0)/16384.0;
-            // Pitch bend
-            if(mod>0) {
-                sfreq= mod*Voices[i].freq*TONE+(1-mod)*Voices[i].freq;
-            } else if(mod<0) {
-                sfreq= -mod*Voices[i].freq/TONE+(1+mod)*Voices[i].freq;
-            } else {
-                sfreq =Voices[i].freq;
-            }
-            
-            // Implement portamento
-            freq = (uint16_t)(sfreq*alpha+ Voices[i].oldfreq*(1-alpha));
-
-            // LFO voice pitch
-            freq += (int16_t)(Voices[i].inst.lfo_depth/127.0*
-                LFO_Table[LFO_Pointer]*(Voices[i].freq>>8)/2.0)+
-                mod;
-            
-            SID_Set_Reg(SID_V1_FREQ_HI+offset, (uint8_t)((freq & 0xFF00)>>8),
-                sid_num);
-            SID_Set_Reg(SID_V1_FREQ_LO+offset, (uint8_t)(freq & 0x00FF),
-                sid_num);
-
-            // LFO filter freq.
-            filt_cutoff=Voices[i].inst.filt_cutoff;
-            
-            filt_cutoff += (int16_t)
-                (Voices[i].inst.lfo_filter/127.0*LFO_Table[LFO_Pointer]*
-                 Voices[i].inst.filt_cutoff/100.0)+
-                (Voices[i].inst.filt_cutoff*Swing_Table/100.0);
-            if(filt_cutoff<0)
-                filt_cutoff=0;
-            if(filt_cutoff>2047)
-                filt_cutoff=2047;
-                
-            SID_Set_Reg(SID_FC_LO,  filt_cutoff & 0x0007, sid_num);
-            SID_Set_Reg(SID_FC_HI, (filt_cutoff & 0x07F8)>>3, sid_num);
-
+        if(i > 2) {
+            vv = i- 3;
+            sid_num = 1;
+        } else {
+            vv=i;
+            sid_num = 0;
         }
+        uint8_t offset = SID_VOICE_OFFSET*vv;
+
+        float alpha = 1;
+        if(Voices[i].inst.portamento)
+            alpha = (float)(counter-Voices[i].timestamp)/
+                Voices[i].inst.portamento;
+        if(alpha>1)
+            alpha=1;
+        if(alpha<0)
+            alpha=0;
+
+        mod=(float)(currentPitchBend-16384.0)/16384.0;
+        // Pitch bend
+        if(mod>0) {
+            sfreq= mod*Voices[i].freq*TONE+(1-mod)*Voices[i].freq;
+        } else if(mod<0) {
+            sfreq= -mod*Voices[i].freq/TONE+(1+mod)*Voices[i].freq;
+        } else {
+            sfreq =Voices[i].freq;
+        }
+        
+        // Implement portamento
+        freq = (uint16_t)(sfreq*alpha+ Voices[i].oldfreq*(1.0-alpha));
+
+        // LFO voice pitch
+        freq += (int16_t)(Voices[i].inst.lfo_depth/127.0*
+            LFO_Table[LFO_Pointer]*(Voices[i].freq>>8)/2.0);
+        
+        SID_Set_Reg(SID_V1_FREQ_HI+offset, (uint8_t)((freq & 0xFF00)>>8),
+            sid_num);
+        SID_Set_Reg(SID_V1_FREQ_LO+offset, (uint8_t)(freq & 0x00FF),
+            sid_num);
+
+        // LFO filter freq.
+        filt_cutoff=Voices[i].inst.filt_cutoff;
+        
+        filt_cutoff += (int16_t)
+            (Voices[i].inst.lfo_filter/127.0*LFO_Table[LFO_Pointer]*
+             Voices[i].inst.filt_cutoff/100.0)+
+            (Voices[i].inst.filt_cutoff*Swing_Table/100.0);
+        if(filt_cutoff<0)
+            filt_cutoff=0;
+        if(filt_cutoff>2047)
+            filt_cutoff=2047;
+            
+        SID_Set_Reg(SID_FC_LO,  filt_cutoff & 0x0007, sid_num);
+        SID_Set_Reg(SID_FC_HI, (filt_cutoff & 0x07F8)>>3, sid_num);
+
     }
-    ++counter;
 }
 
 void resetSwing(int voice)
@@ -675,7 +673,7 @@ void resetSwing(int voice)
 void updateLFOCounters(int CurrInst)
 {
     float Swing_Pointer;
-    
+    ++counter;
     LFO_Pointer += GeneralMIDI[CurrInst].lfo_rate;
     if(LFO_Pointer >= LFO_SIZE)
         LFO_Pointer = 0;

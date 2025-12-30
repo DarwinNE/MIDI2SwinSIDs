@@ -36,6 +36,7 @@ typedef struct SID_conf_tag {
     uint8_t  lfo_filter;        // LFO depth -> filter freq.
     int8_t   filter_sw;         // Filter swing.
     int8_t   sync_voice;        // Sync voices
+    uint8_t  lfo_pwm;           // LFO pulse width modulation
     char    *name;              // Name of the instrument
 } SID_conf;
 
@@ -53,6 +54,7 @@ typedef struct VoiceDef_tag {
     int16_t  freq;
     int16_t  oldfreq;
     int16_t  lfo_filter;
+    int16_t  dutycycle;
 } VoiceDef;
 
 

@@ -75,8 +75,8 @@ int8_t somethingChanged;
 
 int currentField;
 
-#define NUM_FIELD_ARP       29
-#define NUM_FIELD_OTHER     27
+#define NUM_FIELD_ARP       30
+#define NUM_FIELD_OTHER     28
 #define NUM_FIELD (currentMode==HARP?NUM_FIELD_ARP:NUM_FIELD_OTHER)
 
 volatile int CurrInst;
@@ -106,6 +106,8 @@ int8_t currentPortamento;
 int8_t currentLfo_rate;
 int8_t currentLfo_depth;
 int8_t currentLfo_filter;
+int8_t currentLfo_pwm;
+
 int8_t currentFilter_sw;
 int8_t currentSync_voice;
 
@@ -363,6 +365,11 @@ void updateInstrument(int inst)
     currentPortamento=GeneralMIDI[inst].portamento;
     currentLfo_rate=GeneralMIDI[inst].lfo_rate;
     currentLfo_depth=GeneralMIDI[inst].lfo_depth;
+    currentLfo_filter=GeneralMIDI[inst].lfo_filter;
+    currentLfo_pwm=GeneralMIDI[inst].lfo_pwm;
+    currentFilter_sw=GeneralMIDI[inst].filter_sw;
+    currentSync_voice=GeneralMIDI[inst].sync_voice;
+
 
     somethingChanged=TRUE;
 
@@ -632,30 +639,34 @@ void updateCurrentValue(uint8_t direction)
             UPDATE_PAR(currentLfo_filter,0,100,1);
             GeneralMIDI[CurrInst].lfo_filter=currentLfo_filter;
             break;
-        case 22:    // Filter sweep
+        case 22:    // LFO PWM
+            UPDATE_PAR(currentLfo_pwm,0,100,1);
+            GeneralMIDI[CurrInst].lfo_pwm=currentLfo_pwm;
+            break;
+        case 23:    // Filter sweep
             UPDATE_PAR(currentFilter_sw,-100,100,1);
             GeneralMIDI[CurrInst].filter_sw=currentFilter_sw;
             break;
-        case 23:    // Sync voice 1 and 3
+        case 24:    // Sync voice 1 and 3
             UPDATE_PAR(currentSync_voice,-1,0,1);
             GeneralMIDI[CurrInst].sync_voice=currentSync_voice;
             break;
-        case 24:    // Master volume
+        case 25:    // Master volume
             UPDATE_PAR(Master_Volume,0,15,1);
             break;
-        case 25:    // MIDI channel
+        case 26:    // MIDI channel
             UPDATE_PAR(currentChannel,0,15,1);
             CurrInst=channelsInstr[currentChannel];
             updateInstrument(CurrInst);
             break;
-        case 26:    // MIDI mode
+        case 27:    // MIDI mode
             UPDATE_PAR(currentMode,0,4,1);
             harp_reset();
             break;
-        case 27:    // BPM (for the arpeggiator)
+        case 28:    // BPM (for the arpeggiator)
             UPDATE_PAR(bpm,40,260,1);
             break;
-        case 28:    // time division
+        case 29:    // time division
             UPDATE_PAR(division,0,6,1);
             break;
         default:
@@ -1293,6 +1304,10 @@ void ShowInstrument(void)
 
     setEv(l);
     sprintf(buffer, "VCO filter:    %3d", GeneralMIDI[CurrInst].lfo_filter);
+    BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
+
+    setEv(l);
+    sprintf(buffer, "VCO PWM:       %3d", GeneralMIDI[CurrInst].lfo_pwm);
     BSP_LCD_DisplayStringAtLineMode(l++ -4, (uint8_t *) buffer, LEFT_MODE);
 
     setEv(l);

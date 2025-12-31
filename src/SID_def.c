@@ -168,10 +168,10 @@ SID_conf GeneralMIDI[256] = {
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
 //   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
-    { 2,0 ,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE , 30,  5,  0,  0,  0, FALSE,  0, "Pad 5 (bowed)"},           // 93
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Pad 6 (metallic)*"},       // 94
+    { 2, 0,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE , 30,  5,  0,  0,  0, FALSE,  0, "Pad 5 (bowed)"},           // 93
+    { 1,10,12, 1,1809,LO,1809,10,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  4,  0,  0,  0,  0, FALSE,100, "Pad 6 (metallic)"},        // 94
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Pad 7 (halo)*"},           // 95
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Pad 8 (sweep)*"},          // 96
+    { 1,10,12, 1,1809,BP,  28,14,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  4,  0,  0,  0, 55, FALSE,100, "Pad 8 (sweep)"},           // 96
     { 5, 0,11, 4, 0  ,BP, 352, 0,ALL,NONE , 200,15,11,13, 6,   0, NOISE,  0,  0, 20,  0,  0, FALSE,  0, "FX 1 (rain)"},             // 97
     { 2,13, 0, 2,1178,LO,  79,14,ALL,PULSE,2415, 2,13, 9, 2,   0, TRIAN,  8,  1,  0,  7, 40, FALSE,  0, "FX 2 (soundtrack)"},       // 98
     { 5,12, 5, 1,1213,HI, 480, 4,ALL,TRIAN,1213, 9,14, 9, 8,1408, PULSE,  1,  1,  2,  0,  0, FALSE,  0, "FX 3 (crystal)"},          // 99

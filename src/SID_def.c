@@ -191,13 +191,13 @@ SID_conf GeneralMIDI[256] = {
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Tinkle Bell*"},            // 113
     { 1, 6, 0, 2, 0  ,LO, 493,15,ALL,   FM, 800, 0, 0, 0, 0,   0, TRIAN,  0,  0,  0,  0,  0, FALSE,  0, "Agogo"},                   // 114
     { 0, 5, 0, 3, 0  ,HI, 530,11,ALL,NOISE,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Steel Drums"},             // 115
-    { 1, 3, 0, 2, 0  ,LO, 507,15,ALL,NOISE,2400, 1, 4, 0, 2,   0, TRIAN,  0,  0,  0,  0,  0, FALSE,  0, "Woodblock"},               // 116
+    { 1, 3, 0, 7, 0  ,LO, 323,15,ALL,   FM, 356, 3, 4, 0, 7,2310, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Woodblock"},               // 116
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
 //   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
-    { 2, 6,0 , 3, 0  ,LO, 225,10,ALL,NOISE,3850, 1, 6, 0, 3,   0, TRIAN,  0,  0,  0,  0,  0, FALSE,  0, "Taiko Drum"},              // 117
+    { 2, 6,0 , 3, 0  ,LO, 461,10,ALL,NOISE,3850, 1, 6, 0, 9,   0, NOISE,  0,  0,  0,  0,  0,  TRUE,  0, "Taiko Drum"},              // 117
     { 2, 6,0 , 3, 0  ,LO, 225,10,ALL,NOISE,3850, 1, 6, 0, 3,   0, NOISE,  0,  0,  0,  0,  0, FALSE,  0, "Melodic Tom"},             // 118
-    { 5, 6,0 , 3, 0  ,LO,  90,15,ALL,NOISE, 627, 3, 6, 0, 3,   0, NOISE,  0,  0,  0,  0,  0, FALSE,  0, "Synth Drum"},              // 119
+    { 3, 5,0 , 4, 0  ,LO, 462, 6,ALL,SAWTH, 624, 3, 5, 0, 6,1938, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Synth Drum"},              // 119
     {10, 1,0 , 0, 0  ,LO,1024, 0,NON,NOISE,2861,10, 1, 0, 0,   0, NOISE,  0,  0,  0,  0,  0, FALSE,  0, "Reverse Cymbal"},          // 120
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Guitar Fret Noise*"},      // 121
     { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Breath Noise*"},           // 122
@@ -250,11 +250,11 @@ SID_composite DrumKit[128] = {
 
 // INSTR NOTE
 //   |    |
-    {119-1, 45},    // 35 B0  Acoustic Bass Drum
-    {119-1, 55},    // 36 C1  Bass Drum 1
-    {116-1, 52},    // 37 C#1 Side Stick
+    {119-1, 30},    // 35 B0  Acoustic Bass Drum
+    {119-1, 35},    // 36 C1  Bass Drum 1
+    {117-1, 52},    // 37 C#1 Side Stick
     {117-1, 43},    // 38 D1  Acoustic Snare
-    {119-1, 55},    // 39 D#1 Hand Clap           *
+    {116-1, 52},    // 39 D#1 Hand Clap
     {119-1, 55},    // 40 E1  Electric Snare      *
     {118-1, 48},    // 41 F1  Low Floor Tom
     {115-1, 79},    // 42 F#1 Closed Hi Hat

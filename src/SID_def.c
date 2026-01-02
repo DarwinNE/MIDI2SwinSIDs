@@ -161,16 +161,16 @@ SID_conf GeneralMIDI[256] = {
     { 7, 7,13, 3, 0  ,LO, 102,15,ALL,   FM,1202, 6, 8,11, 5,1728, PULSE,  2,  1,  3, 30,  0, FALSE,  0, "Lead 6 (voice)"},          // 86
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,TRIAN,1800, 2, 4,10, 6,2336, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Lead 7 (fifths)"},         // 87
     { 0, 0,15, 0, 0  ,LO, 384, 0,ALL,SAWTH,2415, 2, 4,10, 6,2336, PULSE,  1,  1,  0,  0,  0, FALSE,  0, "Lead 8 (bass+lead)"},      // 88
-    { 7, 7,13, 3, 0  ,LO,1000, 8,ALL,SAWTH, 598, 6, 8,11, 5,   0, SAWTH,  0,  0, 10,  0,  0, FALSE,  0, "Pad 1 (new age)"},         // 89
+    { 7, 7,13, 3, 0  ,LO,1000, 8,ALL,SAWTH, 598, 6, 8,11, 5,   0, NONE ,  0,  0, 10,  0,  0, FALSE,  0, "Pad 1 (new age)"},         // 89
     {13, 9,13, 5, 0  ,LO, 432, 4,ALL,SAWTH,1200,12,10,11, 5,   0, SAWTH,  0,  0, 20,  0,  0, FALSE,  0, "Pad 2 (warm)"},            // 90
     { 5,7 ,14, 2,1152,LO, 608,13,ALL,PULSE,2402, 7, 8,10, 4, 960, PULSE,  1,  1,  0, 82,  0, FALSE,  0, "Pad 3 (polysynth)"},       // 91
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Pad 4 (choir)*"},          // 92
+    { 1, 2,12, 2,1024,LO,  77, 0,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE , 11,  2,  0,  0, 62, FALSE,  0, "Pad 4 (choir)"},           // 92
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
 //   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
     { 2, 0,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE , 30,  5,  0,  0,  0, FALSE,  0, "Pad 5 (bowed)"},           // 93
-    { 1,10,12, 1,1809,LO,1809,10,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  4,  0,  0,  0,  0, FALSE,100, "Pad 6 (metallic)"},        // 94
-    { 0, 0,15, 0, 0  ,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Pad 7 (halo)*"},           // 95
+    { 1,10,12, 1,1809,LO,1809,10,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  4,  0,  0,  0, -5, FALSE,100, "Pad 6 (metallic)"},        // 94
+    { 4,7 ,14, 2, 640,LO, 560,14,ALL,PULSE, 598, 7, 4, 0, 4,1344, NONE ,  9,  3,  0,  0,  0, FALSE, 60, "Pad 7 (halo)"},            // 95
     { 1,10,12, 1,1809,BP,  28,14,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  4,  0,  0,  0, 55, FALSE,100, "Pad 8 (sweep)"},           // 96
     { 5, 0,11, 4, 0  ,BP, 352, 0,ALL,NONE , 200,15,11,13, 6,   0, NOISE,  0,  0, 20,  0,  0, FALSE,  0, "FX 1 (rain)"},             // 97
     { 2,13, 0, 2,1178,LO,  79,14,ALL,PULSE,2415, 2,13, 9, 2,   0, TRIAN,  8,  1,  0,  7, 40, FALSE,  0, "FX 2 (soundtrack)"},       // 98

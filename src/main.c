@@ -788,7 +788,7 @@ int main(void)
     BSP_LCD_DisplayStringAtLineMode(2,
         (uint8_t *) "* MIDI2SwinSIDs *", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(5,
-        (uint8_t *) "(C) 2022-2025", CENTER_MODE);
+        (uint8_t *) "(C) 2022-2026", CENTER_MODE);
     BSP_LCD_DisplayStringAtLineMode(8,
         (uint8_t *) "Davide Bucci", CENTER_MODE);
     receive=0;

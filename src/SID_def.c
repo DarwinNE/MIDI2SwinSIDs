@@ -63,9 +63,9 @@ uint16_t C64_freq_table[]={
 SID_conf GeneralMIDI[256] = {
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                             |
     { 2,11,0 ,2 ,1632,LO, 624, 0,ALL,PULSE,1200, 2, 8, 0, 1,   0, TRIAN,  0,  0,  0,  0,  0, FALSE,  0, "Ac. Grand Piano"},         // 1
-    { 2,11,0 ,2 ,1184,LO, 416, 0,ALL,PULSE,1200, 1, 8, 0, 2,   0, SAWTH,  0,  0,  0,  0,  0, FALSE,  0, "Bright Ac. Piano"},        // 2
+    { 2,11,0 ,2 ,1184,LO, 416, 0,ALL,PULSE,1200, 1, 8, 0, 2,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Bright Ac. Piano"},        // 2
     { 2,10, 0,1 ,2048,LO, 512, 4,ALL,PULSE,1200, 1,10, 0, 1, 512, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "El. Grand Piano"},         // 3
     { 1,8 ,0 ,1 , 0  ,LO, 600,10,ALL,SAWTH, 610, 1,10, 0, 1,2048, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Honky-tonk Piano"},        // 4
     { 1,10, 0,1 , 512,LO, 400,10,ALL,PULSE, 600, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "El. Piano 1"},             // 5
@@ -89,7 +89,7 @@ SID_conf GeneralMIDI[256] = {
     { 7,2 ,13, 2, 512,LO, 336, 0,ALL,PULSE, 601, 7,13,13, 2,3360, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Harmonica"},               // 23
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                             |
     { 1,2 ,12,2 ,1024,LO, 512, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE , 11,  2,  0,  0,  0, FALSE,  0, "Tango Accordion"},         // 24
     { 0,10, 0, 4, 256,LO,1024, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Ac. Guitar (nylon)"},      // 25
     { 0,10, 0, 4, 256,LO,1024, 0,NON,SAWTH,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Ac. Guitar (steel)"},      // 26
@@ -115,7 +115,7 @@ SID_conf GeneralMIDI[256] = {
     { 0, 9, 0, 2, 0  ,LO, 800, 6,ALL,SAWTH, 598, 1, 9 ,0, 1,1824, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Pizzicato Strings"},       // 46
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                             |
     { 1,10, 0,1 , 0  ,LO, 245, 0,NON,TRIAN,   0, 0, 0, 0, 0,   0, NONE ,  0,  0,  0,  0,  0, FALSE,  0, "Orchestral Harp"},         // 47
     { 0,10, 0,10, 0  ,LO, 156,15,ALL,NOISE, 600, 0,10, 0,10,   0, NOISE,  0,  0,  0,  0,-10, FALSE,  0, "Timpani"},                 // 48
     { 7, 7,13, 3, 0  ,LO, 391, 2,ALL,SAWTH, 602, 6, 8,11, 5,   0, SAWTH,  0,  0,  0,  0,  0, FALSE,  0, "String Ensemble 1"},       // 49
@@ -141,7 +141,7 @@ SID_conf GeneralMIDI[256] = {
     { 3,7 ,14, 2,1888,LO, 560,10,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Oboe"},                    // 69
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                             |
     { 3,7 ,14, 2,1888,LO, 144, 2,ALL,PULSE, 598, 7, 4,10, 4,2624, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "English Horn"},            // 70
     { 3,7 ,14, 2, 352,LO, 288, 4,ALL,PULSE, 602, 3, 8,10, 4, 960, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Bassoon"},                 // 71
     { 4,7 ,14, 2, 480,LO, 480, 4,ALL,PULSE, 602, 4, 4,10, 4, 480, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Clarinet"},                // 72
@@ -167,7 +167,7 @@ SID_conf GeneralMIDI[256] = {
     { 1, 2,12, 2,1024,LO,  77, 0,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE , 11,  2,  0,  0, 62, FALSE,  0, "Pad 4 (choir)"},           // 92
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                             |
     { 2, 0,15, 0,2048,LO,1024, 0,NON,PULSE,   0, 0, 0, 0, 0,   0, NONE , 30,  5,  0,  0,  0, FALSE,  0, "Pad 5 (bowed)"},           // 93
     { 1,10,12, 1,1809,LO,1809,10,ALL,PULSE,   0, 0, 0, 0, 0,   0, NONE ,  4,  0,  0,  0, -5, FALSE,100, "Pad 6 (metallic)"},        // 94
     { 4,7 ,14, 2, 640,LO, 560,14,ALL,PULSE, 598, 7, 4, 0, 4,1344, NONE ,  9,  3,  0,  0,  0, FALSE, 60, "Pad 7 (halo)"},            // 95
@@ -194,7 +194,7 @@ SID_conf GeneralMIDI[256] = {
     { 1, 3, 0, 7, 0  ,LO, 323,15,ALL,   FM, 356, 3, 4, 0, 7,2310, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Woodblock"},               // 116
 //   FIRST VOICE------------------------------|-------SECOND VOICE -----------|
 //   A  D  S  R   Duty FM CTFF RES ROUT WAVE DIFF A  D  S  R  Duty WAVE  LFR LFD PORT LFF FSW SYNC  PWM  NAME                      NUMBER (idx+1)
-//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                         |
+//   |  |  |  |    |   |   |    |  |    |     |   |  |  |  |   |    |     |   |   |   |   |    |     |   |                             |
     { 2, 6,0 , 3, 0  ,LO, 461,10,ALL,NOISE,3850, 1, 6, 0, 9,   0, NOISE,  0,  0,  0,  0,  0,  TRUE,  0, "Taiko Drum"},              // 117
     { 2, 6,0 , 3, 0  ,LO, 225,10,ALL,NOISE,3850, 1, 6, 0, 3,   0, NOISE,  0,  0,  0,  0,  0, FALSE,  0, "Melodic Tom"},             // 118
     { 3, 5,0 , 4, 0  ,LO, 462, 6,ALL,SAWTH, 624, 3, 5, 0, 6,1938, PULSE,  0,  0,  0,  0,  0, FALSE,  0, "Synth Drum"},              // 119

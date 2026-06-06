@@ -885,10 +885,11 @@ int main(void)
 void setEv(int l)
 {
     if(l==currentField) {
-        BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
         if(changeField) {
+            BSP_LCD_SetTextColor(LCD_COLOR_BLACK);
             BSP_LCD_SetBackColor(LCD_COLOR_CYAN);
         } else {
+            BSP_LCD_SetTextColor(LCD_COLOR_WHITE);
             BSP_LCD_SetBackColor(LCD_COLOR_LIGHTRED);
         }
     } else {
@@ -1553,7 +1554,15 @@ void MIDIStateMachine(uint8_t rec, uint8_t channel, uint8_t event)
             /*sprintf(Message, "ch=%d int= %d, note=%d ",
                 event_channel+1, inst+1, note);
             NOTIFY_CHANGES();*/
-            if(currentMode==HARP && event_channel!=9) {
+            if (velocity==0) {
+                // On some cases, a NOTE ON with a velocity equal to zero
+                // is a synonym of NOTE OFF.
+                if(currentMode==HARP && event_channel!=9) {
+                    harp_remove(event_channel, note);
+                } else {
+                    SID_Note_Off(note,event_channel);
+                }                
+            } else if(currentMode==HARP && event_channel!=9) {
                 harp_push(event_channel, note);
             } else {
                 SID_Note_On(note, velocity, &GeneralMIDI[inst],event_channel);
